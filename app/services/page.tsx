@@ -1,0 +1,380 @@
+"use client";
+
+import { motion } from "framer-motion";
+import Link from "next/link";
+
+export default function ServicesPage() {
+  const services = [
+    {
+      icon: "🌐",
+      title: "Création de sites web",
+      subtitle: "Design premium & responsive",
+      price: "Dès 200 000 FCFA",
+      delay: "15-30 jours",
+      features: [
+        "Sites vitrines professionnels",
+        "Sites e-commerce complets",
+        "Applications web sur mesure",
+        "Design responsive (mobile, tablette, PC)",
+        "Optimisation SEO incluse",
+        "Hébergement et domaine 1ère année offerts",
+      ],
+      tech: ["Next.js", "React", "Tailwind"],
+      color: "#0099FF",
+      gradient: "from-[#0066FF]/20 to-[#0099FF]/5",
+    },
+    {
+      icon: "🖥️",
+      title: "Logiciels de gestion",
+      subtitle: "Pour commerces et PME",
+      price: "Dès 400 000 FCFA",
+      delay: "30-45 jours",
+      features: [
+        "Logiciel de caisse pour alimentation",
+        "Gestion de stock pour boutique/magasin",
+        "CRM pour gérer vos clients",
+        "Rapports journaliers automatiques",
+        "Multi-utilisateurs avec rôles",
+        "Formation complète de votre équipe",
+      ],
+      tech: ["Electron", "Node.js", "MongoDB"],
+      color: "#FF6B00",
+      gradient: "from-[#FF6B00]/20 to-[#FF9A3C]/5",
+    },
+    {
+      icon: "📱",
+      title: "Applications mobiles",
+      subtitle: "Android & iOS natives",
+      price: "Dès 600 000 FCFA",
+      delay: "45-60 jours",
+      features: [
+        "Applications Android & iOS",
+        "App de livraison et commande",
+        "App de gestion client",
+        "Paiement Mobile Money intégré",
+        "Notifications push",
+        "Publication Play Store & App Store",
+      ],
+      tech: ["React Native", "Firebase", "Stripe"],
+      color: "#00C48C",
+      gradient: "from-[#00C48C]/20 to-[#00E0A0]/5",
+    },
+    {
+      icon: "⚙️",
+      title: "ERP pour entreprises",
+      subtitle: "Système de gestion intégré",
+      price: "Dès 1 000 000 FCFA",
+      delay: "60-90 jours",
+      features: [
+        "RH — Gestion du personnel complète",
+        "Comptabilité intégrée et automatisée",
+        "Gestion des stocks et ventes",
+        "Facturation automatique",
+        "Tableau de bord décisionnel",
+        "Accès multi-succursales",
+      ],
+      tech: ["Next.js", "PostgreSQL", "Docker"],
+      color: "#9B93FF",
+      gradient: "from-[#9B93FF]/20 to-[#BDB5FF]/5",
+    },
+    {
+      icon: "🔐",
+      title: "Cybersécurité",
+      subtitle: "Protection de vos données",
+      price: "Dès 150 000 FCFA",
+      delay: "7-14 jours",
+      features: [
+        "Audit de sécurité complet",
+        "Protection contre les cyberattaques",
+        "Antivirus entreprise premium",
+        "Sauvegarde automatique des données",
+        "Formation anti-phishing",
+        "Plan de reprise après sinistre",
+      ],
+      tech: ["Bitdefender", "CrowdStrike", "Cisco"],
+      color: "#FF4757",
+      gradient: "from-[#FF4757]/20 to-[#FF6B7A]/5",
+    },
+    {
+      icon: "🔧",
+      title: "Maintenance informatique",
+      subtitle: "Préventive & corrective",
+      price: "Dès 80 000 FCFA / mois",
+      delay: "Intervention sous 24h",
+      features: [
+        "Maintenance préventive mensuelle",
+        "Maintenance corrective 24/7",
+        "Dépannage ordinateurs et réseaux",
+        "Optimisation des performances",
+        "Gestion des sauvegardes",
+        "Support technique illimité",
+      ],
+      tech: ["TeamViewer", "AnyDesk", "Remote"],
+      color: "#0066FF",
+      gradient: "from-[#0066FF]/20 to-[#0099FF]/5",
+    },
+  ];
+
+  const process = [
+    { num: "01", title: "Consultation", desc: "Échange gratuit pour comprendre vos besoins et objectifs" },
+    { num: "02", title: "Devis détaillé", desc: "Proposition personnalisée avec planning et budget clair" },
+    { num: "03", title: "Développement", desc: "Réalisation de votre projet avec points d'avancement réguliers" },
+    { num: "04", title: "Livraison", desc: "Tests, formation et mise en production complète" },
+    { num: "05", title: "Support", desc: "Accompagnement continu et maintenance selon vos besoins" },
+  ];
+
+  const testimonials = [
+    { name: "Konan Kouassi", company: "Supermarché Abidjan", text: "SORA TECH a révolutionné notre gestion. Nos ventes ont augmenté de 30% en 3 mois !", rating: 5 },
+    { name: "Aminata Traoré", company: "Boutique Aminata Fashion", text: "Le site e-commerce est magnifique. Service client au top !", rating: 5 },
+    { name: "Dr. Coulibaly", company: "Cabinet Médical Cocody", text: "L'ERP médical nous fait gagner des heures chaque jour. Équipe très professionnelle.", rating: 5 },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#060D1F] text-white overflow-x-hidden">
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-[#0066FF] rounded-full blur-[150px] opacity-20 animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#0099FF] rounded-full blur-[150px] opacity-15 animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-[#FF6B00] rounded-full blur-[180px] opacity-10 animate-pulse" style={{ animationDelay: "2s" }} />
+      </div>
+
+      {/* NAV */}
+      <nav className="relative border-b border-[#1a2540] px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#060D1F]/80 backdrop-blur-xl z-50">
+        <Link href="/" className="text-xl font-black tracking-[3px]">
+          SORA<span className="text-[#0099FF]">TECH</span>
+        </Link>
+        <div className="hidden lg:flex items-center gap-6">
+          <Link href="/" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Accueil</Link>
+          <Link href="/services" className="text-xs uppercase tracking-widest text-[#0099FF] font-bold">Services</Link>
+<Link href="/about" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">À propos</Link>
+<Link href="/blog" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Blog</Link>
+<Link href="/projets" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Projets</Link>
+<Link href="/boutique" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Boutique</Link>
+<Link href="/devis" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Devis & RDV</Link>
+<Link href="/contact" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
+        </div>
+        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
+          +225 07 00 00 00
+        </motion.button>
+      </nav>
+
+      {/* HERO */}
+      <section className="relative py-24 md:py-32 px-6 text-center z-10">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(#1a2540 1px, transparent 1px), linear-gradient(90deg, #1a2540 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-block bg-[#0A1A3A] border border-[#0066FF] text-[#0099FF] text-xs tracking-[2px] px-4 py-1.5 rounded-full mb-6">
+            ✨ NOS 6 EXPERTISES PREMIUM
+          </motion.div>
+          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-4xl md:text-7xl font-black leading-tight mb-6 tracking-tight">
+            Solutions <motion.span animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }} transition={{ duration: 5, repeat: Infinity }} className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#FF6B00]" style={{ backgroundSize: "200% 200%" }}>digitales</motion.span><br />sur-mesure
+          </motion.h1>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-[#8899BB] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            De la création de votre site web à la mise en place d'un ERP complet, nous accompagnons chaque étape de votre transformation digitale.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* BANDEAU CHIFFRES */}
+      <section className="relative border-y border-[#1a2540] bg-[#080F20]/80 backdrop-blur py-8 px-6 z-10">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div><div className="text-3xl font-black text-[#0099FF]">6</div><div className="text-xs text-[#8899BB] tracking-wider mt-1">EXPERTISES</div></div>
+          <div><div className="text-3xl font-black text-[#0099FF]">100%</div><div className="text-xs text-[#8899BB] tracking-wider mt-1">SUR MESURE</div></div>
+          <div><div className="text-3xl font-black text-[#0099FF]">24/7</div><div className="text-xs text-[#8899BB] tracking-wider mt-1">SUPPORT</div></div>
+          <div><div className="text-3xl font-black text-[#0099FF]">1 AN</div><div className="text-xs text-[#8899BB] tracking-wider mt-1">GARANTIE</div></div>
+        </div>
+      </section>
+
+      {/* SERVICES CARDS */}
+      <section className="relative py-20 px-6 z-10">
+        <div className="max-w-6xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
+            <div className="text-xs tracking-[3px] text-[#0099FF] mb-2">CATALOGUE COMPLET</div>
+            <h2 className="text-3xl md:text-5xl font-black">Choisissez votre solution</h2>
+            <p className="text-[#8899BB] mt-3 text-sm max-w-xl mx-auto">Cliquez sur un service pour obtenir un devis personnalisé gratuit</p>
+          </motion.div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {services.map((service, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -8, boxShadow: `0 20px 60px ${service.color}40` }}
+                className={`relative bg-gradient-to-br ${service.gradient} backdrop-blur border border-[#1a2540] hover:border-[${service.color}] rounded-2xl p-8 transition cursor-pointer overflow-hidden group`}
+              >
+                <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition" style={{ backgroundColor: service.color }} />
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="text-6xl mb-3">{service.icon}</div>
+                      <h3 className="text-2xl font-black mb-1">{service.title}</h3>
+                      <p className="text-xs text-[#8899BB] mb-4">{service.subtitle}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 mb-5 flex-wrap">
+                    <div className="bg-[#080F20]/80 border border-[#1a2540] px-3 py-1.5 rounded-lg text-xs font-bold" style={{ color: service.color }}>💰 {service.price}</div>
+                    <div className="bg-[#080F20]/80 border border-[#1a2540] px-3 py-1.5 rounded-lg text-xs font-bold text-[#8899BB]">⏱ {service.delay}</div>
+                  </div>
+                  <ul className="space-y-2 mb-5">
+                    {service.features.map((feature, j) => (
+                      <li key={j} className="flex items-start gap-2 text-sm text-[#8899BB]">
+                        <span style={{ color: service.color }} className="font-bold mt-0.5 text-base">✓</span>
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex gap-2 flex-wrap mb-5">
+                    {service.tech.map((t, k) => (
+                      <span key={k} className="text-[10px] bg-[#080F20] border border-[#1a2540] px-2 py-1 rounded text-[#8899BB]">{t}</span>
+                    ))}
+                  </div>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full py-3 rounded-lg font-bold text-sm transition" style={{ backgroundColor: service.color, color: "#fff" }}>
+                    Demander un devis gratuit →
+                  </motion.button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PROCESSUS */}
+      <section className="relative py-20 px-6 bg-[#080F20]/80 backdrop-blur z-10">
+        <div className="max-w-6xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+            <div className="text-xs tracking-[3px] text-[#FF6B00] mb-2">COMMENT ÇA MARCHE</div>
+            <h2 className="text-3xl md:text-5xl font-black">Notre processus en 5 étapes</h2>
+          </motion.div>
+          <div className="grid md:grid-cols-5 gap-4">
+            {process.map((p, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="relative bg-[#0A1525]/80 border border-[#1a2540] rounded-xl p-5 hover:border-[#0066FF] transition">
+                <div className="text-3xl font-black text-[#0099FF]/30 mb-2">{p.num}</div>
+                <h3 className="text-sm font-bold mb-2">{p.title}</h3>
+                <p className="text-xs text-[#8899BB] leading-relaxed">{p.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TÉMOIGNAGES */}
+      <section className="relative py-20 px-6 z-10">
+        <div className="max-w-6xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+            <div className="text-xs tracking-[3px] text-[#00C48C] mb-2">ILS NOUS FONT CONFIANCE</div>
+            <h2 className="text-3xl md:text-5xl font-black">Avis de nos clients</h2>
+          </motion.div>
+          <div className="grid md:grid-cols-3 gap-5">
+            {testimonials.map((t, i) => (
+              <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -5 }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#00C48C] transition rounded-2xl p-6">
+                <div className="flex gap-1 mb-4">
+                  {Array.from({ length: t.rating }).map((_, k) => (<span key={k} className="text-[#FFD700]">★</span>))}
+                </div>
+                <p className="text-sm text-white italic mb-5 leading-relaxed">&ldquo;{t.text}&rdquo;</p>
+                <div className="flex items-center gap-3 pt-4 border-t border-[#1a2540]">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0099FF] flex items-center justify-center text-xs font-black">{t.name.split(' ').map(n => n[0]).join('')}</div>
+                  <div>
+                    <div className="text-sm font-bold">{t.name}</div>
+                    <div className="text-xs text-[#8899BB]">{t.company}</div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="relative py-20 px-6 bg-[#080F20]/80 backdrop-blur z-10">
+        <div className="max-w-4xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+            <div className="text-xs tracking-[3px] text-[#9B93FF] mb-2">QUESTIONS FRÉQUENTES</div>
+            <h2 className="text-3xl md:text-5xl font-black">Tout ce qu'il faut savoir</h2>
+          </motion.div>
+          <div className="space-y-3">
+            {[
+              { q: "Combien de temps prend un projet en moyenne ?", a: "Cela dépend de la complexité. Un site vitrine prend 15-30 jours, un ERP complet 60-90 jours. Nous donnons toujours un planning précis dans le devis." },
+              { q: "Est-ce que vous faites des paiements échelonnés ?", a: "Oui ! Nous acceptons un acompte de 50% au démarrage puis le solde à la livraison. Pour les gros projets, nous proposons des paiements en 3 ou 4 fois." },
+              { q: "Le support après livraison est-il inclus ?", a: "Oui, nous offrons 1 an de garantie gratuit sur tous nos projets. Après cette période, vous pouvez souscrire un contrat de maintenance annuel." },
+              { q: "Travaillez-vous avec des clients hors Abidjan ?", a: "Absolument ! Nous servons toute la Côte d'Ivoire et la sous-région. Les réunions se font en visio, et nous nous déplaçons pour les gros projets." },
+              { q: "Comment se passe la première consultation ?", a: "Prenez RDV via notre page Devis & RDV. La consultation est gratuite (30-60 min), en ligne ou en présentiel à Abidjan, et vous repartez avec un devis personnalisé." },
+            ].map((f, i) => (
+              <motion.details key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="bg-[#0A1525]/80 border border-[#1a2540] hover:border-[#0066FF] rounded-xl overflow-hidden transition group">
+                <summary className="cursor-pointer p-5 flex justify-between items-center font-bold text-sm list-none">
+                  <span>{f.q}</span>
+                  <span className="text-[#0099FF] group-open:rotate-45 transition-transform text-xl">+</span>
+                </summary>
+                <div className="px-5 pb-5 text-sm text-[#8899BB] leading-relaxed">{f.a}</div>
+              </motion.details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="relative py-20 px-6 text-center z-10">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="max-w-3xl mx-auto bg-gradient-to-br from-[#0066FF]/20 via-[#0099FF]/10 to-[#FF6B00]/10 border border-[#0066FF] rounded-3xl p-10 md:p-14 backdrop-blur">
+          <h2 className="text-3xl md:text-5xl font-black mb-4">Prêt à commencer ?</h2>
+          <p className="text-[#8899BB] mb-8">Obtenez votre devis personnalisé en moins de 2 minutes — gratuit et sans engagement</p>
+          <div className="flex gap-4 justify-center flex-wrap">
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-lg font-bold text-sm">Demander un devis</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-lg font-bold text-sm">💬 WhatsApp direct</motion.button>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* FOOTER COMPLET */}
+      <footer className="relative bg-[#040A14] border-t border-[#1a2540] py-12 px-6 z-10">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
+          <div>
+            <div className="text-lg font-black tracking-widest mb-3">SORA<span className="text-[#0099FF]">TECH</span></div>
+            <p className="text-xs text-[#8899BB] leading-relaxed mb-4">Entreprise tech ivoirienne qui digitalise les entreprises d'Abidjan et de toute la Côte d'Ivoire.</p>
+            <div className="flex gap-3">
+              <div className="w-8 h-8 bg-[#1a2540] hover:bg-[#0066FF] rounded-lg flex items-center justify-center cursor-pointer transition text-xs">f</div>
+              <div className="w-8 h-8 bg-[#1a2540] hover:bg-[#0066FF] rounded-lg flex items-center justify-center cursor-pointer transition text-xs">in</div>
+              <div className="w-8 h-8 bg-[#1a2540] hover:bg-[#0066FF] rounded-lg flex items-center justify-center cursor-pointer transition text-xs">ig</div>
+              <div className="w-8 h-8 bg-[#1a2540] hover:bg-[#25D366] rounded-lg flex items-center justify-center cursor-pointer transition text-xs">wa</div>
+            </div>
+          </div>
+          <div>
+            <h4 className="text-xs tracking-wider text-white mb-3 font-bold">SERVICES</h4>
+            <ul className="space-y-2 text-xs text-[#8899BB]">
+              <li className="hover:text-[#0099FF] cursor-pointer transition">Sites web</li>
+              <li className="hover:text-[#0099FF] cursor-pointer transition">Logiciels de gestion</li>
+              <li className="hover:text-[#0099FF] cursor-pointer transition">Applications mobiles</li>
+              <li className="hover:text-[#0099FF] cursor-pointer transition">ERP entreprise</li>
+              <li className="hover:text-[#0099FF] cursor-pointer transition">Cybersécurité</li>
+              <li className="hover:text-[#0099FF] cursor-pointer transition">Maintenance</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xs tracking-wider text-white mb-3 font-bold">ENTREPRISE</h4>
+            <ul className="space-y-2 text-xs text-[#8899BB]">
+              <li className="hover:text-[#0099FF] cursor-pointer transition">À propos de nous</li>
+              <li className="hover:text-[#0099FF] cursor-pointer transition">Blog SORA TECH</li>
+              <li className="hover:text-[#0099FF] cursor-pointer transition">Nos réalisations</li>
+              <li className="hover:text-[#0099FF] cursor-pointer transition">Boutique digitale</li>
+              <li className="hover:text-[#0099FF] cursor-pointer transition">Devis & RDV</li>
+              <li className="hover:text-[#0099FF] cursor-pointer transition">Contact</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xs tracking-wider text-white mb-3 font-bold">CONTACT</h4>
+            <ul className="space-y-2 text-xs text-[#8899BB]">
+              <li>📍 Abidjan, Côte d'Ivoire</li>
+              <li>📞 +225 07 04 92 80 68</li>
+              <li>✉️ contact@soratech.ci</li>
+              <li>💬 WhatsApp Business</li>
+              <li>🕐 Lun-Ven : 8h-18h</li>
+              <li>🕐 Sam : 9h-14h</li>
+            </ul>
+          </div>
+        </div>
+        <div className="border-t border-[#1a2540] pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
+          <div className="text-xs text-[#8899BB]">© 2025 SORA TECH COMPANY — Tous droits réservés</div>
+          <div className="text-xs text-[#8899BB]">Fait avec ❤️ à Abidjan</div>
+        </div>
+      </footer>
+    </div>
+  );
+}
