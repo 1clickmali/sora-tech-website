@@ -341,7 +341,7 @@ export default function ContactPage() {
             <h4 className="text-xs tracking-wider text-white mb-3 font-bold">CONTACT</h4>
             <ul className="space-y-2 text-xs text-[#8899BB]">
               <li>📍 Abidjan, Côte d&apos;Ivoire</li>
-              <li>📞 +225 07 00 00 00</li>
+              <li>📞 +225 07 04 92 80 68</li>
               <li>✉️ contact@soratech.ci</li>
               <li>💬 WhatsApp Business</li>
               <li>🕐 Lun-Ven : 8h-18h</li>

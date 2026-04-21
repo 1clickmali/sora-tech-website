@@ -168,7 +168,7 @@ export default function MobileMenu({ active }: { active: string }) {
               <div className="px-3 pb-4 pt-3 border-t border-[#1a2540]/80 space-y-2 flex-shrink-0">
                 <a href="tel:+22507000000" className="flex items-center gap-3 w-full bg-[#0066FF] hover:bg-[#0099FF] transition-all py-3 px-4 rounded-xl font-bold text-sm" style={{ boxShadow: "0 4px 20px rgba(0,102,255,0.35)" }}>
                   <Phone className="w-4 h-4 flex-shrink-0" />
-                  <span>+225 07 00 00 00</span>
+                  <span>+225 07 04 92 80 68</span>
                 </a>
                 <a href="https://wa.me/22507000000" target="_blank" rel="noopener" className="flex items-center gap-3 w-full bg-[#25D366] hover:bg-[#1fb857] transition-all py-3 px-4 rounded-xl font-bold text-sm">
                   <MessageCircle className="w-4 h-4 flex-shrink-0" />

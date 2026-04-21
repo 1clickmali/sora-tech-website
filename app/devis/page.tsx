@@ -128,7 +128,7 @@ export default function DevisPage() {
         </div>
         <div className="flex items-center gap-3">
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
-            +225 07 00 00 00
+            +225 07 04 92 80 68
           </motion.button>
           <MobileMenu active="devis" />
         </div>
