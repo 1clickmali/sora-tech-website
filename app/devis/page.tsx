@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
+import MobileMenu from "../components/MobileMenu";
 
 type Service = {
   id: string;
@@ -92,7 +93,10 @@ export default function DevisPage() {
           <Link href="/devis" className="text-xs uppercase tracking-widest text-[#0099FF] font-bold">Devis & RDV</Link>
           <Link href="/contact" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
         </div>
-        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 00 00 00</motion.button>
+        <div className="flex items-center gap-3">
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 00 00 00</motion.button>
+          <MobileMenu active="devis" />
+        </div>
       </nav>
 
       {/* HERO */}

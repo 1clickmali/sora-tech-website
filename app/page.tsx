@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import MobileMenu from "./components/MobileMenu";
 
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -84,9 +85,9 @@ export default function Home() {
 
       {/* NAV */}
       <nav className="relative border-b border-[#1a2540] px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#060D1F]/80 backdrop-blur-xl z-50">
-      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-xl font-black tracking-[3px]">
-      SORA<span className="text-[#0099FF]">TECH</span>
-      </motion.div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-xl font-black tracking-[3px]">
+          SORA<span className="text-[#0099FF]">TECH</span>
+        </motion.div>
         <div className="hidden lg:flex items-center gap-6">
           <Link href="/" className="text-xs uppercase tracking-widest text-[#0099FF] font-bold">Accueil</Link>
           <Link href="/services" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Services</Link>
@@ -97,9 +98,12 @@ export default function Home() {
           <Link href="/devis" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Devis & RDV</Link>
           <Link href="/contact" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
         </div>
-        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
-          +225 07 00 00 00
-        </motion.button>
+        <div className="flex items-center gap-3">
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
+            +225 07 00 00 00
+          </motion.button>
+          <MobileMenu active="home" />
+        </div>
       </nav>
 
       {/* HERO */}

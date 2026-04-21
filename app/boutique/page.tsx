@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
+import MobileMenu from "../components/MobileMenu";
 
 type Product = {
   id: number;
@@ -98,10 +99,13 @@ export default function BoutiquePage() {
           <Link href="/devis" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Devis & RDV</Link>
           <Link href="/contact" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
         </div>
-        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setCartOpen(true)} className="relative bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold flex items-center gap-2">
-          🛒 Panier
-          {cart.length > 0 && <span className="bg-[#FF6B00] text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-black">{cart.length}</span>}
-        </motion.button>
+        <div className="flex items-center gap-3">
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setCartOpen(true)} className="relative bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold flex items-center gap-2">
+            🛒 Panier
+            {cart.length > 0 && <span className="bg-[#FF6B00] text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-black">{cart.length}</span>}
+          </motion.button>
+          <MobileMenu active="boutique" />
+        </div>
       </nav>
 
       {/* HERO */}
