@@ -72,4 +72,18 @@ const getMe = async (req, res) => {
   res.json({ success: true, user: req.user });
 };
 
-module.exports = { login, register, getMe };
+// POST /api/auth/seed-admin — crée le super admin si aucun utilisateur n'existe
+const seedAdmin = async (req, res) => {
+  try {
+    const count = await User.countDocuments();
+    if (count > 0) {
+      return res.status(400).json({ success: false, message: 'Des utilisateurs existent déjà' });
+    }
+    await User.create({ name: 'Super Admin', email: 'admin@soratech.ci', password: 'admin123', role: 'super_admin', active: true });
+    res.json({ success: true, message: 'Admin créé : admin@soratech.ci / admin123' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { login, register, getMe, seedAdmin };
