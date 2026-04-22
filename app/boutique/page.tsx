@@ -72,7 +72,22 @@ export default function BoutiquePage() {
     setDeliveryInfo({ name: "", phone: "", address: "", quartier: "" });
     setOrderSuccess(false);
   };
-  const confirmOrder = () => {
+  const confirmOrder = async () => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/commandes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientName: deliveryInfo.name,
+          clientPhone: deliveryInfo.phone,
+          clientEmail: '',
+          clientAddress: deliveryInfo.address + (deliveryInfo.quartier ? `, ${deliveryInfo.quartier}` : ''),
+          items: cart.map(p => ({ productId: p.id, name: p.title, quantity: 1, unitPrice: p.price, total: p.price })),
+          total: cartTotal,
+          paymentMethod: paymentMode || 'online',
+        }),
+      });
+    } catch (_) {}
     setOrderSuccess(true);
     setTimeout(() => { setCart([]); setCartOpen(false); resetCheckout(); }, 4000);
   };

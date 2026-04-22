@@ -105,7 +105,24 @@ export default function DevisPage() {
     : 0;
 
   const toggleOption = (id: string) => setOptions({ ...options, [id]: !options[id] });
-  const submitDevis = () => setSubmitted(true);
+  const submitDevis = async () => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/devis`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientName: clientInfo.name,
+          clientEmail: clientInfo.email,
+          clientPhone: clientInfo.phone,
+          company: clientInfo.company,
+          serviceType: selectedService?.id || 'web',
+          description: clientInfo.message || `Service: ${selectedService?.name}, Budget: ${totalPrice} FCFA`,
+          budget: String(totalPrice),
+        }),
+      });
+    } catch (_) {}
+    setSubmitted(true);
+  };
 
   return (
     <div className="min-h-screen bg-[#060D1F] text-white overflow-x-hidden">

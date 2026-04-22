@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MobileMenu from "../components/MobileMenu";
 import {
   Globe, Monitor, Smartphone, Shield, ShoppingCart,
@@ -18,15 +18,10 @@ function ScanLine() {
   );
 }
 
-export default function ProjetsPage() {
-  const [activeCategory, setActiveCategory] = useState("Tous");
-  const categories = ["Tous", "Site web", "Logiciel", "Application", "ERP", "Cybersécurité"];
+const ICON_MAP: Record<string, LucideIcon> = { web: Globe, logiciel: Monitor, mobile: Smartphone, cybersecurite: Shield, erp: GraduationCap };
+const COLOR_MAP: Record<string, string> = { web: "#0099FF", logiciel: "#FF6B00", mobile: "#00C48C", cybersecurite: "#FF4757", erp: "#9B93FF", reseau: "#F59E0B" };
 
-  const projects: {
-    id: number; category: string; title: string; client: string;
-    description: string; results: string[]; tech: string[];
-    icon: LucideIcon; color: string; year: string;
-  }[] = [
+const STATIC_PROJECTS = [
     { id: 1, category: "Logiciel",       title: "SuperMarché Abidjan",  client: "Chaîne de supermarchés",  description: "Logiciel de caisse et gestion des stocks pour 3 points de vente synchronisés en temps réel.",                               results: ["3 points de vente connectés","Gestion stock temps réel","+30% rapidité des ventes"],     tech: ["React","Node.js","MongoDB"],           icon: ShoppingCart, color: "#FF6B00", year: "2025" },
     { id: 2, category: "Site web",       title: "BoutiqueMode CI",       client: "E-commerce de vêtements", description: "Boutique en ligne complète avec paiement Mobile Money, gestion des commandes et livraison.",                               results: ["Paiement Wave intégré","Livraison Abidjan géolocalisée","200+ produits en ligne"],         tech: ["Next.js","Stripe","Wave API"],          icon: Globe,        color: "#0099FF", year: "2025" },
     { id: 3, category: "Application",    title: "DelivCI",               client: "Livraison de repas",      description: "Application mobile de livraison sur Abidjan — clients, restaurants et livreurs connectés en temps réel.",               results: ["Android + iOS","50+ restaurants partenaires","Livraison en 30 min"],                        tech: ["React Native","Firebase","Maps API"],   icon: Smartphone,   color: "#00C48C", year: "2024" },
@@ -36,7 +31,26 @@ export default function ProjetsPage() {
     { id: 7, category: "Logiciel",       title: "Pharmacie Centrale",    client: "Pharmacie",               description: "Logiciel de gestion des médicaments, alertes de péremption, et suivi des ordonnances.",                                 results: ["10 000+ produits gérés","Alertes automatiques","Historique patients"],                       tech: ["Electron","SQLite","Node.js"],          icon: Monitor,      color: "#00C48C", year: "2024" },
     { id: 8, category: "Application",    title: "TaxiCI",                client: "Plateforme de VTC",        description: "Application de réservation de taxi style Uber pour Abidjan avec paiement intégré.",                                    results: ["100+ chauffeurs actifs","GPS temps réel","Paiement Mobile Money"],                           tech: ["React Native","Socket.io","Redis"],     icon: Car,          color: "#FF6B00", year: "2024" },
     { id: 9, category: "ERP",            title: "École Privée 2000",     client: "Établissement scolaire",  description: "Plateforme de gestion scolaire — élèves, notes, emploi du temps, paiements scolarité.",                                results: ["800+ élèves gérés","Bulletins automatiques","Paiement parents en ligne"],                    tech: ["Next.js","PostgreSQL","Docker"],        icon: GraduationCap,color: "#9B93FF", year: "2025" },
-  ];
+];
+
+export default function ProjetsPage() {
+  const [activeCategory, setActiveCategory] = useState("Tous");
+  const categories = ["Tous", "Site web", "Logiciel", "Application", "ERP", "Cybersécurité"];
+  const [projects, setProjects] = useState<any[]>(STATIC_PROJECTS);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/projets`)
+      .then(r => r.json())
+      .then(r => {
+        if (r.data?.length) setProjects(r.data.map((p: any) => ({
+          ...p, id: p._id,
+          icon: ICON_MAP[p.category] || Globe,
+          color: COLOR_MAP[p.category] || "#0099FF",
+          year: new Date(p.createdAt).getFullYear().toString(),
+        })));
+      })
+      .catch(() => {});
+  }, []);
 
   const filtered = activeCategory === "Tous" ? projects : projects.filter(p => p.category === activeCategory);
 
@@ -129,7 +143,7 @@ export default function ProjetsPage() {
                   <div className="text-xs font-bold mb-3 font-mono" style={{ color: project.color }}>{project.client}</div>
                   <p className="text-xs text-[#8899BB] leading-relaxed mb-4">{project.description}</p>
                   <div className="space-y-1.5 mb-4">
-                    {project.results.map((r, k) => (
+                    {project.results.map((r: string, k: number) => (
                       <div key={k} className="flex items-start gap-2 text-xs text-[#8899BB]">
                         <CheckCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: project.color }} />
                         <span>{r}</span>
@@ -137,7 +151,7 @@ export default function ProjetsPage() {
                     ))}
                   </div>
                   <div className="flex gap-1.5 flex-wrap pt-3 border-t border-[#1a2540]">
-                    {project.tech.map((t, k) => (
+                    {project.tech.map((t: string, k: number) => (
                       <span key={k} className="text-[9px] bg-[#080F20] border border-[#1a2540] px-2 py-1 rounded font-mono text-[#8899BB]">{t}</span>
                     ))}
                   </div>

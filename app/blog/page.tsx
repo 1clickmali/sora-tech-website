@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MobileMenu from "../components/MobileMenu";
 import { BookOpen, Shield, Layers, Globe, Smartphone, TrendingUp, Clock, User } from "lucide-react";
 import Footer from "../components/Footer";
@@ -24,11 +24,7 @@ const TAG_META: Record<string, { color: string; icon: typeof BookOpen }> = {
   Business:       { color: "#FF6B00", icon: TrendingUp },
 };
 
-export default function BlogPage() {
-  const [activeCategory, setActiveCategory] = useState("Tous");
-  const categories = ["Tous", "Digitalisation", "Cybersécurité", "Web", "Mobile", "ERP", "Business"];
-
-  const articles = [
+const STATIC_ARTICLES = [
     { id: 1, category: "Digitalisation", title: "Comment digitaliser votre boutique en 2025 : le guide complet",            excerpt: "Découvrez les étapes essentielles pour transformer votre commerce traditionnel en entreprise digitale moderne et rentable.", date: "15 Avril 2025", readTime: "8 min",  author: "Sissoko Abdoulaye", featured: true },
     { id: 2, category: "Cybersécurité",  title: "5 erreurs fatales qui mettent en danger la sécurité de votre PME",         excerpt: "Protégez vos données contre les cyberattaques. Ces erreurs courantes coûtent des millions aux entreprises africaines.", date: "12 Avril 2025", readTime: "6 min",  author: "Sissoko Abdoulaye" },
     { id: 3, category: "ERP",            title: "Pourquoi votre entreprise a besoin d'un ERP en 2025",                       excerpt: "Gagnez en efficacité et en rentabilité avec un système de gestion intégré adapté aux entreprises ivoiriennes.", date: "10 Avril 2025", readTime: "10 min", author: "Lead Developer" },
@@ -38,7 +34,19 @@ export default function BlogPage() {
     { id: 7, category: "Cybersécurité",  title: "Mobile Money : comment sécuriser les transactions de votre entreprise",    excerpt: "Protégez vos paiements Wave, Orange Money et MTN Money contre la fraude avec ces bonnes pratiques.", date: "30 Mars 2025", readTime: "6 min",  author: "Security Expert" },
     { id: 8, category: "Digitalisation", title: "Comment passer d'un registre papier à un logiciel de gestion",             excerpt: "Guide pas à pas pour les commerçants qui veulent abandonner le papier et passer au digital.", date: "28 Mars 2025", readTime: "7 min",  author: "Sissoko Abdoulaye" },
     { id: 9, category: "Web",            title: "Référencement SEO local : être visible sur Google à Abidjan",               excerpt: "Les techniques éprouvées pour apparaître en première page quand vos clients cherchent vos services.", date: "25 Mars 2025", readTime: "8 min",  author: "UX Designer" },
-  ];
+];
+
+export default function BlogPage() {
+  const [activeCategory, setActiveCategory] = useState("Tous");
+  const categories = ["Tous", "Digitalisation", "Cybersécurité", "Web", "Mobile", "ERP", "Business"];
+  const [articles, setArticles] = useState<any[]>(STATIC_ARTICLES);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/articles`)
+      .then(r => r.json())
+      .then(r => { if (r.data?.length) setArticles(r.data.map((a: any) => ({ ...a, id: a._id, date: new Date(a.createdAt).toLocaleDateString('fr-FR'), readTime: a.readTime ? a.readTime + ' min' : '5 min', author: 'SORA TECH' }))); })
+      .catch(() => {});
+  }, []);
 
   const filtered = activeCategory === "Tous" ? articles : articles.filter(a => a.category === activeCategory);
   const featured = articles.find(a => a.featured);
