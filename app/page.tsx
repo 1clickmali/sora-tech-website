@@ -9,6 +9,7 @@ import {
   Zap, Award, MapPin, Lock, ShoppingCart, GraduationCap,
   type LucideIcon
 } from "lucide-react";
+import Footer from "./components/Footer";
 
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -138,9 +139,9 @@ export default function Home() {
           <Link href="/contact"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
         </div>
         <div className="flex items-center gap-3">
-          <motion.button whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
+          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
             +225 07 00 00 00
-          </motion.button>
+          </motion.a>
           <MobileMenu active="home" />
         </div>
       </nav>
@@ -240,8 +241,8 @@ export default function Home() {
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: "none" }}>
             {articles.map((a, i) => (
+              <Link href="/blog" key={i}>
               <motion.div
-                key={i}
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -259,6 +260,7 @@ export default function Home() {
                   <div className="text-xs text-[#0099FF] mt-3 font-bold">Lire →</div>
                 </div>
               </motion.div>
+              </Link>
             ))}
           </div>
         </div>
@@ -385,59 +387,15 @@ export default function Home() {
                   Demander un devis
                 </motion.button>
               </Link>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">
+              <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">
                 💬 WhatsApp direct
-              </motion.button>
+              </motion.a>
             </div>
           </div>
         </motion.div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="relative bg-[#040A14] border-t border-[#1a2540] py-12 px-6 z-10">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
-          <div>
-            <div className="text-lg font-black tracking-widest mb-3">SORA<span className="text-[#0099FF]">TECH</span></div>
-            <p className="text-xs text-[#8899BB] leading-relaxed mb-4">Entreprise tech panafricaine qui digitalise les entreprises d&apos;Abidjan et de toute l&apos;Afrique de l&apos;Ouest.</p>
-            <div className="flex gap-3">
-              {["f","in","ig","wa"].map((s, i) => (
-                <div key={i} className={`w-8 h-8 ${i === 3 ? "hover:bg-[#25D366]" : "hover:bg-[#0066FF]"} bg-[#1a2540] rounded-lg flex items-center justify-center cursor-pointer transition text-xs`}>{s}</div>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h4 className="text-xs tracking-wider text-white mb-3 font-bold">SERVICES</h4>
-            <ul className="space-y-2 text-xs text-[#8899BB]">
-              {["Sites web","Logiciels de gestion","Applications mobiles","ERP entreprise","Cybersécurité","Maintenance"].map((s) => (
-                <li key={s} className="hover:text-[#0099FF] cursor-pointer transition">{s}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs tracking-wider text-white mb-3 font-bold">ENTREPRISE</h4>
-            <ul className="space-y-2 text-xs text-[#8899BB]">
-              {["À propos de nous","Blog SORA TECH","Nos réalisations","Boutique digitale","Devis & RDV","Contact"].map((s) => (
-                <li key={s} className="hover:text-[#0099FF] cursor-pointer transition">{s}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs tracking-wider text-white mb-3 font-bold">CONTACT</h4>
-            <ul className="space-y-2 text-xs text-[#8899BB]">
-              <li>📍 Abidjan, Côte d&apos;Ivoire</li>
-              <li>📞 +225 07 04 92 80 68</li>
-              <li>✉️ contact@soratech.ci</li>
-              <li>💬 WhatsApp Business</li>
-              <li>🕐 Lun-Ven : 8h-18h</li>
-              <li>🕐 Sam : 9h-14h</li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-[#1a2540] pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
-          <div className="text-xs text-[#8899BB]">© 2025 SORA TECH COMPANY — Tous droits réservés</div>
-          <div className="text-xs text-[#8899BB]">Fait avec ❤️ à Abidjan par Sissoko Abdoulaye</div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

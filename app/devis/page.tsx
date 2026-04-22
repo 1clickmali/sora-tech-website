@@ -9,6 +9,7 @@ import {
   MapPin, Phone, type LucideIcon,
 } from "lucide-react";
 import MobileMenu from "../components/MobileMenu";
+import Footer from "../components/Footer";
 
 function ScanLine() {
   return (
@@ -127,9 +128,9 @@ export default function DevisPage() {
           <Link href="/contact"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
         </div>
         <div className="flex items-center gap-3">
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
+          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
             +225 07 04 92 80 68
-          </motion.button>
+          </motion.a>
           <MobileMenu active="devis" />
         </div>
       </nav>
@@ -313,9 +314,9 @@ export default function DevisPage() {
                   </div>
                 </div>
                 <div className="flex justify-between">
-                  <button onClick={() => setStep(1)} className="px-6 py-3 rounded-lg font-bold text-sm border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">
+                  <motion.button onClick={() => setStep(1)} whileHover={{ scale: 1.03, x: -2 }} whileTap={{ scale: 0.97 }} className="px-6 py-3 rounded-lg font-bold text-sm border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">
                     ← Retour
-                  </button>
+                  </motion.button>
                   <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setStep(3)}
                     className="bg-[#0066FF] hover:bg-[#0099FF] transition px-8 py-3 rounded-lg font-bold text-sm">
                     Réserver un RDV →
@@ -333,9 +334,9 @@ export default function DevisPage() {
                   {/* CALENDAR */}
                   <div className="bg-[#0A1525]/80 border border-[#1a2540] rounded-2xl p-5">
                     <div className="flex justify-between items-center mb-4">
-                      <button className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">‹</button>
+                      <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">‹</motion.button>
                       <div className="text-sm font-bold">{calendar.month}</div>
-                      <button className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">›</button>
+                      <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">›</motion.button>
                     </div>
                     <div className="grid grid-cols-7 gap-1 text-center mb-2">
                       {["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"].map((d) => (
@@ -423,9 +424,9 @@ export default function DevisPage() {
                   </div>
                 </div>
                 <div className="flex justify-between">
-                  <button onClick={() => setStep(2)} className="px-6 py-3 rounded-lg font-bold text-sm border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">
+                  <motion.button onClick={() => setStep(2)} whileHover={{ scale: 1.03, x: -2 }} whileTap={{ scale: 0.97 }} className="px-6 py-3 rounded-lg font-bold text-sm border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">
                     ← Retour
-                  </button>
+                  </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                     onClick={() => { if (clientInfo.name && clientInfo.phone && clientInfo.email) { setStep(4); submitDevis(); } }}
@@ -516,58 +517,7 @@ export default function DevisPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="relative bg-[#040A14] border-t border-[#1a2540] py-12 px-6 z-10">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
-          <div>
-            <div className="text-lg font-black tracking-widest mb-3">SORA<span className="text-[#0099FF]">TECH</span></div>
-            <p className="text-xs text-[#8899BB] leading-relaxed mb-4">Entreprise tech panafricaine qui digitalise les entreprises d&apos;Abidjan et de toute l&apos;Afrique de l&apos;Ouest.</p>
-            <div className="flex gap-3">
-              <div className="w-8 h-8 bg-[#1a2540] hover:bg-[#0066FF] rounded-lg flex items-center justify-center cursor-pointer transition text-xs">f</div>
-              <div className="w-8 h-8 bg-[#1a2540] hover:bg-[#0066FF] rounded-lg flex items-center justify-center cursor-pointer transition text-xs">in</div>
-              <div className="w-8 h-8 bg-[#1a2540] hover:bg-[#0066FF] rounded-lg flex items-center justify-center cursor-pointer transition text-xs">ig</div>
-              <div className="w-8 h-8 bg-[#1a2540] hover:bg-[#25D366] rounded-lg flex items-center justify-center cursor-pointer transition text-xs">wa</div>
-            </div>
-          </div>
-          <div>
-            <h4 className="text-xs tracking-wider text-white mb-3 font-bold">SERVICES</h4>
-            <ul className="space-y-2 text-xs text-[#8899BB]">
-              <li className="hover:text-[#0099FF] cursor-pointer transition">Sites web</li>
-              <li className="hover:text-[#0099FF] cursor-pointer transition">Logiciels de gestion</li>
-              <li className="hover:text-[#0099FF] cursor-pointer transition">Applications mobiles</li>
-              <li className="hover:text-[#0099FF] cursor-pointer transition">ERP entreprise</li>
-              <li className="hover:text-[#0099FF] cursor-pointer transition">Cybersécurité</li>
-              <li className="hover:text-[#0099FF] cursor-pointer transition">Maintenance</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs tracking-wider text-white mb-3 font-bold">ENTREPRISE</h4>
-            <ul className="space-y-2 text-xs text-[#8899BB]">
-              <li className="hover:text-[#0099FF] cursor-pointer transition">À propos de nous</li>
-              <li className="hover:text-[#0099FF] cursor-pointer transition">Blog SORA TECH</li>
-              <li className="hover:text-[#0099FF] cursor-pointer transition">Nos réalisations</li>
-              <li className="hover:text-[#0099FF] cursor-pointer transition">Boutique digitale</li>
-              <li className="hover:text-[#0099FF] cursor-pointer transition">Devis & RDV</li>
-              <li className="hover:text-[#0099FF] cursor-pointer transition">Contact</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs tracking-wider text-white mb-3 font-bold">CONTACT</h4>
-            <ul className="space-y-2 text-xs text-[#8899BB]">
-              <li className="flex items-center gap-2"><MapPin className="w-3 h-3 text-[#0099FF] shrink-0" />Abidjan, Côte d&apos;Ivoire</li>
-              <li className="flex items-center gap-2"><Phone className="w-3 h-3 text-[#0099FF] shrink-0" />+225 07 00 00 00</li>
-              <li className="flex items-center gap-2"><Mail className="w-3 h-3 text-[#0099FF] shrink-0" />contact@soratech.ci</li>
-              <li className="flex items-center gap-2"><MessageCircle className="w-3 h-3 text-[#25D366] shrink-0" />WhatsApp Business</li>
-              <li className="flex items-center gap-2"><Clock className="w-3 h-3 text-[#8899BB] shrink-0" />Lun-Ven : 8h-18h</li>
-              <li className="flex items-center gap-2"><Clock className="w-3 h-3 text-[#8899BB] shrink-0" />Sam : 9h-14h</li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-[#1a2540] pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
-          <div className="text-xs text-[#8899BB]">© 2025 SORA TECH COMPANY — Tous droits réservés</div>
-          <div className="text-xs text-[#8899BB]">Fait avec ❤️ à Abidjan par Sissoko Abdoulaye</div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

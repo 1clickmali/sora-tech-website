@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import MobileMenu from "../components/MobileMenu";
 import { BookOpen, Shield, Layers, Globe, Smartphone, TrendingUp, Clock, User } from "lucide-react";
+import Footer from "../components/Footer";
 
 function ScanLine() {
   return (
@@ -64,7 +65,7 @@ export default function BlogPage() {
           <Link href="/contact"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
         </div>
         <div className="flex items-center gap-3">
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 00 00 00</motion.button>
+          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 00 00 00</motion.a>
           <MobileMenu active="blog" />
         </div>
       </nav>
@@ -111,7 +112,7 @@ export default function BlogPage() {
                     <div className="flex items-center gap-1"><Clock className="w-3 h-3" /><span>{featured.readTime}</span></div>
                     <span>{featured.date}</span>
                   </div>
-                  <motion.button whileHover={{ scale: 1.02, boxShadow: "0 8px 25px rgba(0,102,255,0.4)" }} whileTap={{ scale: 0.98 }} className="bg-[#0066FF] px-6 py-3 rounded-xl font-bold text-sm w-fit">Lire l&apos;article →</motion.button>
+                  <Link href="/contact"><motion.button whileHover={{ scale: 1.02, boxShadow: "0 8px 25px rgba(0,102,255,0.4)" }} whileTap={{ scale: 0.98 }} className="bg-[#0066FF] px-6 py-3 rounded-xl font-bold text-sm w-fit">Lire l&apos;article →</motion.button></Link>
                 </div>
               </div>
             </motion.div>
@@ -141,7 +142,7 @@ export default function BlogPage() {
               const meta = TAG_META[article.category] || { color: "#0099FF", icon: BookOpen };
               const Icon = meta.icon;
               return (
-                <motion.article key={article.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${meta.color}20` }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer group">
+                <Link href="/contact"><motion.article key={article.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${meta.color}20` }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer group">
                   <div className="h-40 flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${meta.color}25, ${meta.color}05)` }}>
                     <div className="w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: `${meta.color}20`, border: `1px solid ${meta.color}40` }}>
                       <Icon className="w-8 h-8" style={{ color: meta.color }} />
@@ -164,7 +165,7 @@ export default function BlogPage() {
                       <div className="text-[10px] text-[#8899BB]">{article.date}</div>
                     </div>
                   </div>
-                </motion.article>
+                </motion.article></Link>
               );
             })}
           </div>
@@ -186,26 +187,14 @@ export default function BlogPage() {
             <p className="text-[#8899BB] mb-6">Recevez nos meilleurs articles directement dans votre boîte mail, chaque semaine</p>
             <div className="flex gap-3 max-w-md mx-auto flex-col sm:flex-row">
               <input type="email" placeholder="votre@email.com" className="flex-1 bg-[#0A1525] border border-[#1a2540] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition-colors" />
-              <motion.button whileHover={{ scale: 1.05, boxShadow: "0 8px 25px rgba(0,102,255,0.4)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-6 py-3 rounded-xl font-bold text-sm whitespace-nowrap">S&apos;abonner</motion.button>
+              <motion.button type="button" whileHover={{ scale: 1.05, boxShadow: "0 8px 25px rgba(0,102,255,0.4)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-6 py-3 rounded-xl font-bold text-sm whitespace-nowrap">S&apos;abonner</motion.button>
             </div>
             <p className="text-xs text-[#8899BB] mt-4">🔒 Zéro spam. Désabonnement en un clic.</p>
           </div>
         </motion.div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="relative bg-[#040A14] border-t border-[#1a2540] py-12 px-6 z-10">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
-          <div><div className="text-lg font-black tracking-widest mb-3">SORA<span className="text-[#0099FF]">TECH</span></div><p className="text-xs text-[#8899BB] leading-relaxed mb-4">Entreprise tech panafricaine qui digitalise les entreprises d&apos;Abidjan et de toute l&apos;Afrique de l&apos;Ouest.</p><div className="flex gap-3">{["f","in","ig","wa"].map((s,i)=><div key={i} className={`w-8 h-8 ${i===3?"hover:bg-[#25D366]":"hover:bg-[#0066FF]"} bg-[#1a2540] rounded-lg flex items-center justify-center cursor-pointer transition text-xs`}>{s}</div>)}</div></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">SERVICES</h4><ul className="space-y-2 text-xs text-[#8899BB]">{["Sites web","Logiciels de gestion","Applications mobiles","ERP entreprise","Cybersécurité","Maintenance"].map(s=><li key={s} className="hover:text-[#0099FF] cursor-pointer transition">{s}</li>)}</ul></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">ENTREPRISE</h4><ul className="space-y-2 text-xs text-[#8899BB]">{["À propos de nous","Blog SORA TECH","Nos réalisations","Boutique digitale","Devis & RDV","Contact"].map(s=><li key={s} className="hover:text-[#0099FF] cursor-pointer transition">{s}</li>)}</ul></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">CONTACT</h4><ul className="space-y-2 text-xs text-[#8899BB]"><li>📍 Abidjan, Côte d&apos;Ivoire</li><li>📞 +225 07 00 00 00</li><li>✉️ contact@soratech.ci</li><li>💬 WhatsApp Business</li><li>🕐 Lun-Ven : 8h-18h</li><li>🕐 Sam : 9h-14h</li></ul></div>
-        </div>
-        <div className="border-t border-[#1a2540] pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
-          <div className="text-xs text-[#8899BB]">© 2025 SORA TECH COMPANY — Tous droits réservés</div>
-          <div className="text-xs text-[#8899BB]">Fait avec ❤️ à Abidjan par Sissoko Abdoulaye</div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

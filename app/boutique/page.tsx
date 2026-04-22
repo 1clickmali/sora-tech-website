@@ -9,6 +9,7 @@ import {
   ShoppingCart, Trash2, X, Download, Truck, Headphones, RotateCcw,
   CheckCircle, type LucideIcon
 } from "lucide-react";
+import Footer from "../components/Footer";
 
 function ScanLine() {
   return (
@@ -206,14 +207,14 @@ export default function BoutiquePage() {
             <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25 }} className="fixed right-0 top-0 bottom-0 w-full sm:w-[480px] bg-[#060D1F] border-l border-[#1a2540] z-[101] flex flex-col" style={{ boxShadow: "-10px 0 50px rgba(0,0,0,0.5)" }}>
               <div className="flex items-center justify-between p-6 border-b border-[#1a2540]">
                 <div>
-                  {checkoutStep > 0 && !orderSuccess && (<button onClick={() => setCheckoutStep(checkoutStep - 1)} className="text-xs text-[#0099FF] mb-1 block">← Retour</button>)}
+                  {checkoutStep > 0 && !orderSuccess && (<motion.button onClick={() => setCheckoutStep(checkoutStep - 1)} whileHover={{ x: -3 }} whileTap={{ scale: 0.95 }} className="text-xs text-[#0099FF] mb-1 block">← Retour</motion.button>)}
                   <h3 className="text-lg font-black">
                     {orderSuccess ? "✅ Commande confirmée !" : checkoutStep === 0 ? `🛒 Votre panier (${cart.length})` : checkoutStep === 1 ? "💳 Mode de paiement" : checkoutStep === 2 ? "📝 Vos informations" : "✓ Récapitulatif"}
                   </h3>
                 </div>
-                <button onClick={() => { setCartOpen(false); resetCheckout(); }} className="w-9 h-9 flex items-center justify-center bg-[#0A1525] border border-[#1a2540] rounded-xl hover:border-[#FF4757] transition">
+                <motion.button onClick={() => { setCartOpen(false); resetCheckout(); }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="w-9 h-9 flex items-center justify-center bg-[#0A1525] border border-[#1a2540] rounded-xl hover:border-[#FF4757] transition">
                   <X className="w-4 h-4" />
-                </button>
+                </motion.button>
               </div>
 
               <div className="flex-1 overflow-y-auto p-6">
@@ -381,26 +382,14 @@ export default function BoutiquePage() {
             <h2 className="text-3xl md:text-5xl font-black mb-4">Besoin d&apos;une solution personnalisée ?</h2>
             <p className="text-[#8899BB] mb-8">Pas trouvé ce que vous cherchez ? Nous créons des solutions sur mesure</p>
             <div className="flex gap-4 justify-center flex-wrap">
-              <motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">Demander un devis</motion.button>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">💬 WhatsApp direct</motion.button>
+              <Link href="/devis"><motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">Demander un devis</motion.button></Link>
+              <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">💬 WhatsApp direct</motion.a>
             </div>
           </div>
         </motion.div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="relative bg-[#040A14] border-t border-[#1a2540] py-12 px-6 z-10">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
-          <div><div className="text-lg font-black tracking-widest mb-3">SORA<span className="text-[#0099FF]">TECH</span></div><p className="text-xs text-[#8899BB] leading-relaxed mb-4">Entreprise tech panafricaine qui digitalise les entreprises d&apos;Abidjan et de toute l&apos;Afrique de l&apos;Ouest.</p><div className="flex gap-3">{["f","in","ig","wa"].map((s,i)=><div key={i} className={`w-8 h-8 ${i===3?"hover:bg-[#25D366]":"hover:bg-[#0066FF]"} bg-[#1a2540] rounded-lg flex items-center justify-center cursor-pointer transition text-xs`}>{s}</div>)}</div></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">SERVICES</h4><ul className="space-y-2 text-xs text-[#8899BB]">{["Sites web","Logiciels de gestion","Applications mobiles","ERP entreprise","Cybersécurité","Maintenance"].map(s=><li key={s} className="hover:text-[#0099FF] cursor-pointer transition">{s}</li>)}</ul></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">ENTREPRISE</h4><ul className="space-y-2 text-xs text-[#8899BB]">{["À propos de nous","Blog SORA TECH","Nos réalisations","Boutique digitale","Devis & RDV","Contact"].map(s=><li key={s} className="hover:text-[#0099FF] cursor-pointer transition">{s}</li>)}</ul></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">CONTACT</h4><ul className="space-y-2 text-xs text-[#8899BB]"><li>📍 Abidjan, Côte d&apos;Ivoire</li><li>📞 +225 07 00 00 00</li><li>✉️ contact@soratech.ci</li><li>💬 WhatsApp Business</li><li>🕐 Lun-Ven : 8h-18h</li><li>🕐 Sam : 9h-14h</li></ul></div>
-        </div>
-        <div className="border-t border-[#1a2540] pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
-          <div className="text-xs text-[#8899BB]">© 2025 SORA TECH COMPANY — Tous droits réservés</div>
-          <div className="text-xs text-[#8899BB]">Fait avec ❤️ à Abidjan par Sissoko Abdoulaye</div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

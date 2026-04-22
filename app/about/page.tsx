@@ -7,6 +7,7 @@ import {
   Target, Telescope, Zap, Lightbulb, Users, Lock, Globe2,
   type LucideIcon
 } from "lucide-react";
+import Footer from "../components/Footer";
 
 function ScanLine() {
   return (
@@ -64,7 +65,7 @@ export default function AboutPage() {
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 00 00 00</motion.button>
+          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 00 00 00</motion.a>
           <MobileMenu active="about" />
         </div>
       </nav>
@@ -132,8 +133,8 @@ export default function AboutPage() {
                 <p className="text-[#8899BB] leading-relaxed mb-4 text-sm">Jeune entrepreneur malien passionné par la technologie, Sissoko Abdoulaye a fondé SORA TECH COMPANY avec une vision claire : rendre la digitalisation accessible à toutes les entreprises d&apos;Afrique de l&apos;Ouest.</p>
                 <p className="text-[#8899BB] leading-relaxed italic border-l-2 border-[#0066FF] pl-4 text-sm">&ldquo;Mon rêve est de faire d&apos;Abidjan un hub technologique majeur en Afrique, où chaque entreprise a accès aux meilleurs outils digitaux, peu importe sa taille.&rdquo;</p>
                 <div className="flex gap-3 mt-6 flex-wrap">
-                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-5 py-2.5 rounded-xl font-bold text-xs">Contacter le fondateur</motion.button>
-                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-5 py-2.5 rounded-xl font-bold text-xs">💬 WhatsApp</motion.button>
+                  <Link href="/contact"><motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-5 py-2.5 rounded-xl font-bold text-xs">Contacter le fondateur</motion.button></Link>
+                  <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-5 py-2.5 rounded-xl font-bold text-xs">💬 WhatsApp</motion.a>
                 </div>
               </div>
             </div>
@@ -230,30 +231,14 @@ export default function AboutPage() {
             <h2 className="text-3xl md:text-5xl font-black mb-4">Rejoignez notre aventure</h2>
             <p className="text-[#8899BB] mb-8">Devenez l&apos;un de nos prochains clients satisfaits en Côte d&apos;Ivoire</p>
             <div className="flex gap-4 justify-center flex-wrap">
-              <motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">Demander un devis</motion.button>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">💬 WhatsApp direct</motion.button>
+              <Link href="/devis"><motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">Demander un devis</motion.button></Link>
+              <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">💬 WhatsApp direct</motion.a>
             </div>
           </div>
         </motion.div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="relative bg-[#040A14] border-t border-[#1a2540] py-12 px-6 z-10">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
-          <div>
-            <div className="text-lg font-black tracking-widest mb-3">SORA<span className="text-[#0099FF]">TECH</span></div>
-            <p className="text-xs text-[#8899BB] leading-relaxed mb-4">Entreprise tech panafricaine qui digitalise les entreprises d&apos;Abidjan et de toute l&apos;Afrique de l&apos;Ouest.</p>
-            <div className="flex gap-3">{["f","in","ig","wa"].map((s, i) => <div key={i} className={`w-8 h-8 ${i===3?"hover:bg-[#25D366]":"hover:bg-[#0066FF]"} bg-[#1a2540] rounded-lg flex items-center justify-center cursor-pointer transition text-xs`}>{s}</div>)}</div>
-          </div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">SERVICES</h4><ul className="space-y-2 text-xs text-[#8899BB]">{["Sites web","Logiciels de gestion","Applications mobiles","ERP entreprise","Cybersécurité","Maintenance"].map(s=><li key={s} className="hover:text-[#0099FF] cursor-pointer transition">{s}</li>)}</ul></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">ENTREPRISE</h4><ul className="space-y-2 text-xs text-[#8899BB]">{["À propos de nous","Blog SORA TECH","Nos réalisations","Boutique digitale","Devis & RDV","Contact"].map(s=><li key={s} className="hover:text-[#0099FF] cursor-pointer transition">{s}</li>)}</ul></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">CONTACT</h4><ul className="space-y-2 text-xs text-[#8899BB]"><li>📍 Abidjan, Côte d&apos;Ivoire</li><li>📞 +225 07 00 00 00</li><li>✉️ contact@soratech.ci</li><li>💬 WhatsApp Business</li><li>🕐 Lun-Ven : 8h-18h</li><li>🕐 Sam : 9h-14h</li></ul></div>
-        </div>
-        <div className="border-t border-[#1a2540] pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
-          <div className="text-xs text-[#8899BB]">© 2025 SORA TECH COMPANY — Tous droits réservés</div>
-          <div className="text-xs text-[#8899BB]">Fait avec ❤️ à Abidjan par Sissoko Abdoulaye</div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

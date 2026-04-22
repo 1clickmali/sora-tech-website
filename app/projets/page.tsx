@@ -8,6 +8,7 @@ import {
   Globe, Monitor, Smartphone, Shield, ShoppingCart,
   GraduationCap, Pill, Car, CheckCircle, type LucideIcon
 } from "lucide-react";
+import Footer from "../components/Footer";
 
 function ScanLine() {
   return (
@@ -61,7 +62,7 @@ export default function ProjetsPage() {
           <Link href="/contact"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
         </div>
         <div className="flex items-center gap-3">
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 00 00 00</motion.button>
+          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 00 00 00</motion.a>
           <MobileMenu active="projets" />
         </div>
       </nav>
@@ -115,7 +116,7 @@ export default function ProjetsPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((project, i) => (
-              <motion.div key={project.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${project.color}25` }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300">
+              <Link href="/contact"><motion.div key={project.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${project.color}25` }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300">
                 <div className="relative h-44 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(135deg, ${project.color}30, ${project.color}08)` }}>
                   <div className="w-20 h-20 rounded-3xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110" style={{ backgroundColor: `${project.color}20`, border: `1px solid ${project.color}40`, boxShadow: `0 0 30px ${project.color}20` }}>
                     <project.icon className="w-10 h-10" style={{ color: project.color }} />
@@ -141,7 +142,7 @@ export default function ProjetsPage() {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </motion.div></Link>
             ))}
           </div>
           {filtered.length === 0 && <div className="text-center py-12 text-[#8899BB]"><p>Aucun projet dans cette catégorie pour le moment.</p></div>}
@@ -174,26 +175,14 @@ export default function ProjetsPage() {
             <h2 className="text-3xl md:text-5xl font-black mb-4">Votre projet sera le prochain</h2>
             <p className="text-[#8899BB] mb-8">Rejoignez nos 30+ clients satisfaits. Devis gratuit et sans engagement.</p>
             <div className="flex gap-4 justify-center flex-wrap">
-              <motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">Démarrer mon projet</motion.button>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">💬 WhatsApp direct</motion.button>
+              <Link href="/devis"><motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">Démarrer mon projet</motion.button></Link>
+              <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">💬 WhatsApp direct</motion.a>
             </div>
           </div>
         </motion.div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="relative bg-[#040A14] border-t border-[#1a2540] py-12 px-6 z-10">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
-          <div><div className="text-lg font-black tracking-widest mb-3">SORA<span className="text-[#0099FF]">TECH</span></div><p className="text-xs text-[#8899BB] leading-relaxed mb-4">Entreprise tech panafricaine qui digitalise les entreprises d&apos;Abidjan et de toute l&apos;Afrique de l&apos;Ouest.</p><div className="flex gap-3">{["f","in","ig","wa"].map((s,i)=><div key={i} className={`w-8 h-8 ${i===3?"hover:bg-[#25D366]":"hover:bg-[#0066FF]"} bg-[#1a2540] rounded-lg flex items-center justify-center cursor-pointer transition text-xs`}>{s}</div>)}</div></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">SERVICES</h4><ul className="space-y-2 text-xs text-[#8899BB]">{["Sites web","Logiciels de gestion","Applications mobiles","ERP entreprise","Cybersécurité","Maintenance"].map(s=><li key={s} className="hover:text-[#0099FF] cursor-pointer transition">{s}</li>)}</ul></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">ENTREPRISE</h4><ul className="space-y-2 text-xs text-[#8899BB]">{["À propos de nous","Blog SORA TECH","Nos réalisations","Boutique digitale","Devis & RDV","Contact"].map(s=><li key={s} className="hover:text-[#0099FF] cursor-pointer transition">{s}</li>)}</ul></div>
-          <div><h4 className="text-xs tracking-wider text-white mb-3 font-bold">CONTACT</h4><ul className="space-y-2 text-xs text-[#8899BB]"><li>📍 Abidjan, Côte d&apos;Ivoire</li><li>📞 +225 07 00 00 00</li><li>✉️ contact@soratech.ci</li><li>💬 WhatsApp Business</li><li>🕐 Lun-Ven : 8h-18h</li><li>🕐 Sam : 9h-14h</li></ul></div>
-        </div>
-        <div className="border-t border-[#1a2540] pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
-          <div className="text-xs text-[#8899BB]">© 2025 SORA TECH COMPANY — Tous droits réservés</div>
-          <div className="text-xs text-[#8899BB]">Fait avec ❤️ à Abidjan par Sissoko Abdoulaye</div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
