@@ -1,0 +1,3 @@
+node_modules/
+uploads/factures/*.pdf
+.env
