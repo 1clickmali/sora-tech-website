@@ -77,7 +77,7 @@ const getStats = async (req, res) => {
 
     // ── Factures impayées ────────────────────────────────────────────────────
     const facturesImpayees = await Facture.aggregate([
-      { $match: { status: 'impayee' } },
+      { $match: { paymentStatus: 'impayee' } },
       { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } },
     ]);
 

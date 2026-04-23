@@ -5,6 +5,7 @@ const fs = require('fs');
 require('dotenv').config();
 
 const connectDB = require('./config/database');
+const { verifyEmailConfig } = require('./utils/email');
 
 const app = express();
 
@@ -58,4 +59,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`\n🚀 SORA TECH API démarré sur http://localhost:${PORT}`);
   console.log(`   Environnement : ${process.env.NODE_ENV || 'development'}\n`);
+  verifyEmailConfig();
 });

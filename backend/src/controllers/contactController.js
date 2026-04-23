@@ -1,5 +1,6 @@
 const Contact = require('../models/Contact');
 const { sendContactConfirmation, notifyAdminNewContact } = require('../utils/email');
+const upsertContact = require('../utils/upsertContact');
 
 const getContacts = async (req, res) => {
   try {
@@ -25,6 +26,12 @@ const createContact = async (req, res) => {
     const contact = await Contact.create(req.body);
     sendContactConfirmation(contact).catch(e => console.error('[Email client]', e.message));
     notifyAdminNewContact(contact).catch(e => console.error('[Email admin]', e.message));
+    upsertContact({
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      source: 'contact_form',
+    }).catch(e => console.error('[upsertContact contact]', e.message));
     res.status(201).json({ success: true, data: contact });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });

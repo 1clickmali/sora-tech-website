@@ -1,7 +1,9 @@
 const Commande = require('../models/Commande');
+const Facture = require('../models/Facture');
 const { generateCommandePDF } = require('../utils/pdf');
 const { sendCommandeConfirmation, notifyAdminNewCommande } = require('../utils/email');
 const { sendCommandeWhatsApp, sendCommandeAdminWhatsApp } = require('../utils/whatsapp');
+const upsertContact = require('../utils/upsertContact');
 
 // GET /api/commandes
 const getCommandes = async (req, res) => {
@@ -77,9 +79,55 @@ const createCommande = async (req, res) => {
           $push: { timeline: { event: 'Facture PDF générée', by: 'Système' } },
         });
 
-        // 2. Email au client avec PDF
+        // 2. Créer document Facture dans MongoDB
+        let facturePublicToken = null;
+        try {
+          const factureItems = (commande.items || []).map(it => ({
+            description: it.title || it.description || 'Article',
+            quantity: it.quantity || 1,
+            unitPrice: it.price || it.unitPrice || 0,
+            total: (it.price || it.unitPrice || 0) * (it.quantity || 1),
+          }));
+          const facture = await Facture.create({
+            commandeId: commande._id,
+            commandeRef: commande.reference,
+            trackingCode: commande.trackingCode,
+            clientName: commande.clientName,
+            clientEmail: commande.clientEmail || '',
+            clientPhone: commande.clientPhone || '',
+            clientAddress: commande.clientAddress || commande.address || '',
+            clientQuartier: commande.clientQuartier || commande.quartier || '',
+            items: factureItems,
+            subtotal: commande.subtotal || commande.total || 0,
+            deliveryFee: commande.deliveryFee || 0,
+            total: commande.total || 0,
+            paymentMode: commande.paymentMode || 'cod',
+            paymentStatus: commande.paymentMode === 'online' ? 'payee' : 'impayee',
+            paidAt: commande.paymentMode === 'online' ? new Date() : undefined,
+            pdfPath: filepath,
+            pdfUrl: `/uploads/factures/${filename}`,
+            pdfFilename: filename,
+            issuedAt: new Date(),
+          });
+          facturePublicToken = facture.publicToken;
+        } catch (factureErr) {
+          console.error('[Facture create]', factureErr.message);
+        }
+
+        // 2b. Upsert contact CRM
+        await upsertContact({
+          name: commande.clientName,
+          email: commande.clientEmail,
+          phone: commande.clientPhone,
+          quartier: commande.clientQuartier || commande.quartier,
+          address: commande.clientAddress || commande.address,
+          source: 'commande',
+          orderTotal: commande.total || 0,
+        });
+
+        // 3. Email au client avec PDF
         if (commande.clientEmail) {
-          await sendCommandeConfirmation(commande, filepath).catch(e =>
+          await sendCommandeConfirmation(commande, filepath, facturePublicToken).catch(e =>
             console.error('[Email client]', e.message)
           );
           await Commande.findByIdAndUpdate(commande._id, {
@@ -87,17 +135,17 @@ const createCommande = async (req, res) => {
           });
         }
 
-        // 3. Email à l'admin
+        // 4. Email à l'admin
         await notifyAdminNewCommande(commande).catch(e =>
           console.error('[Email admin]', e.message)
         );
 
-        // 4. WhatsApp au client
+        // 5. WhatsApp au client
         await sendCommandeWhatsApp(commande).catch(e =>
           console.error('[WhatsApp client]', e.message)
         );
 
-        // 5. WhatsApp à l'admin
+        // 6. WhatsApp à l'admin
         await sendCommandeAdminWhatsApp(commande).catch(e =>
           console.error('[WhatsApp admin]', e.message)
         );

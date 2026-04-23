@@ -1,250 +1,430 @@
 const PDFDocument = require('pdfkit');
+const QRCode = require('qrcode');
+const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
+
+// ── Formatter monnaie (ASCII uniquement — compatible PDFKit Helvetica) ──────
+const fcfa = (n) => {
+  const s = Math.round(n || 0).toString();
+  return s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' FCFA';
+};
 
 const ensureDir = (dir) => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 };
 
-// ── FACTURE (pour le modèle Facture) ─────────────────────────────────────────
-
-const generateFacturePDF = (facture) => {
-  return new Promise((resolve, reject) => {
-    const dir = path.join(__dirname, '../../uploads/factures');
-    ensureDir(dir);
-
-    const filename = `facture-${facture.numero}.pdf`;
-    const filepath = path.join(dir, filename);
-    const doc = new PDFDocument({ margin: 50, size: 'A4' });
-    const stream = fs.createWriteStream(filepath);
-    doc.pipe(stream);
-
-    // En-tête
-    doc.rect(0, 0, 595, 100).fill('#060D1F');
-    doc.fontSize(24).fillColor('#ffffff').font('Helvetica-Bold')
-      .text('SORA', 50, 30, { continued: true })
-      .fillColor('#0099FF').text('TECH');
-    doc.fontSize(10).fillColor('#8899BB')
-      .text('SORA TECH COMPANY', 50, 60)
-      .text('Cocody, Angré 8ème — Abidjan, Côte d\'Ivoire', 50, 74)
-      .text('+225 07 04 92 80 68 | contact@soratech.ci', 50, 88);
-
-    doc.fontSize(18).fillColor('#0099FF').font('Helvetica-Bold')
-      .text('FACTURE', 400, 30, { align: 'right' });
-    doc.fontSize(12).fillColor('#ffffff')
-      .text(facture.numero, 400, 55, { align: 'right' });
-    const statColor = facture.status === 'payee' ? '#00C48C' : '#FF4757';
-    doc.fontSize(10).fillColor(statColor)
-      .text(facture.status.toUpperCase(), 400, 74, { align: 'right' });
-
-    doc.moveDown(4);
-    const infoY = 120;
-    doc.font('Helvetica-Bold').fillColor('#060D1F').text('FACTURER À :', 50, infoY);
-    doc.font('Helvetica').fillColor('#444')
-      .text(facture.clientName, 50, infoY + 16)
-      .text(facture.clientEmail || '', 50, infoY + 30)
-      .text(facture.clientPhone || '', 50, infoY + 44)
-      .text(facture.clientAddress || '', 50, infoY + 58);
-
-    doc.font('Helvetica-Bold').fillColor('#060D1F').text('DATE :', 380, infoY);
-    doc.font('Helvetica').fillColor('#444')
-      .text(new Date(facture.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }), 380, infoY + 16);
-    if (facture.echeance) {
-      doc.font('Helvetica-Bold').fillColor('#060D1F').text('ÉCHÉANCE :', 380, infoY + 36);
-      doc.font('Helvetica').fillColor('#FF4757')
-        .text(new Date(facture.echeance).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }), 380, infoY + 52);
-    }
-
-    const tableY = 220;
-    const cols = { desc: 50, qty: 310, unit: 370, total: 470 };
-    doc.rect(50, tableY, 495, 24).fill('#060D1F');
-    doc.fontSize(9).fillColor('#ffffff').font('Helvetica-Bold')
-      .text('DESCRIPTION', cols.desc + 5, tableY + 7)
-      .text('QTÉ', cols.qty, tableY + 7)
-      .text('P. UNITAIRE', cols.unit, tableY + 7)
-      .text('TOTAL', cols.total, tableY + 7);
-
-    let rowY = tableY + 28;
-    facture.items.forEach((item, index) => {
-      if (index % 2 === 0) doc.rect(50, rowY - 4, 495, 22).fill('#f8f9fa');
-      doc.fontSize(9).fillColor('#333').font('Helvetica')
-        .text(item.description, cols.desc + 5, rowY, { width: 250 })
-        .text(item.quantity.toString(), cols.qty, rowY)
-        .text(`${item.unitPrice.toLocaleString('fr-FR')} F`, cols.unit, rowY)
-        .text(`${item.total.toLocaleString('fr-FR')} F`, cols.total, rowY);
-      rowY += 26;
-    });
-
-    rowY += 10;
-    doc.moveTo(350, rowY).lineTo(545, rowY).strokeColor('#ddd').stroke();
-    rowY += 10;
-
-    const addTotal = (label, value, isTotal = false) => {
-      doc.fontSize(isTotal ? 11 : 9)
-        .fillColor(isTotal ? '#0066FF' : '#555')
-        .font(isTotal ? 'Helvetica-Bold' : 'Helvetica')
-        .text(label, 350, rowY)
-        .text(value, 450, rowY, { align: 'right', width: 95 });
-      rowY += isTotal ? 22 : 18;
-    };
-
-    addTotal('Sous-total', `${facture.subtotal.toLocaleString('fr-FR')} FCFA`);
-    if (facture.tva > 0) addTotal(`TVA (${facture.tva}%)`, `${facture.tvaAmount.toLocaleString('fr-FR')} FCFA`);
-    doc.moveTo(350, rowY).lineTo(545, rowY).strokeColor('#0066FF').lineWidth(1.5).stroke();
-    rowY += 6;
-    addTotal('TOTAL', `${facture.total.toLocaleString('fr-FR')} FCFA`, true);
-
-    if (facture.notes) {
-      rowY += 20;
-      doc.fontSize(9).fillColor('#888').font('Helvetica-Bold').text('NOTES :', 50, rowY);
-      doc.font('Helvetica').fillColor('#555').text(facture.notes, 50, rowY + 14, { width: 495 });
-    }
-
-    doc.rect(0, 760, 595, 82).fill('#060D1F');
-    doc.fontSize(9).fillColor('#8899BB').font('Helvetica')
-      .text('Merci de votre confiance — SORA TECH COMPANY', 50, 772, { align: 'center', width: 495 })
-      .text('contact@soratech.ci | +225 07 04 92 80 68 | Abidjan, Côte d\'Ivoire', 50, 786, { align: 'center', width: 495 })
-      .fillColor('#0099FF').text('www.soratech.ci', 50, 800, { align: 'center', width: 495 });
-
-    doc.end();
-    stream.on('finish', () => resolve({ filepath, filename }));
-    stream.on('error', reject);
-  });
+// Convertit un SVG en buffer PNG via sharp (mis en cache au premier appel)
+let _logoPng = null;
+const getLogoPng = async () => {
+  if (_logoPng) return _logoPng;
+  const svgPath = path.join(__dirname, '../../../assets/logos/SORA_TECH_logo_clair.svg');
+  if (!fs.existsSync(svgPath)) return null;
+  _logoPng = await sharp(svgPath).resize(420).png().toBuffer();
+  return _logoPng;
 };
 
-// ── COMMANDE (reçu de commande PDF) ──────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// RECU DE COMMANDE — design premium inspiré Stripe / Apple
+// ─────────────────────────────────────────────────────────────────────────────
+const generateCommandePDF = async (commande) => {
+  const dir = path.join(__dirname, '../../uploads/factures');
+  ensureDir(dir);
 
-const generateCommandePDF = (commande) => {
-  return new Promise((resolve, reject) => {
-    const dir = path.join(__dirname, '../../uploads/factures');
-    ensureDir(dir);
+  const filename = `commande-${commande.reference}.pdf`;
+  const filepath = path.join(dir, filename);
 
-    const filename = `commande-${commande.reference}.pdf`;
-    const filepath = path.join(dir, filename);
-    const doc = new PDFDocument({ margin: 50, size: 'A4' });
-    const stream = fs.createWriteStream(filepath);
-    doc.pipe(stream);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ margin: 0, size: 'A4' });
+      const stream = fs.createWriteStream(filepath);
+      doc.pipe(stream);
 
-    // ── En-tête noir ─────────────────────────────────────────────────────────
-    doc.rect(0, 0, 595, 110).fill('#060D1F');
-    doc.fontSize(26).fillColor('#ffffff').font('Helvetica-Bold')
-      .text('SORA', 50, 28, { continued: true })
-      .fillColor('#0099FF').text('TECH');
-    doc.fontSize(9).fillColor('#8899BB')
-      .text('SORA TECH COMPANY', 50, 62)
-      .text('Cocody, Angré 8ème — Abidjan, Côte d\'Ivoire', 50, 75)
-      .text('+225 07 04 92 80 68  |  contact@soratech.ci', 50, 88);
+      const W = 595.28;
+      const BLEU = '#0099FF';
+      const VERT = '#00C48C';
+      const NOIR = '#060D1F';
+      const GRIS = '#8899BB';
+      const GRIS_CLAIR = '#E8EDF2';
+      const FOND = '#F8F9FA';
 
-    // Référence + statut (coin droit)
-    doc.fontSize(20).fillColor('#0099FF').font('Helvetica-Bold')
-      .text('REÇU DE COMMANDE', 280, 25, { align: 'right', width: 265 });
-    doc.fontSize(13).fillColor('#ffffff')
-      .text(commande.reference, 280, 52, { align: 'right', width: 265 });
-    doc.fontSize(10).fillColor('#00C48C')
-      .text('CONFIRMÉE', 280, 70, { align: 'right', width: 265 });
-    doc.fontSize(9).fillColor('#8899BB')
-      .text(new Date(commande.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }), 280, 85, { align: 'right', width: 265 });
+      // ── HEADER fond noir (hauteur 140) ─────────────────────────────────────
+      doc.rect(0, 0, W, 140).fill(NOIR);
 
-    // ── Infos client ─────────────────────────────────────────────────────────
-    const clientY = 130;
-    doc.rect(50, clientY, 230, 100).fill('#F0F4FF').stroke('#E0E8FF');
-    doc.rect(315, clientY, 230, 100).fill('#F0F4FF').stroke('#E0E8FF');
-
-    doc.fontSize(8).fillColor('#0066FF').font('Helvetica-Bold')
-      .text('CLIENT', 60, clientY + 10);
-    doc.fontSize(10).fillColor('#111').font('Helvetica-Bold')
-      .text(commande.clientName || '-', 60, clientY + 22);
-    doc.fontSize(9).fillColor('#555').font('Helvetica')
-      .text(`📞 ${commande.clientPhone || '-'}`, 60, clientY + 38)
-      .text(`✉  ${commande.clientEmail || 'Non renseigné'}`, 60, clientY + 52)
-      .text(`📍 ${commande.clientQuartier || commande.quartier || ''}`, 60, clientY + 66);
-    if (commande.clientAddress || commande.address) {
-      doc.text((commande.clientAddress || commande.address).substring(0, 40), 60, clientY + 80);
-    }
-
-    doc.fontSize(8).fillColor('#0066FF').font('Helvetica-Bold')
-      .text('PAIEMENT & LIVRAISON', 325, clientY + 10);
-    const modeLabel = commande.paymentMode === 'online' ? '💳 Paiement en ligne' : '🚚 Paiement à la livraison';
-    doc.fontSize(9).fillColor('#111').font('Helvetica-Bold')
-      .text(modeLabel, 325, clientY + 22);
-    if (commande.paymentProvider) {
-      doc.fontSize(9).fillColor('#555').font('Helvetica')
-        .text(`Via : ${commande.paymentProvider}`, 325, clientY + 38);
-    }
-    doc.fontSize(8).fillColor('#0066FF').font('Helvetica-Bold')
-      .text('CODE DE SUIVI', 325, clientY + 55);
-    doc.fontSize(12).fillColor('#0099FF').font('Helvetica-Bold')
-      .text(commande.trackingCode || '-', 325, clientY + 67);
-    doc.fontSize(8).fillColor('#8899BB').font('Helvetica')
-      .text(commande.trackingUrl || '', 325, clientY + 83, { width: 225 });
-
-    // ── Tableau des articles ──────────────────────────────────────────────────
-    const tableY = 250;
-    doc.rect(50, tableY, 495, 22).fill('#060D1F');
-    doc.fontSize(9).fillColor('#ffffff').font('Helvetica-Bold')
-      .text('PRODUIT / SERVICE', 58, tableY + 7)
-      .text('QTÉ', 360, tableY + 7)
-      .text('PRIX UNIT.', 400, tableY + 7)
-      .text('TOTAL', 480, tableY + 7);
-
-    let rowY = tableY + 26;
-    (commande.items || []).forEach((item, i) => {
-      if (i % 2 === 0) doc.rect(50, rowY - 3, 495, 20).fill('#F8FAFF');
-      doc.fontSize(9).fillColor('#222').font('Helvetica')
-        .text(item.title || '-', 58, rowY, { width: 290 })
-        .text(String(item.quantity || 1), 360, rowY)
-        .text(`${(item.price || 0).toLocaleString('fr-FR')} F`, 400, rowY)
-        .text(`${((item.price || 0) * (item.quantity || 1)).toLocaleString('fr-FR')} F`, 480, rowY);
-      if (item.digital) {
-        doc.fontSize(7).fillColor('#00C48C').text('DIGITAL', 58, rowY + 10);
+      // Logo image (SVG → PNG)
+      const logoPng = await getLogoPng();
+      if (logoPng) {
+        doc.image(logoPng, 40, 32, { width: 160 });
+      } else {
+        // Fallback texte si logo non disponible
+        doc.fontSize(26).fillColor('#FFFFFF').font('Helvetica-Bold')
+          .text('SORA', 44, 36, { continued: true })
+          .fillColor(BLEU).text('TECH');
       }
-      rowY += 22;
-    });
 
-    // ── Récapitulatif financier ───────────────────────────────────────────────
-    rowY += 8;
-    doc.moveTo(350, rowY).lineTo(545, rowY).strokeColor('#CCDDFF').lineWidth(1).stroke();
-    rowY += 8;
+      // Infos entreprise sous le logo
+      doc.fontSize(7.5).fillColor(GRIS).font('Helvetica')
+        .text('Abidjan, Cocody — Angre 8eme', 40, 100)
+        .text('Tel : +225 07 04 92 80 68  |  contact@soratech.ci', 40, 112);
 
-    const addLine = (label, val, highlight = false) => {
-      doc.fontSize(highlight ? 11 : 9)
-        .fillColor(highlight ? '#0066FF' : '#555')
-        .font(highlight ? 'Helvetica-Bold' : 'Helvetica')
-        .text(label, 355, rowY)
-        .text(val, 460, rowY, { align: 'right', width: 85 });
-      rowY += highlight ? 20 : 16;
-    };
+      // Bloc droit : titre + référence + statut + date
+      doc.fontSize(22).fillColor('#FFFFFF').font('Helvetica-Bold')
+        .text('RECU DE COMMANDE', 0, 34, { align: 'right', width: W - 40 });
+      doc.fontSize(15).fillColor(BLEU).font('Helvetica-Bold')
+        .text(commande.reference || '-', 0, 62, { align: 'right', width: W - 40 });
+      doc.fontSize(10).fillColor(VERT).font('Helvetica-Bold')
+        .text('CONFIRMEE', 0, 83, { align: 'right', width: W - 40 });
+      doc.fontSize(9).fillColor(GRIS).font('Helvetica')
+        .text(
+          new Date(commande.createdAt || Date.now()).toLocaleDateString('fr-FR', {
+            day: '2-digit', month: 'long', year: 'numeric',
+          }),
+          0, 99, { align: 'right', width: W - 40 }
+        );
+      doc.fontSize(8).fillColor('#A0AABB').font('Helvetica')
+        .text('soratech.ci', 0, 113, { align: 'right', width: W - 40 });
 
-    addLine('Sous-total', `${(commande.subtotal || 0).toLocaleString('fr-FR')} FCFA`);
-    if (commande.deliveryFee > 0) {
-      addLine('Frais de livraison', `${commande.deliveryFee.toLocaleString('fr-FR')} FCFA`);
+      // ── SECTION CLIENT + PAIEMENT ─────────────────────────────────────────
+      const IY = 156;
+      const BLOC_W = 238;
+      const BLOC_H = 115;
+
+      // Fond global des deux blocs
+      doc.rect(40, IY, W - 80, BLOC_H).fill(FOND).stroke(GRIS_CLAIR);
+
+      // Séparateur vertical
+      doc.moveTo(40 + BLOC_W, IY).lineTo(40 + BLOC_W, IY + BLOC_H)
+        .strokeColor(GRIS_CLAIR).lineWidth(1).stroke();
+
+      // Colonne gauche : CLIENT
+      doc.fontSize(7.5).fillColor(BLEU).font('Helvetica-Bold')
+        .text('CLIENT', 52, IY + 12);
+      doc.fontSize(12).fillColor('#111111').font('Helvetica-Bold')
+        .text(commande.clientName || '-', 52, IY + 25, { width: BLOC_W - 24 });
+      doc.fontSize(8.5).fillColor('#444444').font('Helvetica');
+
+      let cy = IY + 43;
+      if (commande.clientPhone) {
+        doc.text('Tel : ' + commande.clientPhone, 52, cy, { width: BLOC_W - 24 });
+        cy += 13;
+      }
+      if (commande.clientEmail) {
+        doc.text('Email : ' + commande.clientEmail, 52, cy, { width: BLOC_W - 24 });
+        cy += 13;
+      }
+      const quartier = commande.clientQuartier || commande.quartier || '';
+      const adresse = commande.clientAddress || commande.address || '';
+      if (quartier) {
+        doc.text('Quartier : ' + quartier, 52, cy, { width: BLOC_W - 24 });
+        cy += 13;
+      }
+      if (adresse) {
+        doc.text('Adresse : ' + adresse.substring(0, 50), 52, cy, { width: BLOC_W - 24 });
+      }
+
+      // Colonne droite : PAIEMENT & SUIVI
+      const RX = 40 + BLOC_W + 16;
+      const RW = W - 80 - BLOC_W - 16;
+      doc.fontSize(7.5).fillColor(BLEU).font('Helvetica-Bold')
+        .text('PAIEMENT & LIVRAISON', RX, IY + 12);
+      const modeLabel = commande.paymentMode === 'online' ? 'Paiement en ligne' : 'Paiement a la livraison';
+      doc.fontSize(10).fillColor('#111111').font('Helvetica-Bold')
+        .text(modeLabel, RX, IY + 25, { width: RW });
+
+      if (commande.trackingCode) {
+        doc.fontSize(7.5).fillColor(BLEU).font('Helvetica-Bold')
+          .text('CODE DE SUIVI', RX, IY + 55);
+        doc.fontSize(15).fillColor(BLEU).font('Helvetica-Bold')
+          .text(commande.trackingCode, RX, IY + 67);
+        if (commande.trackingUrl) {
+          doc.fontSize(7).fillColor(GRIS).font('Helvetica')
+            .text(commande.trackingUrl, RX, IY + 88, { width: RW });
+        }
+      }
+
+      // ── TABLEAU ARTICLES ──────────────────────────────────────────────────
+      const TY = IY + BLOC_H + 18;
+
+      // En-tête tableau fond noir
+      doc.rect(40, TY, W - 80, 24).fill(NOIR);
+      doc.fontSize(8.5).fillColor('#FFFFFF').font('Helvetica-Bold')
+        .text('PRODUIT / SERVICE', 52, TY + 8)
+        .text('QTE', 370, TY + 8, { width: 35, align: 'center' })
+        .text('PRIX UNIT.', 410, TY + 8, { width: 70 })
+        .text('TOTAL', 485, TY + 8, { width: 70 });
+
+      let rowY = TY + 28;
+      const items = commande.items || [];
+
+      items.forEach((item, i) => {
+        const rowH = item.digital ? 28 : 22;
+        if (i % 2 === 0) {
+          doc.rect(40, rowY - 2, W - 80, rowH).fill(FOND);
+        }
+        const ligneTotal = (item.price || 0) * (item.quantity || 1);
+
+        doc.fontSize(9).fillColor('#1A1A2E').font('Helvetica')
+          .text(item.title || '-', 52, rowY, { width: 310 })
+          .text(String(item.quantity || 1), 370, rowY, { width: 35, align: 'center' })
+          .text(fcfa(item.price || 0).replace(' FCFA', ' F'), 410, rowY, { width: 70 })
+          .text(fcfa(ligneTotal).replace(' FCFA', ' F'), 485, rowY, { width: 70 });
+
+        if (item.digital) {
+          doc.fontSize(7).fillColor(VERT).font('Helvetica-Bold')
+            .text('DIGITAL — livraison instantanee', 52, rowY + 11);
+        }
+        rowY += rowH + 2;
+
+        // Ligne séparatrice légère
+        doc.moveTo(40, rowY - 1).lineTo(W - 40, rowY - 1)
+          .strokeColor('#E0E4EA').lineWidth(0.5).stroke();
+      });
+
+      // ── RÉCAPITULATIF MONTANTS ────────────────────────────────────────────
+      rowY += 10;
+
+      const addLigne = (label, valeur, gras = false, couleur = '#555555') => {
+        doc.fontSize(gras ? 11 : 9)
+          .fillColor(couleur)
+          .font(gras ? 'Helvetica-Bold' : 'Helvetica')
+          .text(label, 360, rowY)
+          .text(valeur, 0, rowY, { align: 'right', width: W - 40 });
+        rowY += gras ? 22 : 16;
+      };
+
+      doc.moveTo(360, rowY - 4).lineTo(W - 40, rowY - 4)
+        .strokeColor('#DDDDDD').lineWidth(0.8).stroke();
+
+      addLigne('Sous-total :', fcfa(commande.subtotal || commande.total || 0));
+      if ((commande.deliveryFee || 0) > 0) {
+        addLigne('Frais de livraison :', fcfa(commande.deliveryFee));
+      }
+
+      // Ligne TOTAL colorée
+      rowY += 4;
+      doc.rect(360, rowY - 3, W - 40 - 360, 26).fill(BLEU);
+      doc.fontSize(12).fillColor('#FFFFFF').font('Helvetica-Bold')
+        .text('TOTAL', 368, rowY + 3)
+        .text(fcfa(commande.total || 0), 0, rowY + 3, { align: 'right', width: W - 40 });
+      rowY += 36;
+
+      // ── BLOC QR CODE + SUIVI ──────────────────────────────────────────────
+      if (commande.trackingUrl && rowY < 650) {
+        try {
+          const qrBuffer = await QRCode.toBuffer(commande.trackingUrl, {
+            width: 100, margin: 1,
+            color: { dark: '#060D1F', light: '#FFFFFF' },
+          });
+
+          const blcH = 80;
+          // Fond bleu clair pour la section suivi
+          doc.rect(40, rowY, W - 80, blcH).fill(BLEU);
+
+          doc.fontSize(9).fillColor('#FFFFFF').font('Helvetica-Bold')
+            .text('SUIVEZ VOTRE COMMANDE EN TEMPS REEL', 52, rowY + 10, { width: W - 200 });
+          doc.fontSize(8.5).fillColor('#D0EEFF').font('Helvetica')
+            .text('Lien : ' + commande.trackingUrl, 52, rowY + 26, { width: W - 200 })
+            .text('Code : ' + (commande.trackingCode || '-'), 52, rowY + 40);
+          doc.fontSize(7.5).fillColor('#A0D8FF').font('Helvetica')
+            .text('Mise a jour automatique — rafraichissez la page', 52, rowY + 56);
+
+          // QR code
+          doc.image(qrBuffer, W - 40 - 90, rowY - 5, { width: 90, height: 90 });
+          doc.fontSize(7).fillColor('#D0EEFF').font('Helvetica')
+            .text('Scanner', W - 40 - 90, rowY + 86, { width: 90, align: 'center' });
+          rowY += 100;
+        } catch (qrErr) {
+          console.error('[QR Code]', qrErr.message);
+        }
+      }
+
+      // ── CONDITIONS ────────────────────────────────────────────────────────
+      if (rowY < 710) {
+        rowY += 8;
+        doc.moveTo(40, rowY).lineTo(W - 40, rowY)
+          .strokeColor('#EEEEEE').lineWidth(0.5).stroke();
+        rowY += 10;
+        doc.fontSize(7.5).fillColor(GRIS).font('Helvetica')
+          .text(
+            'Ce recu vaut preuve d\'achat. Garantie 1 an sur les produits digitaux. ' +
+            'Support : contact@soratech.ci | Paiement securise — Donnees protegees par SORA TECH.',
+            40, rowY, { width: W - 80 }
+          );
+      }
+
+      // ── PIED DE PAGE ──────────────────────────────────────────────────────
+      doc.rect(0, 802, W, 40).fill(NOIR);
+      doc.fontSize(8.5).fillColor('#FFFFFF').font('Helvetica-Bold')
+        .text('SORA TECH COMPANY — Votre partenaire digital en Cote d\'Ivoire', 0, 812, { align: 'center', width: W });
+      doc.fontSize(7.5).fillColor(GRIS).font('Helvetica')
+        .text(
+          'Tél : +225 07 04 92 80 68  |  Email : contact@soratech.ci  |  soratech.ci  |  Abidjan, Cocody',
+          0, 825, { align: 'center', width: W }
+        );
+
+      doc.end();
+      stream.on('finish', () => resolve({ filepath, filename }));
+      stream.on('error', reject);
+    } catch (err) {
+      reject(err);
     }
-    doc.moveTo(350, rowY).lineTo(545, rowY).strokeColor('#0066FF').lineWidth(1.5).stroke();
-    rowY += 6;
-    addLine('TOTAL', `${(commande.total || 0).toLocaleString('fr-FR')} FCFA`, true);
-
-    // ── Message de suivi ──────────────────────────────────────────────────────
-    rowY += 20;
-    if (rowY < 680) {
-      doc.rect(50, rowY, 495, 50).fill('#EEF5FF').stroke('#AACCFF');
-      doc.fontSize(9).fillColor('#0066FF').font('Helvetica-Bold')
-        .text('📦 SUIVEZ VOTRE COMMANDE EN TEMPS RÉEL', 60, rowY + 8);
-      doc.fontSize(9).fillColor('#333').font('Helvetica')
-        .text(`Rendez-vous sur : ${commande.trackingUrl || 'soratech.ci/suivi'}`, 60, rowY + 22)
-        .text(`Code de suivi : ${commande.trackingCode || '-'}`, 60, rowY + 36);
-    }
-
-    // ── Pied de page ──────────────────────────────────────────────────────────
-    doc.rect(0, 760, 595, 82).fill('#060D1F');
-    doc.fontSize(9).fillColor('#8899BB').font('Helvetica')
-      .text('Merci de votre confiance — SORA TECH COMPANY', 50, 772, { align: 'center', width: 495 })
-      .text('contact@soratech.ci  |  +225 07 04 92 80 68  |  Cocody, Angré 8ème, Abidjan', 50, 786, { align: 'center', width: 495 });
-    doc.fillColor('#0099FF').text('www.soratech.ci', 50, 800, { align: 'center', width: 495 });
-
-    doc.end();
-    stream.on('finish', () => resolve({ filepath, filename }));
-    stream.on('error', reject);
   });
 };
 
-module.exports = { generateFacturePDF, generateCommandePDF };
+// ─────────────────────────────────────────────────────────────────────────────
+// FACTURE PDF (manuelles ou liées à des devis)
+// ─────────────────────────────────────────────────────────────────────────────
+const generateFacturePDF = async (facture) => {
+  const dir = path.join(__dirname, '../../uploads/factures');
+  ensureDir(dir);
+
+  const filename = `facture-${facture.numero}.pdf`;
+  const filepath = path.join(dir, filename);
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ margin: 0, size: 'A4' });
+      const stream = fs.createWriteStream(filepath);
+      doc.pipe(stream);
+
+      const W = 595.28;
+      const BLEU = '#0099FF';
+      const NOIR = '#060D1F';
+      const GRIS = '#8899BB';
+      const GRIS_CLAIR = '#E8EDF2';
+      const FOND = '#F8F9FA';
+
+      const payStatus = facture.paymentStatus || facture.status || 'impayee';
+      const statColor = payStatus === 'payee' ? '#00C48C' : payStatus === 'annulee' ? '#64748B' : '#FF4757';
+      const statLabel = payStatus === 'payee' ? 'PAYEE' : payStatus === 'annulee' ? 'ANNULEE' : 'IMPAYEE';
+
+      // Header
+      doc.rect(0, 0, W, 140).fill(NOIR);
+
+      const logoPng = await getLogoPng();
+      if (logoPng) {
+        doc.image(logoPng, 40, 32, { width: 160 });
+      } else {
+        doc.fontSize(26).fillColor('#FFFFFF').font('Helvetica-Bold')
+          .text('SORA', 44, 36, { continued: true })
+          .fillColor(BLEU).text('TECH');
+      }
+
+      doc.fontSize(7.5).fillColor(GRIS).font('Helvetica')
+        .text('Abidjan, Cocody — Angre 8eme', 40, 100)
+        .text('Tel : +225 07 04 92 80 68  |  contact@soratech.ci', 40, 112);
+
+      doc.fontSize(22).fillColor('#FFFFFF').font('Helvetica-Bold')
+        .text('FACTURE', 0, 34, { align: 'right', width: W - 40 });
+      doc.fontSize(15).fillColor(BLEU).font('Helvetica-Bold')
+        .text(facture.numero, 0, 62, { align: 'right', width: W - 40 });
+      doc.fontSize(10).fillColor(statColor).font('Helvetica-Bold')
+        .text(statLabel, 0, 83, { align: 'right', width: W - 40 });
+      doc.fontSize(9).fillColor(GRIS).font('Helvetica')
+        .text(
+          new Date(facture.createdAt || Date.now()).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }),
+          0, 99, { align: 'right', width: W - 40 }
+        );
+
+      // Section infos
+      const IY = 156;
+      const BLOC_W = 238;
+      const BLOC_H = 100;
+
+      doc.rect(40, IY, W - 80, BLOC_H).fill(FOND).stroke(GRIS_CLAIR);
+      doc.moveTo(40 + BLOC_W, IY).lineTo(40 + BLOC_W, IY + BLOC_H)
+        .strokeColor(GRIS_CLAIR).lineWidth(1).stroke();
+
+      // Emetteur
+      doc.fontSize(7.5).fillColor(BLEU).font('Helvetica-Bold').text('EMETTEUR', 52, IY + 10);
+      doc.fontSize(10).fillColor('#111111').font('Helvetica-Bold').text('SORA TECH COMPANY', 52, IY + 23);
+      doc.fontSize(8.5).fillColor('#444444').font('Helvetica')
+        .text('Fonde par Sissoko Abdoulaye', 52, IY + 38)
+        .text('Abidjan, Cocody — Angre 8eme', 52, IY + 51)
+        .text('Tel : +225 07 04 92 80 68', 52, IY + 64)
+        .text('contact@soratech.ci', 52, IY + 77);
+
+      // Destinataire
+      const RX = 40 + BLOC_W + 16;
+      const RW = W - 80 - BLOC_W - 16;
+      doc.fontSize(7.5).fillColor(BLEU).font('Helvetica-Bold').text('FACTURE A', RX, IY + 10);
+      doc.fontSize(11).fillColor('#111111').font('Helvetica-Bold')
+        .text(facture.clientName || '-', RX, IY + 23, { width: RW });
+      doc.fontSize(8.5).fillColor('#444444').font('Helvetica');
+      let cy2 = IY + 40;
+      if (facture.clientPhone) { doc.text('Tel : ' + facture.clientPhone, RX, cy2, { width: RW }); cy2 += 13; }
+      if (facture.clientEmail) { doc.text('Email : ' + facture.clientEmail, RX, cy2, { width: RW }); cy2 += 13; }
+      if (facture.clientQuartier) { doc.text('Quartier : ' + facture.clientQuartier, RX, cy2, { width: RW }); cy2 += 13; }
+      if (facture.clientAddress) { doc.text('Adresse : ' + facture.clientAddress.substring(0, 45), RX, cy2, { width: RW }); }
+
+      // Tableau
+      const TY = IY + BLOC_H + 18;
+      doc.rect(40, TY, W - 80, 24).fill(NOIR);
+      doc.fontSize(8.5).fillColor('#FFFFFF').font('Helvetica-Bold')
+        .text('DESCRIPTION', 52, TY + 8)
+        .text('QTE', 370, TY + 8, { width: 35, align: 'center' })
+        .text('PRIX UNIT.', 410, TY + 8, { width: 70 })
+        .text('TOTAL', 485, TY + 8, { width: 70 });
+
+      let rowY = TY + 28;
+      (facture.items || []).forEach((item, i) => {
+        if (i % 2 === 0) doc.rect(40, rowY - 2, W - 80, 22).fill(FOND);
+        doc.fontSize(9).fillColor('#1A1A2E').font('Helvetica')
+          .text(item.description || '-', 52, rowY, { width: 310 })
+          .text(String(item.quantity || 1), 370, rowY, { width: 35, align: 'center' })
+          .text(fcfa(item.unitPrice || 0).replace(' FCFA', ' F'), 410, rowY, { width: 70 })
+          .text(fcfa(item.total || 0).replace(' FCFA', ' F'), 485, rowY, { width: 70 });
+        rowY += 24;
+        doc.moveTo(40, rowY - 1).lineTo(W - 40, rowY - 1)
+          .strokeColor('#E0E4EA').lineWidth(0.5).stroke();
+      });
+
+      rowY += 10;
+      doc.moveTo(360, rowY - 4).lineTo(W - 40, rowY - 4)
+        .strokeColor('#DDDDDD').lineWidth(0.8).stroke();
+
+      const addLigne2 = (label, val, gras = false, couleur = '#555555') => {
+        doc.fontSize(gras ? 11 : 9).fillColor(couleur)
+          .font(gras ? 'Helvetica-Bold' : 'Helvetica')
+          .text(label, 360, rowY)
+          .text(val, 0, rowY, { align: 'right', width: W - 40 });
+        rowY += gras ? 22 : 16;
+      };
+
+      addLigne2('Sous-total :', fcfa(facture.subtotal || 0));
+      if ((facture.deliveryFee || 0) > 0) addLigne2('Frais de livraison :', fcfa(facture.deliveryFee));
+      if ((facture.tva || 0) > 0) addLigne2(`TVA (${facture.tva}%) :`, fcfa(facture.tvaAmount || 0));
+
+      rowY += 4;
+      doc.rect(360, rowY - 3, W - 40 - 360, 26).fill(BLEU);
+      doc.fontSize(12).fillColor('#FFFFFF').font('Helvetica-Bold')
+        .text('TOTAL', 368, rowY + 3)
+        .text(fcfa(facture.total || 0), 0, rowY + 3, { align: 'right', width: W - 40 });
+      rowY += 36;
+
+      if (facture.notes) {
+        doc.fontSize(8.5).fillColor(GRIS).font('Helvetica-Bold').text('NOTES :', 40, rowY);
+        doc.font('Helvetica').fillColor('#555555').text(facture.notes, 40, rowY + 14, { width: W - 80 });
+        rowY += 32;
+      }
+
+      // Pied de page
+      doc.rect(0, 802, W, 40).fill(NOIR);
+      doc.fontSize(8.5).fillColor('#FFFFFF').font('Helvetica-Bold')
+        .text('SORA TECH COMPANY — Votre partenaire digital en Cote d\'Ivoire', 0, 812, { align: 'center', width: W });
+      doc.fontSize(7.5).fillColor(GRIS).font('Helvetica')
+        .text(
+          'Tel : +225 07 04 92 80 68  |  Email : contact@soratech.ci  |  soratech.ci  |  Abidjan, Cocody',
+          0, 825, { align: 'center', width: W }
+        );
+
+      doc.end();
+      stream.on('finish', () => resolve({ filepath, filename }));
+      stream.on('error', reject);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+module.exports = { generateCommandePDF, generateFacturePDF };

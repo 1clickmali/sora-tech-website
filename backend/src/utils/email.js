@@ -83,9 +83,9 @@ const baseTemplate = (content, { ctaUrl = '', ctaLabel = '' } = {}) => `
 
 // ── Emails CLIENT ─────────────────────────────────────────────────────────────
 
-const sendCommandeConfirmation = async (commande, invoicePath = null) => {
+const sendCommandeConfirmation = async (commande, invoicePath = null, publicToken = null) => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.log('[Email] Non configuré — email ignoré');
+    console.log('[Email] EMAIL_USER ou EMAIL_PASS manquant dans .env — email ignoré');
     return;
   }
   const transporter = createTransporter();
@@ -108,7 +108,8 @@ const sendCommandeConfirmation = async (commande, invoicePath = null) => {
       <div style="font-size:11px;color:#8899BB;letter-spacing:2px;text-transform:uppercase">Code de suivi</div>
       <div class="tracking-code">${commande.trackingCode || commande.reference}</div>
       <div style="font-size:12px;color:#8899BB">Suivez votre commande en temps réel</div>
-      ${commande.trackingUrl ? `<a href="${commande.trackingUrl}" class="btn" style="margin-top:12px;padding:10px 24px;font-size:12px">📦 Suivre ma commande</a>` : ''}
+      ${commande.trackingUrl ? `<a href="${commande.trackingUrl}" class="btn" style="margin-top:12px;padding:10px 24px;font-size:12px">Suivre ma commande</a>` : ''}
+      ${publicToken ? `<br><a href="${process.env.BACKEND_URL || 'https://sora-tech-website-production.up.railway.app'}/api/factures/public/${publicToken}" style="display:inline-block;margin-top:8px;padding:8px 20px;background:#1E2D4A;color:#00E5FF;border-radius:8px;text-decoration:none;font-size:11px;font-weight:700;">Telecharger ma facture PDF</a>` : ''}
     </div>
 
     <div class="info-card">
@@ -274,6 +275,19 @@ const notifyAdminNewContact = async (contact) => {
   );
 };
 
+// Vérification de la config email au démarrage du serveur
+const verifyEmailConfig = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn('[Email] EMAIL_USER ou EMAIL_PASS manquant — les emails ne seront PAS envoyés');
+    return;
+  }
+  const t = createTransporter();
+  t.verify((err) => {
+    if (err) console.error('[Email] Erreur de configuration SMTP:', err.message);
+    else console.log('[Email] Configuration SMTP OK — emails prets a etre envoyes');
+  });
+};
+
 module.exports = {
   sendCommandeConfirmation,
   sendDevisConfirmation,
@@ -281,4 +295,5 @@ module.exports = {
   notifyAdminNewCommande,
   notifyAdminNewDevis,
   notifyAdminNewContact,
+  verifyEmailConfig,
 };

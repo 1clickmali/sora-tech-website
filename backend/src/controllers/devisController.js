@@ -1,6 +1,7 @@
 const Devis = require('../models/Devis');
 const { sendDevisConfirmation, notifyAdminNewDevis } = require('../utils/email');
 const { sendDevisWhatsApp } = require('../utils/whatsapp');
+const upsertContact = require('../utils/upsertContact');
 
 const getDevis = async (req, res) => {
   try {
@@ -45,6 +46,12 @@ const createDevis = async (req, res) => {
     sendDevisConfirmation(devis).catch(e => console.error('[Email client]', e.message));
     notifyAdminNewDevis(devis).catch(e => console.error('[Email admin]', e.message));
     sendDevisWhatsApp(devis).catch(e => console.error('[WhatsApp]', e.message));
+    upsertContact({
+      name: devis.clientName,
+      email: devis.clientEmail,
+      phone: devis.clientPhone,
+      source: 'devis',
+    }).catch(e => console.error('[upsertContact devis]', e.message));
 
     res.status(201).json({ success: true, data: devis });
   } catch (err) {

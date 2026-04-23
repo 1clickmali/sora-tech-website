@@ -50,6 +50,8 @@ export default function BoutiquePage() {
   const [paymentMode, setPaymentMode] = useState<"online" | "cod" | null>(null);
   const [deliveryInfo, setDeliveryInfo] = useState({ name: "", phone: "", email: "", address: "", quartier: "" });
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState('');
 
   const DELIVERY_FEE = 2500;
   const categories = ["Tous", "Logiciels", "Templates", "Formations", "Services"];
@@ -93,6 +95,38 @@ export default function BoutiquePage() {
   const deliveryFee = paymentMode === "cod" ? DELIVERY_FEE : 0;
   const cartTotal = cartSubtotal + deliveryFee;
   const fmt = (n: number) => n.toLocaleString("fr-FR").replace(/,/g, " ");
+
+  const getLocation = () => {
+    if (!navigator.geolocation) { setGeoError('Géolocalisation non supportée.'); return; }
+    setGeoLoading(true);
+    setGeoError('');
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const r = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=fr`,
+            { headers: { 'Accept-Language': 'fr' } }
+          );
+          const data = await r.json();
+          const addr = data.address || {};
+          const q = addr.suburb || addr.neighbourhood || addr.city_district || addr.city || '';
+          const full = data.display_name || '';
+          setDeliveryInfo(prev => ({
+            ...prev,
+            quartier: q || prev.quartier,
+            address: full || prev.address,
+          }));
+        } catch {
+          setGeoError('Impossible de déterminer votre adresse.');
+        } finally {
+          setGeoLoading(false);
+        }
+      },
+      () => { setGeoError('Accès à la position refusé.'); setGeoLoading(false); },
+      { timeout: 10000 }
+    );
+  };
 
   const resetCheckout = () => {
     setCheckoutStep(0); setPaymentMode(null);
@@ -344,6 +378,17 @@ export default function BoutiquePage() {
                     ))}
                     {paymentMode === "cod" && (
                       <>
+                        {/* Geolocation button */}
+                        <div className="flex items-center gap-2">
+                          <button type="button" onClick={getLocation} disabled={geoLoading}
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition"
+                            style={{ background: geoLoading ? '#1a2540' : '#0066FF20', color: geoLoading ? '#64748B' : '#0099FF', border: '1px solid #0066FF40' }}>
+                            {geoLoading
+                              ? <><span className="w-3 h-3 border border-cyan-400 border-t-transparent rounded-full animate-spin inline-block" /> Localisation...</>
+                              : '📍 Utiliser ma position GPS'}
+                          </button>
+                          {geoError && <span className="text-xs text-red-400">{geoError}</span>}
+                        </div>
                         <div>
                           <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold">Quartier *</label>
                           <select value={deliveryInfo.quartier} onChange={(e) => setDeliveryInfo({...deliveryInfo, quartier: e.target.value})} className="w-full mt-1 bg-[#0A1525] border border-[#1a2540] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0066FF] cursor-pointer">

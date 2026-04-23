@@ -7,7 +7,7 @@ const getFactures = async (req, res) => {
   try {
     const { status, search, page = 1, limit = 20 } = req.query;
     const query = {};
-    if (status && status !== 'tous') query.status = status;
+    if (status && status !== 'tous') query.paymentStatus = status;
     if (search) {
       query.$or = [
         { numero: { $regex: search, $options: 'i' } },
@@ -101,4 +101,31 @@ const deleteFacture = async (req, res) => {
   }
 };
 
-module.exports = { getFactures, getFacture, createFacture, updateFacture, downloadPDF, deleteFacture };
+// Route PUBLIQUE — accès par token unique (lien email client, sans auth)
+const downloadPDFPublic = async (req, res) => {
+  try {
+    const facture = await Facture.findOne({ publicToken: req.params.publicToken });
+    if (!facture) return res.status(404).json({ success: false, message: 'Lien invalide ou expiré' });
+
+    // Utilise le PDF existant ou le régénère
+    let filepath = facture.pdfPath;
+    let filename = facture.pdfFilename;
+
+    if (!filepath || !fs.existsSync(filepath)) {
+      const result = await generateFacturePDF(facture);
+      filepath = result.filepath;
+      filename = result.filename;
+      await Facture.findByIdAndUpdate(facture._id, {
+        pdfPath: filepath,
+        pdfUrl: `/uploads/factures/${filename}`,
+        pdfFilename: filename,
+      });
+    }
+
+    res.download(filepath, filename || `facture-${facture.numero}.pdf`);
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { getFactures, getFacture, createFacture, updateFacture, downloadPDF, downloadPDFPublic, deleteFacture };
