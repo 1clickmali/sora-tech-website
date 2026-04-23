@@ -13,7 +13,7 @@ interface Facture {
   items: FactureItem[];
   subtotal: number; deliveryFee?: number; tva?: number; tvaAmount?: number; total: number;
   paymentMode?: string; paymentStatus: string;
-  pdfUrl?: string; pdfFilename?: string;
+  pdfFilename?: string; publicToken?: string;
   notes?: string; echeance?: string; issuedAt?: string; createdAt: string;
 }
 
@@ -70,6 +70,23 @@ export default function FacturesPage() {
     await api.patch(`/api/factures/${id}`, { paymentStatus: 'payee', paidAt: new Date() });
     setFactures(f => f.map(x => x._id === id ? { ...x, paymentStatus: 'payee' } : x));
     if (selected?._id === id) setSelected(s => s ? { ...s, paymentStatus: 'payee' } : null);
+  };
+
+  const downloadPDF = async (id: string, numero: string) => {
+    try {
+      const token = localStorage.getItem('sora_token');
+      const res = await fetch(`${API_BASE}/api/factures/${id}/pdf`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) { alert('Erreur lors du téléchargement'); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `facture-${numero}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch { alert('Erreur réseau'); }
   };
 
   const updateItem = (i: number, key: string, val: any) => {
@@ -220,11 +237,11 @@ export default function FacturesPage() {
                   </td>
                   <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                     <div className="flex gap-1.5 items-center">
-                      <a href={`${API_BASE}/api/factures/${f._id}/pdf`} target="_blank" rel="noopener"
-                        className="px-2 py-1 rounded text-xs font-medium"
+                      <button onClick={() => downloadPDF(f._id, f.numero)}
+                        className="px-2 py-1 rounded text-xs font-medium cursor-pointer"
                         style={{ background: '#1E2D4A', color: '#94A3B8' }}>
                         PDF
-                      </a>
+                      </button>
                       {f.paymentStatus === 'impayee' && (
                         <button onClick={() => markPaid(f._id)}
                           className="px-2 py-1 rounded text-xs font-medium"
@@ -338,11 +355,11 @@ export default function FacturesPage() {
 
               {/* Actions */}
               <div className="flex gap-3">
-                <a href={`${API_BASE}/api/factures/${selected._id}/pdf`} target="_blank" rel="noopener"
-                  className="flex-1 py-2.5 rounded-xl text-sm font-bold text-center"
+                <button onClick={() => downloadPDF(selected._id, selected.numero)}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold cursor-pointer"
                   style={{ background: '#1E2D4A', color: '#94A3B8' }}>
                   Télécharger PDF
-                </a>
+                </button>
                 {selected.paymentStatus === 'impayee' && (
                   <button onClick={() => markPaid(selected._id)}
                     className="flex-1 py-2.5 rounded-xl text-sm font-bold"
