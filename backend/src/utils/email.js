@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-const fs = require('fs');
 
 const createTransporter = () => nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp.hostinger.com',
@@ -83,7 +82,7 @@ const baseTemplate = (content, { ctaUrl = '', ctaLabel = '' } = {}) => `
 
 // ── Emails CLIENT ─────────────────────────────────────────────────────────────
 
-const sendCommandeConfirmation = async (commande, invoicePath = null, publicToken = null) => {
+const sendCommandeConfirmation = async (commande, invoiceBuffer = null, publicToken = null) => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.log('[Email] EMAIL_USER ou EMAIL_PASS manquant dans .env — email ignoré');
     return;
@@ -146,11 +145,11 @@ const sendCommandeConfirmation = async (commande, invoicePath = null, publicToke
     html,
   };
 
-  // Attacher le PDF si disponible
-  if (invoicePath && fs.existsSync(invoicePath)) {
+  // Attacher le PDF buffer si disponible
+  if (invoiceBuffer && Buffer.isBuffer(invoiceBuffer) && invoiceBuffer.length > 0) {
     mailOptions.attachments = [{
       filename: `Commande-${commande.reference}.pdf`,
-      path: invoicePath,
+      content: invoiceBuffer,
       contentType: 'application/pdf',
     }];
   }

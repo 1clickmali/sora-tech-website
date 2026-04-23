@@ -71,11 +71,9 @@ const createCommande = async (req, res) => {
     // Tâches asynchrones (ne bloquent pas la réponse)
     setImmediate(async () => {
       try {
-        // 1. Générer PDF facture
-        const { filepath, filename } = await generateCommandePDF(commande);
+        // 1. Générer PDF en mémoire (buffer — Railway filesystem éphémère)
+        const { buffer: pdfBuffer, filename } = await generateCommandePDF(commande);
         await Commande.findByIdAndUpdate(commande._id, {
-          invoicePath: filepath,
-          invoiceUrl: `/uploads/factures/${filename}`,
           $push: { timeline: { event: 'Facture PDF générée', by: 'Système' } },
         });
 
@@ -104,8 +102,6 @@ const createCommande = async (req, res) => {
             paymentMode: commande.paymentMode || 'cod',
             paymentStatus: commande.paymentMode === 'online' ? 'payee' : 'impayee',
             paidAt: commande.paymentMode === 'online' ? new Date() : undefined,
-            pdfPath: filepath,
-            pdfUrl: `/uploads/factures/${filename}`,
             pdfFilename: filename,
             issuedAt: new Date(),
           });
@@ -125,9 +121,9 @@ const createCommande = async (req, res) => {
           orderTotal: commande.total || 0,
         });
 
-        // 3. Email au client avec PDF
+        // 3. Email au client avec PDF buffer en pièce jointe
         if (commande.clientEmail) {
-          await sendCommandeConfirmation(commande, filepath, facturePublicToken).catch(e =>
+          await sendCommandeConfirmation(commande, pdfBuffer, facturePublicToken).catch(e =>
             console.error('[Email client]', e.message)
           );
           await Commande.findByIdAndUpdate(commande._id, {

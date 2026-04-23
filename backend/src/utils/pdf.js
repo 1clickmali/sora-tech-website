@@ -3,6 +3,7 @@ const QRCode = require('qrcode');
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
+const { PassThrough } = require('stream');
 
 // ── Formatter monnaie (ASCII uniquement — compatible PDFKit Helvetica) ──────
 const fcfa = (n) => {
@@ -28,16 +29,14 @@ const getLogoPng = async () => {
 // RECU DE COMMANDE — design premium inspiré Stripe / Apple
 // ─────────────────────────────────────────────────────────────────────────────
 const generateCommandePDF = async (commande) => {
-  const dir = path.join(__dirname, '../../uploads/factures');
-  ensureDir(dir);
-
   const filename = `commande-${commande.reference}.pdf`;
-  const filepath = path.join(dir, filename);
 
   return new Promise(async (resolve, reject) => {
     try {
       const doc = new PDFDocument({ margin: 0, size: 'A4' });
-      const stream = fs.createWriteStream(filepath);
+      const chunks = [];
+      const stream = new PassThrough();
+      stream.on('data', c => chunks.push(c));
       doc.pipe(stream);
 
       const W = 595.28;
@@ -263,7 +262,7 @@ const generateCommandePDF = async (commande) => {
         );
 
       doc.end();
-      stream.on('finish', () => resolve({ filepath, filename }));
+      stream.on('end', () => resolve({ buffer: Buffer.concat(chunks), filename }));
       stream.on('error', reject);
     } catch (err) {
       reject(err);
@@ -275,16 +274,14 @@ const generateCommandePDF = async (commande) => {
 // FACTURE PDF (manuelles ou liées à des devis)
 // ─────────────────────────────────────────────────────────────────────────────
 const generateFacturePDF = async (facture) => {
-  const dir = path.join(__dirname, '../../uploads/factures');
-  ensureDir(dir);
-
-  const filename = `facture-${facture.numero}.pdf`;
-  const filepath = path.join(dir, filename);
+  const filename = `facture-${facture.numero || facture._id}.pdf`;
 
   return new Promise(async (resolve, reject) => {
     try {
       const doc = new PDFDocument({ margin: 0, size: 'A4' });
-      const stream = fs.createWriteStream(filepath);
+      const chunks = [];
+      const stream = new PassThrough();
+      stream.on('data', c => chunks.push(c));
       doc.pipe(stream);
 
       const W = 595.28;
@@ -419,7 +416,7 @@ const generateFacturePDF = async (facture) => {
         );
 
       doc.end();
-      stream.on('finish', () => resolve({ filepath, filename }));
+      stream.on('end', () => resolve({ buffer: Buffer.concat(chunks), filename }));
       stream.on('error', reject);
     } catch (err) {
       reject(err);

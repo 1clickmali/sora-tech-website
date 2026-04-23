@@ -1,7 +1,5 @@
 const Facture = require('../models/Facture');
 const { generateFacturePDF } = require('../utils/pdf');
-const path = require('path');
-const fs = require('fs');
 
 const getFactures = async (req, res) => {
   try {
@@ -34,7 +32,6 @@ const getFacture = async (req, res) => {
 
 const createFacture = async (req, res) => {
   try {
-    // Calculer les totaux automatiquement
     const items = req.body.items || [];
     const subtotal = items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
     items.forEach(item => { item.total = item.unitPrice * item.quantity; });
@@ -43,16 +40,6 @@ const createFacture = async (req, res) => {
     const total = subtotal + tvaAmount;
 
     const facture = await Facture.create({ ...req.body, items, subtotal, tvaAmount, total });
-
-    // Générer le PDF
-    try {
-      const { filepath, filename } = await generateFacturePDF(facture);
-      facture.pdfUrl = `/uploads/factures/${filename}`;
-      await facture.save();
-    } catch (pdfErr) {
-      console.error('[PDF]', pdfErr.message);
-    }
-
     res.status(201).json({ success: true, data: facture });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
@@ -74,12 +61,10 @@ const downloadPDF = async (req, res) => {
     const facture = await Facture.findById(req.params.id);
     if (!facture) return res.status(404).json({ success: false, message: 'Facture introuvable' });
 
-    // Régénérer le PDF si nécessaire
-    const { filepath, filename } = await generateFacturePDF(facture);
-    facture.pdfUrl = `/uploads/factures/${filename}`;
-    await facture.save();
-
-    res.download(filepath, filename);
+    const { buffer, filename } = await generateFacturePDF(facture);
+    res.set('Content-Type', 'application/pdf');
+    res.set('Content-Disposition', `attachment; filename="${filename}"`);
+    res.end(buffer);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -89,11 +74,6 @@ const deleteFacture = async (req, res) => {
   try {
     const facture = await Facture.findById(req.params.id);
     if (!facture) return res.status(404).json({ success: false, message: 'Facture introuvable' });
-    // Supprimer le PDF physique
-    if (facture.pdfUrl) {
-      const filepath = path.join(__dirname, '../../', facture.pdfUrl);
-      if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
-    }
     await facture.deleteOne();
     res.json({ success: true, message: 'Facture supprimée' });
   } catch (err) {
@@ -107,22 +87,10 @@ const downloadPDFPublic = async (req, res) => {
     const facture = await Facture.findOne({ publicToken: req.params.publicToken });
     if (!facture) return res.status(404).json({ success: false, message: 'Lien invalide ou expiré' });
 
-    // Utilise le PDF existant ou le régénère
-    let filepath = facture.pdfPath;
-    let filename = facture.pdfFilename;
-
-    if (!filepath || !fs.existsSync(filepath)) {
-      const result = await generateFacturePDF(facture);
-      filepath = result.filepath;
-      filename = result.filename;
-      await Facture.findByIdAndUpdate(facture._id, {
-        pdfPath: filepath,
-        pdfUrl: `/uploads/factures/${filename}`,
-        pdfFilename: filename,
-      });
-    }
-
-    res.download(filepath, filename || `facture-${facture.numero}.pdf`);
+    const { buffer, filename } = await generateFacturePDF(facture);
+    res.set('Content-Type', 'application/pdf');
+    res.set('Content-Disposition', `attachment; filename="${filename}"`);
+    res.end(buffer);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

@@ -20,11 +20,9 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Static files for uploads
+// Static files (images produits, avatars — pas les PDFs qui sont servis via API)
 const uploadsDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-const facturesDir = path.join(uploadsDir, 'factures');
-if (!fs.existsSync(facturesDir)) fs.mkdirSync(facturesDir, { recursive: true });
 app.use('/uploads', express.static(uploadsDir));
 
 // Routes
