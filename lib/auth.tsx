@@ -16,8 +16,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const t = localStorage.getItem('sora_token');
     if (t) {
       setToken(t);
-      api.get<{ data: User }>('/api/auth/me')
-        .then(r => setUser(r.data))
+      api.get<{ user: User }>('/api/auth/me')
+        .then(r => setUser(r.user))
         .catch(() => { localStorage.removeItem('sora_token'); })
         .finally(() => setLoading(false));
     } else {
@@ -26,10 +26,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const r = await api.post<{ token: string; data: User }>('/api/auth/login', { email, password });
+    const r = await api.post<{ token: string; user: User }>('/api/auth/login', { email, password });
     localStorage.setItem('sora_token', r.token);
     setToken(r.token);
-    setUser(r.data);
+    setUser(r.user);
   };
 
   const logout = () => {
