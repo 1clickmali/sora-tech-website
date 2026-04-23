@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MobileMenu from "../components/MobileMenu";
 import {
   Monitor, Globe, GraduationCap, Wrench, Smartphone, Shield,
@@ -10,6 +10,9 @@ import {
   CheckCircle, type LucideIcon
 } from "lucide-react";
 import Footer from "../components/Footer";
+
+const CAT_ICON: Record<string, LucideIcon> = { Logiciels: Monitor, Templates: Globe, Formations: GraduationCap, Services: Wrench };
+const CAT_COLOR: Record<string, string> = { Logiciels: "#0099FF", Templates: "#FF6B00", Formations: "#00C48C", Services: "#9B93FF" };
 
 function ScanLine() {
   return (
@@ -20,13 +23,26 @@ function ScanLine() {
 }
 
 type Product = {
-  id: number; category: string; title: string; description: string;
+  id: string | number; category: string; title: string; description: string;
   price: number; icon: LucideIcon; color: string; badge?: string;
-  features: string[]; digital?: boolean;
+  features: string[]; digital?: boolean; image?: string;
 };
+
+const STATIC_PRODUCTS: Product[] = [
+  { id: 1, category: "Logiciels",   title: "Logiciel de caisse alimentation", description: "Gestion complète de votre alimentation — stocks, ventes, rapports journaliers", price: 150000, icon: Monitor,      color: "#0099FF", badge: "BESTSELLER", features: ["Gestion stocks temps réel","Impression tickets","Rapports auto","Multi-caisses"],            digital: true },
+  { id: 2, category: "Templates",   title: "Template site restaurant",         description: "Design premium prêt à l'emploi pour restaurants et bars",                     price: 45000,  icon: Globe,         color: "#FF6B00",             features: ["Menu interactif","Réservation en ligne","Galerie photos","Responsive"],                       digital: true },
+  { id: 3, category: "Formations",  title: "Formation création site web",      description: "10 heures de formation en ligne pour créer votre site web",                    price: 75000,  icon: GraduationCap, color: "#00C48C",             features: ["10h de vidéos HD","Exercices pratiques","Certificat","Support 3 mois"],                       digital: true },
+  { id: 4, category: "Services",    title: "Pack maintenance annuel",           description: "Maintenance informatique complète pour votre entreprise",                      price: 120000, icon: Wrench,        color: "#9B93FF",             features: ["Support 24/7","Dépannage illimité","Mises à jour","Sauvegardes auto"] },
+  { id: 5, category: "Templates",   title: "Template app mobile",              description: "UI/UX React Native prêt à l'emploi pour votre application",                   price: 80000,  icon: Smartphone,    color: "#0066FF",             features: ["Code source complet","Android + iOS","30+ écrans","Design moderne"],                          digital: true },
+  { id: 6, category: "Services",    title: "Audit cybersécurité",              description: "Rapport complet d'audit + recommandations personnalisées",                     price: 200000, icon: Shield,        color: "#FF4757", badge: "POPULAIRE", features: ["Audit complet","Rapport détaillé","Plan d'action","Suivi 1 mois"] },
+  { id: 7, category: "Logiciels",   title: "Logiciel CRM boutique",            description: "Gérez vos clients, ventes et fidélité en un seul outil",                      price: 180000, icon: Monitor,       color: "#0099FF",             features: ["Base clients","Suivi ventes","Fidélité","SMS marketing"],                                      digital: true },
+  { id: 8, category: "Templates",   title: "Template e-commerce",              description: "Boutique en ligne complète avec Mobile Money intégré",                         price: 120000, icon: Globe,         color: "#FF6B00", badge: "NOUVEAU", features: ["Paiement Wave/OM","Panier complet","Gestion commandes","Livraison GPS"],                     digital: true },
+  { id: 9, category: "Formations",  title: "Formation cybersécurité PME",      description: "Protégez votre entreprise des cyberattaques",                                  price: 90000,  icon: Shield,        color: "#FF4757",             features: ["8h de formation","Cas pratiques","Certificat","Guide PDF"],                                   digital: true },
+];
 
 export default function BoutiquePage() {
   const [activeCategory, setActiveCategory] = useState("Tous");
+  const [products, setProducts] = useState<Product[]>(STATIC_PRODUCTS);
   const [cart, setCart] = useState<Product[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [sortBy, setSortBy] = useState("Populaire");
@@ -38,17 +54,28 @@ export default function BoutiquePage() {
   const DELIVERY_FEE = 2500;
   const categories = ["Tous", "Logiciels", "Templates", "Formations", "Services"];
 
-  const products: Product[] = [
-    { id: 1, category: "Logiciels",   title: "Logiciel de caisse alimentation", description: "Gestion complète de votre alimentation — stocks, ventes, rapports journaliers", price: 150000, icon: Monitor,      color: "#0099FF", badge: "BESTSELLER", features: ["Gestion stocks temps réel","Impression tickets","Rapports auto","Multi-caisses"],            digital: true },
-    { id: 2, category: "Templates",   title: "Template site restaurant",         description: "Design premium prêt à l'emploi pour restaurants et bars",                     price: 45000,  icon: Globe,         color: "#FF6B00",             features: ["Menu interactif","Réservation en ligne","Galerie photos","Responsive"],                       digital: true },
-    { id: 3, category: "Formations",  title: "Formation création site web",      description: "10 heures de formation en ligne pour créer votre site web",                    price: 75000,  icon: GraduationCap, color: "#00C48C",             features: ["10h de vidéos HD","Exercices pratiques","Certificat","Support 3 mois"],                       digital: true },
-    { id: 4, category: "Services",    title: "Pack maintenance annuel",           description: "Maintenance informatique complète pour votre entreprise",                      price: 120000, icon: Wrench,        color: "#9B93FF",             features: ["Support 24/7","Dépannage illimité","Mises à jour","Sauvegardes auto"] },
-    { id: 5, category: "Templates",   title: "Template app mobile",              description: "UI/UX React Native prêt à l'emploi pour votre application",                   price: 80000,  icon: Smartphone,    color: "#0066FF",             features: ["Code source complet","Android + iOS","30+ écrans","Design moderne"],                          digital: true },
-    { id: 6, category: "Services",    title: "Audit cybersécurité",              description: "Rapport complet d'audit + recommandations personnalisées",                     price: 200000, icon: Shield,        color: "#FF4757", badge: "POPULAIRE", features: ["Audit complet","Rapport détaillé","Plan d'action","Suivi 1 mois"] },
-    { id: 7, category: "Logiciels",   title: "Logiciel CRM boutique",            description: "Gérez vos clients, ventes et fidélité en un seul outil",                      price: 180000, icon: Monitor,       color: "#0099FF",             features: ["Base clients","Suivi ventes","Fidélité","SMS marketing"],                                      digital: true },
-    { id: 8, category: "Templates",   title: "Template e-commerce",              description: "Boutique en ligne complète avec Mobile Money intégré",                         price: 120000, icon: Globe,         color: "#FF6B00", badge: "NOUVEAU", features: ["Paiement Wave/OM","Panier complet","Gestion commandes","Livraison GPS"],                     digital: true },
-    { id: 9, category: "Formations",  title: "Formation cybersécurité PME",      description: "Protégez votre entreprise des cyberattaques",                                  price: 90000,  icon: Shield,        color: "#FF4757",             features: ["8h de formation","Cas pratiques","Certificat","Guide PDF"],                                   digital: true },
-  ];
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/produits?limit=100`)
+      .then(r => r.json())
+      .then(r => {
+        if (r.data?.length) {
+          setProducts(r.data.filter((p: any) => p.active).map((p: any) => ({
+            id: p._id,
+            category: p.category,
+            title: p.title,
+            description: p.description,
+            price: p.price,
+            icon: CAT_ICON[p.category] || Monitor,
+            color: CAT_COLOR[p.category] || "#0099FF",
+            badge: p.badge || undefined,
+            features: p.features || [],
+            digital: p.digital,
+            image: p.image || undefined,
+          })));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const filteredProducts = activeCategory === "Tous" ? products : products.filter(p => p.category === activeCategory);
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -58,7 +85,7 @@ export default function BoutiquePage() {
   });
 
   const addToCart = (product: Product) => { setCart([...cart, product]); setCartOpen(true); };
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string | number) => {
     const index = cart.findIndex(item => item.id === id);
     if (index > -1) { const nc = [...cart]; nc.splice(index, 1); setCart(nc); }
   };
