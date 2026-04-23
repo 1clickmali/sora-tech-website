@@ -24,7 +24,12 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && !user && pathname !== '/admin/login') {
-      router.replace('/admin/login');
+      // Double-check: if token still in localStorage, don't redirect yet
+      // (state may not have committed from a concurrent login)
+      const hasToken = typeof window !== 'undefined' && localStorage.getItem('sora_token');
+      if (!hasToken) {
+        router.replace('/admin/login');
+      }
     }
   }, [user, loading, pathname, router]);
 

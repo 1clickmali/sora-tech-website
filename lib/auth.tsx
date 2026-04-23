@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { api } from './api';
 
 interface User { _id: string; name: string; email: string; role: string; }
@@ -28,8 +29,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     const r = await api.post<{ token: string; user: User }>('/api/auth/login', { email, password });
     localStorage.setItem('sora_token', r.token);
-    setToken(r.token);
-    setUser(r.user);
+    // flushSync forces React to commit these state updates synchronously
+    // before the caller can call router.push(), preventing the redirect loop
+    flushSync(() => {
+      setToken(r.token);
+      setUser(r.user);
+      setLoading(false);
+    });
   };
 
   const logout = () => {
