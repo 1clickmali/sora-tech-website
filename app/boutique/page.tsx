@@ -78,13 +78,16 @@ export default function BoutiquePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          clientName: deliveryInfo.name,
-          clientPhone: deliveryInfo.phone,
+          clientName: deliveryInfo.name || 'Client',
+          clientPhone: deliveryInfo.phone || '0000000000',
           clientEmail: '',
-          clientAddress: deliveryInfo.address + (deliveryInfo.quartier ? `, ${deliveryInfo.quartier}` : ''),
-          items: cart.map(p => ({ productId: p.id, name: p.title, quantity: 1, unitPrice: p.price, total: p.price })),
+          address: deliveryInfo.address,
+          quartier: deliveryInfo.quartier,
+          items: cart.map(p => ({ title: p.title, price: p.price, quantity: 1, digital: p.digital || false })),
+          subtotal: cartSubtotal,
+          deliveryFee: deliveryFee,
           total: cartTotal,
-          paymentMethod: paymentMode || 'online',
+          paymentMode: paymentMode || 'online',
         }),
       });
     } catch (_) {}
