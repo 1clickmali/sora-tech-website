@@ -1,128 +1,204 @@
 const nodemailer = require('nodemailer');
+const fs = require('fs');
 
-// Créer le transporteur email
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-};
+const createTransporter = () => nodemailer.createTransport({
+  service: 'gmail',
+  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+});
 
-// Template HTML de base
-const baseTemplate = (content) => `
+// ── Template HTML premium ────────────────────────────────────────────────────
+
+const baseTemplate = (content, { ctaUrl = '', ctaLabel = '' } = {}) => `
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 30px auto; background: #fff; border-radius: 8px; overflow: hidden; }
-    .header { background: #060D1F; color: white; padding: 24px; text-align: center; }
-    .header h1 { margin: 0; font-size: 22px; }
-    .header span { color: #0099FF; }
-    .body { padding: 30px; color: #333; }
-    .info-block { background: #f8f9fa; border-left: 4px solid #0099FF; padding: 16px; margin: 16px 0; border-radius: 4px; }
-    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-    .badge-blue { background: #e3f2fd; color: #0066FF; }
-    .badge-green { background: #e8f5e9; color: #00C48C; }
-    .footer { background: #060D1F; color: #8899BB; padding: 20px; text-align: center; font-size: 12px; }
-    .btn { display: inline-block; padding: 12px 24px; background: #0066FF; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 16px 0; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background:#0D1B2E; color:#E2E8F0; }
+    .wrap { max-width:600px; margin:30px auto; border-radius:16px; overflow:hidden; background:#0B1628; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+    .header { background:linear-gradient(135deg,#060D1F,#0B1628); padding:32px; text-align:center; border-bottom:1px solid #1E2D4A; }
+    .logo-text { font-size:28px; font-weight:900; letter-spacing:4px; color:#fff; }
+    .logo-text span { color:#0099FF; }
+    .tagline { font-size:11px; color:#8899BB; margin-top:6px; letter-spacing:2px; text-transform:uppercase; }
+    .body { padding:36px; }
+    .greeting { font-size:16px; color:#CBD5E1; margin-bottom:20px; }
+    .greeting strong { color:#fff; }
+    .info-card { background:#060D1F; border:1px solid #1E2D4A; border-left:4px solid #0099FF; border-radius:10px; padding:20px; margin:20px 0; }
+    .info-card .label { font-size:10px; text-transform:uppercase; letter-spacing:2px; color:#8899BB; margin-bottom:4px; }
+    .info-card .value { font-size:14px; color:#E2E8F0; font-weight:600; }
+    .info-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #1E2D4A; }
+    .info-row:last-child { border-bottom:none; }
+    .info-row .name { font-size:13px; color:#CBD5E1; }
+    .info-row .price { font-size:13px; color:#0099FF; font-weight:700; font-family:monospace; }
+    .total-row { display:flex; justify-content:space-between; padding:14px 0 0; }
+    .total-row .name { font-size:15px; color:#fff; font-weight:700; }
+    .total-row .price { font-size:18px; color:#0099FF; font-weight:900; font-family:monospace; }
+    .tracking-card { background:linear-gradient(135deg,#0099FF15,#0066FF10); border:1px solid #0099FF40; border-radius:12px; padding:20px; margin:20px 0; text-align:center; }
+    .tracking-code { font-size:22px; font-weight:900; color:#0099FF; letter-spacing:4px; font-family:monospace; margin:8px 0; }
+    .btn { display:inline-block; padding:14px 32px; background:linear-gradient(135deg,#0066FF,#0099FF); color:#fff !important; border-radius:10px; text-decoration:none; font-weight:700; font-size:14px; margin:20px 0; letter-spacing:0.5px; }
+    .btn-whatsapp { background:linear-gradient(135deg,#128C7E,#25D366); }
+    .steps { display:flex; justify-content:space-between; margin:24px 0; }
+    .step { text-align:center; flex:1; }
+    .step-dot { width:32px; height:32px; border-radius:50%; background:#1E2D4A; border:2px solid #1E2D4A; display:flex; align-items:center; justify-content:center; margin:0 auto 8px; font-size:14px; }
+    .step-dot.active { background:#0099FF20; border-color:#0099FF; }
+    .step-label { font-size:10px; color:#8899BB; }
+    .footer { background:#060D1F; padding:24px; text-align:center; border-top:1px solid #1E2D4A; }
+    .footer p { font-size:11px; color:#8899BB; margin:4px 0; }
+    .footer a { color:#0099FF; text-decoration:none; }
+    .social { margin-top:12px; }
+    .social a { display:inline-block; margin:0 8px; font-size:11px; color:#0099FF; text-decoration:none; }
+    .divider { height:1px; background:linear-gradient(90deg,transparent,#1E2D4A,transparent); margin:20px 0; }
+    @media(max-width:600px){ .body{padding:20px;} .info-row{flex-direction:column;gap:4px;} }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>SORA<span>TECH</span></h1>
-      <p style="margin: 4px 0 0; font-size: 13px; color: #8899BB;">Votre partenaire tech en Côte d'Ivoire</p>
-    </div>
-    <div class="body">${content}</div>
-    <div class="footer">
-      <p>SORA TECH COMPANY — Cocody, Angré 8ème, Abidjan</p>
-      <p>📞 +225 07 04 92 80 68 | ✉️ contact@soratech.ci</p>
-      <p>© 2025 SORA TECH COMPANY. Tous droits réservés.</p>
+<div class="wrap">
+  <div class="header">
+    <div class="logo-text">SORA<span>TECH</span></div>
+    <div class="tagline">Votre partenaire tech en Côte d'Ivoire</div>
+  </div>
+  <div class="body">
+    ${content}
+    ${ctaUrl ? `<div style="text-align:center"><a href="${ctaUrl}" class="btn">${ctaLabel || 'Voir le détail'}</a></div>` : ''}
+  </div>
+  <div class="footer">
+    <p>🏢 SORA TECH COMPANY — Cocody, Angré 8ème, Abidjan, Côte d'Ivoire</p>
+    <p>📞 +225 07 04 92 80 68 &nbsp;|&nbsp; ✉️ <a href="mailto:contact@soratech.ci">contact@soratech.ci</a></p>
+    <p style="margin-top:8px">© 2025 SORA TECH COMPANY. Tous droits réservés.</p>
+    <div class="social">
+      <a href="https://wa.me/2250704928068">💬 WhatsApp</a>
+      <a href="https://soratech.ci">🌐 Site web</a>
     </div>
   </div>
+</div>
 </body>
 </html>`;
 
-// ── Emails CLIENT ──────────────────────────────────────────────────────────────
+// ── Emails CLIENT ─────────────────────────────────────────────────────────────
 
-const sendCommandeConfirmation = async (commande) => {
+const sendCommandeConfirmation = async (commande, invoicePath = null) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.log('[Email] Non configuré — email ignoré');
+    return;
+  }
   const transporter = createTransporter();
-  const itemsHtml = commande.items.map(i =>
-    `<tr><td>${i.title}</td><td style="text-align:right">${i.price.toLocaleString('fr-FR')} FCFA</td></tr>`
+
+  const itemsHtml = (commande.items || []).map(i =>
+    `<div class="info-row">
+      <span class="name">${i.title}${i.digital ? ' <span style="font-size:10px;color:#00C48C">(Digital)</span>' : ''} × ${i.quantity || 1}</span>
+      <span class="price">${((i.price || 0) * (i.quantity || 1)).toLocaleString('fr-FR')} F</span>
+    </div>`
   ).join('');
 
   const html = baseTemplate(`
-    <h2>✅ Votre commande est confirmée !</h2>
-    <p>Bonjour <strong>${commande.clientName}</strong>,</p>
-    <p>Nous avons bien reçu votre commande. Voici le récapitulatif :</p>
-    <div class="info-block">
-      <strong>Référence :</strong> ${commande.reference}<br>
-      <strong>Mode de paiement :</strong> ${commande.paymentMode === 'online' ? 'Paiement en ligne' : 'Paiement à la livraison'}<br>
-      ${commande.quartier ? `<strong>Livraison :</strong> ${commande.quartier}<br>` : ''}
+    <h2 style="color:#fff;font-size:20px;margin-bottom:8px">✅ Commande confirmée !</h2>
+    <p class="greeting">Bonjour <strong>${commande.clientName}</strong>,</p>
+    <p style="font-size:13px;color:#8899BB;margin-bottom:20px">
+      Nous avons bien reçu votre commande. Voici votre récapitulatif et votre code de suivi :
+    </p>
+
+    <div class="tracking-card">
+      <div style="font-size:11px;color:#8899BB;letter-spacing:2px;text-transform:uppercase">Code de suivi</div>
+      <div class="tracking-code">${commande.trackingCode || commande.reference}</div>
+      <div style="font-size:12px;color:#8899BB">Suivez votre commande en temps réel</div>
+      ${commande.trackingUrl ? `<a href="${commande.trackingUrl}" class="btn" style="margin-top:12px;padding:10px 24px;font-size:12px">📦 Suivre ma commande</a>` : ''}
     </div>
-    <table style="width:100%; border-collapse:collapse; margin:16px 0">
-      <tr style="background:#f8f9fa"><th style="text-align:left; padding:8px">Article</th><th style="text-align:right; padding:8px">Prix</th></tr>
+
+    <div class="info-card">
+      <div class="label">Référence commande</div>
+      <div class="value">${commande.reference}</div>
+      <div style="margin-top:10px" class="label">Mode de paiement</div>
+      <div class="value">${commande.paymentMode === 'online' ? '💳 Paiement en ligne' : '🚚 Paiement à la livraison'}</div>
+      ${commande.clientQuartier || commande.quartier ? `<div style="margin-top:10px" class="label">Livraison</div><div class="value">📍 ${commande.clientQuartier || commande.quartier}${commande.clientAddress || commande.address ? ` — ${commande.clientAddress || commande.address}` : ''}</div>` : ''}
+    </div>
+
+    <div style="margin:20px 0">
+      <div style="font-size:11px;color:#8899BB;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Articles commandés</div>
       ${itemsHtml}
-      <tr style="border-top: 2px solid #0099FF">
-        <td style="padding:8px; font-weight:bold">Total</td>
-        <td style="text-align:right; padding:8px; font-weight:bold; color:#0066FF">${commande.total.toLocaleString('fr-FR')} FCFA</td>
-      </tr>
-    </table>
-    <p>Notre équipe vous contactera sous peu pour finaliser votre commande.</p>
-    <a href="https://wa.me/2250704928068" class="btn">💬 Nous contacter sur WhatsApp</a>
+      ${commande.deliveryFee > 0 ? `<div class="info-row"><span class="name">🚚 Frais de livraison</span><span class="price">${commande.deliveryFee.toLocaleString('fr-FR')} F</span></div>` : ''}
+      <div class="divider"></div>
+      <div class="total-row">
+        <span class="name">TOTAL</span>
+        <span class="price">${(commande.total || 0).toLocaleString('fr-FR')} FCFA</span>
+      </div>
+    </div>
+
+    <p style="font-size:12px;color:#8899BB;margin-top:16px">
+      Notre équipe vous contactera sous peu. N'hésitez pas à nous joindre directement :
+    </p>
+    <div style="text-align:center;margin-top:12px">
+      <a href="https://wa.me/2250704928068?text=Commande%20${commande.reference}" class="btn btn-whatsapp" style="margin:8px 4px">💬 WhatsApp</a>
+    </div>
   `);
 
-  await transporter.sendMail({
+  const mailOptions = {
     from: `"SORA TECH" <${process.env.EMAIL_USER}>`,
     to: commande.clientEmail,
-    subject: `✅ Commande ${commande.reference} confirmée — SORA TECH`,
+    subject: `✅ Commande ${commande.reference} — Code suivi : ${commande.trackingCode || ''}`,
     html,
-  });
+  };
+
+  // Attacher le PDF si disponible
+  if (invoicePath && fs.existsSync(invoicePath)) {
+    mailOptions.attachments = [{
+      filename: `Commande-${commande.reference}.pdf`,
+      path: invoicePath,
+      contentType: 'application/pdf',
+    }];
+  }
+
+  await transporter.sendMail(mailOptions);
+  console.log(`[Email] Confirmation envoyée à ${commande.clientEmail}`);
 };
 
 const sendDevisConfirmation = async (devis) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
   const transporter = createTransporter();
   const serviceNames = { web: 'Site web', soft: 'Logiciel de gestion', app: 'Application mobile', erp: 'ERP complet', cyber: 'Cybersécurité', maint: 'Maintenance' };
 
   const html = baseTemplate(`
-    <h2>📋 Votre demande de devis est reçue !</h2>
-    <p>Bonjour <strong>${devis.clientName}</strong>,</p>
-    <p>Nous avons bien reçu votre demande de devis. Un expert de notre équipe vous contactera dans les <strong>24 heures</strong>.</p>
-    <div class="info-block">
-      <strong>Référence :</strong> ${devis.reference}<br>
-      <strong>Service :</strong> ${serviceNames[devis.serviceType] || devis.serviceType}<br>
-      <strong>RDV :</strong> ${devis.rdvDate} à ${devis.rdvSlot}<br>
-      <strong>Estimation :</strong> ${devis.estimatedPrice?.toLocaleString('fr-FR')} FCFA — ${devis.estimatedDays} jours
+    <h2 style="color:#fff;font-size:20px;margin-bottom:8px">📋 Devis reçu !</h2>
+    <p class="greeting">Bonjour <strong>${devis.clientName}</strong>,</p>
+    <p style="font-size:13px;color:#8899BB;margin-bottom:20px">
+      Nous avons bien reçu votre demande. Un expert vous contactera dans les <strong style="color:#0099FF">24 heures</strong>.
+    </p>
+    <div class="info-card">
+      <div class="label">Référence</div><div class="value">${devis.reference}</div>
+      <div style="margin-top:10px" class="label">Service demandé</div>
+      <div class="value">${serviceNames[devis.serviceType] || devis.serviceType}</div>
+      <div style="margin-top:10px" class="label">RDV prévu</div>
+      <div class="value">📅 ${devis.rdvDate} à ${devis.rdvSlot}</div>
+      <div style="margin-top:10px" class="label">Estimation préliminaire</div>
+      <div class="value" style="color:#0099FF">${devis.estimatedPrice?.toLocaleString('fr-FR')} FCFA — ${devis.estimatedDays} jours</div>
     </div>
-    <p>En attendant, n'hésitez pas à nous contacter directement :</p>
-    <a href="https://wa.me/2250704928068" class="btn">💬 WhatsApp Business</a>
-  `);
+  `, { ctaUrl: 'https://wa.me/2250704928068', ctaLabel: '💬 Nous contacter sur WhatsApp' });
 
   await transporter.sendMail({
     from: `"SORA TECH" <${process.env.EMAIL_USER}>`,
     to: devis.clientEmail,
-    subject: `📋 Devis ${devis.reference} reçu — SORA TECH`,
+    subject: `📋 Devis ${devis.reference} — SORA TECH`,
     html,
   });
 };
 
 const sendContactConfirmation = async (contact) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
   const transporter = createTransporter();
+
   const html = baseTemplate(`
-    <h2>📬 Message bien reçu !</h2>
-    <p>Bonjour <strong>${contact.name}</strong>,</p>
-    <p>Nous avons bien reçu votre message et nous vous répondrons dans les <strong>24 heures</strong>.</p>
-    <div class="info-block">
-      <strong>Sujet :</strong> ${contact.service || 'Question générale'}<br>
-      <strong>Message :</strong> ${contact.message.substring(0, 200)}${contact.message.length > 200 ? '...' : ''}
+    <h2 style="color:#fff;font-size:20px;margin-bottom:8px">📬 Message reçu !</h2>
+    <p class="greeting">Bonjour <strong>${contact.name}</strong>,</p>
+    <p style="font-size:13px;color:#8899BB;margin-bottom:20px">
+      Nous avons bien reçu votre message et nous vous répondrons dans les <strong style="color:#0099FF">24 heures</strong>.
+    </p>
+    <div class="info-card">
+      <div class="label">Sujet</div><div class="value">${contact.service || 'Question générale'}</div>
+      <div style="margin-top:10px" class="label">Votre message</div>
+      <div class="value" style="font-weight:400;color:#CBD5E1">${contact.message.substring(0, 300)}${contact.message.length > 300 ? '...' : ''}</div>
     </div>
-    <a href="https://wa.me/2250704928068" class="btn">💬 Réponse rapide sur WhatsApp</a>
-  `);
+  `, { ctaUrl: 'https://wa.me/2250704928068', ctaLabel: '💬 Réponse rapide WhatsApp' });
 
   await transporter.sendMail({
     from: `"SORA TECH" <${process.env.EMAIL_USER}>`,
@@ -135,9 +211,9 @@ const sendContactConfirmation = async (contact) => {
 // ── Emails ADMIN ──────────────────────────────────────────────────────────────
 
 const notifyAdmin = async (subject, content) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || !process.env.ADMIN_EMAIL) return;
   const transporter = createTransporter();
-  const html = baseTemplate(`<h2>🔔 Notification Admin</h2>${content}`);
-
+  const html = baseTemplate(`<h2 style="color:#FF4757;font-size:18px;margin-bottom:16px">🔔 Notification Admin</h2>${content}`);
   await transporter.sendMail({
     from: `"SORA TECH Système" <${process.env.EMAIL_USER}>`,
     to: process.env.ADMIN_EMAIL,
@@ -148,38 +224,47 @@ const notifyAdmin = async (subject, content) => {
 
 const notifyAdminNewCommande = async (commande) => {
   await notifyAdmin(
-    `Nouvelle commande ${commande.reference}`,
-    `<div class="info-block">
-      <strong>Client :</strong> ${commande.clientName} — ${commande.clientPhone}<br>
-      <strong>Total :</strong> ${commande.total.toLocaleString('fr-FR')} FCFA<br>
-      <strong>Paiement :</strong> ${commande.paymentMode === 'cod' ? 'À la livraison' : 'En ligne'}<br>
-      <strong>Articles :</strong> ${commande.items.map(i => i.title).join(', ')}
-    </div>`
+    `🛒 Nouvelle commande ${commande.reference} — ${(commande.total || 0).toLocaleString('fr-FR')} FCFA`,
+    `<div class="info-card">
+      <div class="label">Client</div>
+      <div class="value">${commande.clientName} — ${commande.clientPhone}</div>
+      ${commande.clientEmail ? `<div style="margin-top:6px" class="label">Email</div><div class="value">${commande.clientEmail}</div>` : ''}
+      ${commande.clientQuartier || commande.quartier ? `<div style="margin-top:6px" class="label">Quartier</div><div class="value">${commande.clientQuartier || commande.quartier}</div>` : ''}
+      <div style="margin-top:10px" class="label">Total</div>
+      <div class="value" style="font-size:20px;color:#0099FF">${(commande.total || 0).toLocaleString('fr-FR')} FCFA</div>
+      <div style="margin-top:10px" class="label">Paiement</div>
+      <div class="value">${commande.paymentMode === 'cod' ? '🚚 À la livraison' : '💳 En ligne'}</div>
+      <div style="margin-top:10px" class="label">Articles</div>
+      <div class="value">${(commande.items || []).map(i => `${i.title} × ${i.quantity || 1}`).join(', ')}</div>
+      <div style="margin-top:10px" class="label">Code de suivi</div>
+      <div class="value" style="color:#0099FF;font-family:monospace;font-size:16px">${commande.trackingCode || '-'}</div>
+    </div>
+    ${commande.trackingUrl ? `<div style="text-align:center;margin-top:16px"><a href="${commande.trackingUrl}" class="btn" style="padding:10px 20px;font-size:12px">📦 Voir le suivi</a></div>` : ''}`
   );
 };
 
 const notifyAdminNewDevis = async (devis) => {
   const serviceNames = { web: 'Site web', soft: 'Logiciel', app: 'App mobile', erp: 'ERP', cyber: 'Cybersécurité', maint: 'Maintenance' };
   await notifyAdmin(
-    `Nouveau devis ${devis.reference}`,
-    `<div class="info-block">
-      <strong>Client :</strong> ${devis.clientName} — ${devis.clientPhone}<br>
-      <strong>Email :</strong> ${devis.clientEmail}<br>
-      <strong>Service :</strong> ${serviceNames[devis.serviceType]}<br>
-      <strong>RDV :</strong> ${devis.rdvDate} à ${devis.rdvSlot}<br>
-      <strong>Estimation :</strong> ${devis.estimatedPrice?.toLocaleString('fr-FR')} FCFA
+    `📋 Nouveau devis ${devis.reference}`,
+    `<div class="info-card">
+      <div class="label">Client</div><div class="value">${devis.clientName} — ${devis.clientPhone}</div>
+      <div style="margin-top:6px" class="label">Email</div><div class="value">${devis.clientEmail}</div>
+      <div style="margin-top:6px" class="label">Service</div><div class="value">${serviceNames[devis.serviceType] || devis.serviceType}</div>
+      <div style="margin-top:6px" class="label">RDV</div><div class="value">${devis.rdvDate} à ${devis.rdvSlot}</div>
+      <div style="margin-top:6px" class="label">Estimation</div><div class="value" style="color:#0099FF">${devis.estimatedPrice?.toLocaleString('fr-FR')} FCFA</div>
     </div>`
   );
 };
 
 const notifyAdminNewContact = async (contact) => {
   await notifyAdmin(
-    `Nouveau message de ${contact.name}`,
-    `<div class="info-block">
-      <strong>De :</strong> ${contact.name} — ${contact.email}<br>
-      <strong>Téléphone :</strong> ${contact.phone || 'Non renseigné'}<br>
-      <strong>Service :</strong> ${contact.service || 'Non renseigné'}<br>
-      <strong>Message :</strong> ${contact.message}
+    `✉️ Nouveau message de ${contact.name}`,
+    `<div class="info-card">
+      <div class="label">De</div><div class="value">${contact.name} — ${contact.email}</div>
+      <div style="margin-top:6px" class="label">Téléphone</div><div class="value">${contact.phone || 'Non renseigné'}</div>
+      <div style="margin-top:6px" class="label">Service</div><div class="value">${contact.service || 'Non renseigné'}</div>
+      <div style="margin-top:6px" class="label">Message</div><div class="value" style="font-weight:400;color:#CBD5E1">${contact.message}</div>
     </div>`
   );
 };

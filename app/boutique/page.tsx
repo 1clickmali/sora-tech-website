@@ -48,7 +48,7 @@ export default function BoutiquePage() {
   const [sortBy, setSortBy] = useState("Populaire");
   const [checkoutStep, setCheckoutStep] = useState(0);
   const [paymentMode, setPaymentMode] = useState<"online" | "cod" | null>(null);
-  const [deliveryInfo, setDeliveryInfo] = useState({ name: "", phone: "", address: "", quartier: "" });
+  const [deliveryInfo, setDeliveryInfo] = useState({ name: "", phone: "", email: "", address: "", quartier: "" });
   const [orderSuccess, setOrderSuccess] = useState(false);
 
   const DELIVERY_FEE = 2500;
@@ -96,7 +96,7 @@ export default function BoutiquePage() {
 
   const resetCheckout = () => {
     setCheckoutStep(0); setPaymentMode(null);
-    setDeliveryInfo({ name: "", phone: "", address: "", quartier: "" });
+    setDeliveryInfo({ name: "", phone: "", email: "", address: "", quartier: "" });
     setOrderSuccess(false);
   };
   const confirmOrder = async () => {
@@ -107,10 +107,13 @@ export default function BoutiquePage() {
         body: JSON.stringify({
           clientName: deliveryInfo.name || 'Client',
           clientPhone: deliveryInfo.phone || '0000000000',
-          clientEmail: '',
-          address: deliveryInfo.address,
-          quartier: deliveryInfo.quartier,
-          items: cart.map(p => ({ title: p.title, price: p.price, quantity: 1, digital: p.digital || false })),
+          clientEmail: deliveryInfo.email || '',
+          clientAddress: deliveryInfo.address,
+          clientQuartier: deliveryInfo.quartier,
+          items: cart.map(p => ({
+            title: p.title, price: p.price, quantity: 1,
+            digital: p.digital || false, image: p.image || '',
+          })),
           subtotal: cartSubtotal,
           deliveryFee: deliveryFee,
           total: cartTotal,
@@ -329,7 +332,11 @@ export default function BoutiquePage() {
 
                 {!orderSuccess && checkoutStep === 2 && (
                   <div className="space-y-3">
-                    {[{ label: "Nom complet *", key: "name", type: "text", ph: "Kofi Mensah" },{ label: "Téléphone WhatsApp *", key: "phone", type: "tel", ph: "+225 07 00 00 00" }].map(f => (
+                    {[
+                      { label: "Nom complet *", key: "name", type: "text", ph: "Kofi Mensah" },
+                      { label: "Téléphone WhatsApp *", key: "phone", type: "tel", ph: "+225 07 00 00 00" },
+                      { label: "Email (pour recevoir votre facture)", key: "email", type: "email", ph: "kofi@gmail.com" },
+                    ].map(f => (
                       <div key={f.key}>
                         <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold">{f.label}</label>
                         <input type={f.type} value={deliveryInfo[f.key as keyof typeof deliveryInfo]} onChange={(e) => setDeliveryInfo({...deliveryInfo, [f.key]: e.target.value})} placeholder={f.ph} className="w-full mt-1 bg-[#0A1525] border border-[#1a2540] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition-colors" />
@@ -377,6 +384,7 @@ export default function BoutiquePage() {
                       <div className="text-xs text-[#8899BB] font-bold mb-2 uppercase tracking-wider font-mono">Client</div>
                       <div className="text-sm">{deliveryInfo.name}</div>
                       <div className="text-xs text-[#8899BB]">{deliveryInfo.phone}</div>
+                      {deliveryInfo.email && <div className="text-xs text-[#8899BB]">✉️ {deliveryInfo.email}</div>}
                       {paymentMode === "cod" && deliveryInfo.address && <div className="text-xs text-[#8899BB] mt-1">📍 {deliveryInfo.quartier} · {deliveryInfo.address}</div>}
                     </div>
                   </div>
