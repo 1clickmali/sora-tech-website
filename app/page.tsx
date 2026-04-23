@@ -51,14 +51,8 @@ function ScanLine() {
 
 function IconBox({ icon: Icon, color }: { icon: LucideIcon; color: string }) {
   return (
-    <div
-      className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110"
-      style={{
-        backgroundColor: `${color}15`,
-        border: `1px solid ${color}40`,
-        boxShadow: `0 0 20px ${color}15`,
-      }}
-    >
+    <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110"
+      style={{ backgroundColor: `${color}15`, border: `1px solid ${color}40`, boxShadow: `0 0 20px ${color}15` }}>
       <Icon className="w-7 h-7" style={{ color }} />
     </div>
   );
@@ -68,44 +62,45 @@ export default function Home() {
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, 120]);
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+  const [trackCode, setTrackCode] = useState('');
 
   const services: { icon: LucideIcon; title: string; desc: string; color: string; link: string }[] = [
-    { icon: Globe,      title: "Sites web",            desc: "Sites vitrines et e-commerce premium sur mesure",       color: "#0099FF", link: "/services" },
-    { icon: Monitor,    title: "Logiciels de gestion", desc: "Caisse, stock, CRM pour commerces et PME",              color: "#FF6B00", link: "/services" },
-    { icon: Smartphone, title: "Applications mobiles", desc: "Apps Android & iOS natives pour votre business",        color: "#00C48C", link: "/services" },
-    { icon: Layers,     title: "ERP complet",           desc: "RH, comptabilité, ventes, stock intégrés",             color: "#9B93FF", link: "/services" },
-    { icon: Shield,     title: "Cybersécurité",         desc: "Audit, protection et formation anti-piratage",         color: "#FF4757", link: "/services" },
-    { icon: Wrench,     title: "Maintenance IT",        desc: "Support 24/7, préventive et corrective",               color: "#0066FF", link: "/services" },
+    { icon: Globe,      title: "Sites web",            desc: "Sites vitrines et e-commerce premium sur mesure",  color: "#0099FF", link: "/services" },
+    { icon: Monitor,    title: "Logiciels de gestion", desc: "Caisse, stock, CRM pour commerces et PME",         color: "#FF6B00", link: "/services" },
+    { icon: Smartphone, title: "Applications mobiles", desc: "Apps Android & iOS natives pour votre business",   color: "#00C48C", link: "/services" },
+    { icon: Layers,     title: "ERP complet",           desc: "RH, comptabilité, ventes, stock intégrés",        color: "#9B93FF", link: "/services" },
+    { icon: Shield,     title: "Cybersécurité",         desc: "Audit, protection et formation anti-piratage",    color: "#FF4757", link: "/services" },
+    { icon: Wrench,     title: "Maintenance IT",        desc: "Support 24/7, préventive et corrective",          color: "#0066FF", link: "/services" },
   ];
 
-  const whyUs: { icon: LucideIcon; title: string; desc: string }[] = [
-    { icon: Zap,   title: "Rapidité",   desc: "Livraison dans les délais garantie"   },
-    { icon: Award, title: "Qualité",    desc: "Standards internationaux premium"      },
-    { icon: MapPin,title: "Proximité",  desc: "Équipe locale à Abidjan"               },
-    { icon: Lock,  title: "Sécurité",   desc: "Vos données sont protégées"            },
+  const whyUs: { icon: LucideIcon; title: string; desc: string; link: string }[] = [
+    { icon: Zap,    title: "Rapidité",   desc: "Livraison dans les délais garantie",  link: "/about" },
+    { icon: Award,  title: "Qualité",    desc: "Standards internationaux premium",     link: "/projets" },
+    { icon: MapPin, title: "Proximité",  desc: "Équipe locale à Abidjan",              link: "/about" },
+    { icon: Lock,   title: "Sécurité",   desc: "Vos données sont protégées",           link: "/services" },
   ];
 
   const products: { icon: LucideIcon; tag: string; title: string; desc: string; price: string; color: string }[] = [
-    { icon: Monitor,         tag: "LOGICIEL",    title: "Logiciel caisse alimentation", desc: "Gestion stocks, ventes, rapports",    price: "150 000", color: "#0099FF" },
-    { icon: Globe,           tag: "TEMPLATE",    title: "Template site restaurant",      desc: "Design premium prêt à l'emploi",      price: "45 000",  color: "#FF6B00" },
-    { icon: GraduationCap,   tag: "FORMATION",   title: "Formation création site web",   desc: "10h de formation en ligne",           price: "75 000",  color: "#00C48C" },
-    { icon: Wrench,          tag: "MAINTENANCE", title: "Pack maintenance annuel",        desc: "Suivi, mises à jour, support",        price: "120 000", color: "#9B93FF" },
-    { icon: Smartphone,      tag: "TEMPLATE",    title: "Template app mobile",            desc: "UI/UX React Native prêt",            price: "80 000",  color: "#0066FF" },
-    { icon: Shield,          tag: "SERVICE",     title: "Audit cybersécurité",            desc: "Rapport complet + recommandations",  price: "200 000", color: "#FF4757" },
+    { icon: Monitor,       tag: "LOGICIEL",    title: "Logiciel caisse alimentation", desc: "Gestion stocks, ventes, rapports",   price: "150 000", color: "#0099FF" },
+    { icon: Globe,         tag: "TEMPLATE",    title: "Template site restaurant",      desc: "Design premium prêt à l'emploi",     price: "45 000",  color: "#FF6B00" },
+    { icon: GraduationCap, tag: "FORMATION",   title: "Formation création site web",   desc: "10h de formation en ligne",          price: "75 000",  color: "#00C48C" },
+    { icon: Wrench,        tag: "MAINTENANCE", title: "Pack maintenance annuel",        desc: "Suivi, mises à jour, support",       price: "120 000", color: "#9B93FF" },
+    { icon: Smartphone,    tag: "TEMPLATE",    title: "Template app mobile",            desc: "UI/UX React Native prêt",           price: "80 000",  color: "#0066FF" },
+    { icon: Shield,        tag: "SERVICE",     title: "Audit cybersécurité",            desc: "Rapport complet + recommandations", price: "200 000", color: "#FF4757" },
   ];
 
   const articles = [
-    { tag: "DIGITALISATION", title: "Comment digitaliser votre boutique en 2025", desc: "Guide complet pour les commerçants d'Abidjan" },
-    { tag: "CYBERSÉCURITÉ",  title: "5 erreurs fatales pour la sécurité de votre PME", desc: "Protégez vos données dès maintenant" },
-    { tag: "ERP",            title: "Pourquoi votre entreprise a besoin d'un ERP", desc: "Gagnez en efficacité avec un système intégré" },
-    { tag: "WEB",            title: "Site vitrine ou e-commerce : que choisir ?", desc: "On vous aide à faire le bon choix" },
-    { tag: "MOBILE",         title: "L'avenir des apps en Côte d'Ivoire", desc: "Pourquoi investir dans le mobile maintenant" },
+    { tag: "DIGITALISATION", title: "Comment digitaliser votre boutique en 2025",       desc: "Guide complet pour les commerçants d'Abidjan" },
+    { tag: "CYBERSÉCURITÉ",  title: "5 erreurs fatales pour la sécurité de votre PME",  desc: "Protégez vos données dès maintenant" },
+    { tag: "ERP",            title: "Pourquoi votre entreprise a besoin d'un ERP",       desc: "Gagnez en efficacité avec un système intégré" },
+    { tag: "WEB",            title: "Site vitrine ou e-commerce : que choisir ?",        desc: "On vous aide à faire le bon choix" },
+    { tag: "MOBILE",         title: "L'avenir des apps en Côte d'Ivoire",                desc: "Pourquoi investir dans le mobile maintenant" },
   ];
 
   const testimonials = [
-    { name: "Konan Kouassi",  company: "Supermarché Abidjan",         text: "SORA TECH a révolutionné notre gestion. Nos ventes ont augmenté de 30% en 3 mois !", rating: 5, initials: "KK" },
-    { name: "Aminata Traoré", company: "Boutique Fashion",            text: "Le site e-commerce est magnifique. Service client au top, je recommande à 100% !", rating: 5, initials: "AT" },
-    { name: "Dr. Coulibaly",  company: "Cabinet Médical",             text: "L'ERP médical nous fait gagner des heures chaque jour. Équipe très professionnelle.", rating: 5, initials: "DC" },
+    { name: "Konan Kouassi",  company: "Supermarché Abidjan",  text: "SORA TECH a révolutionné notre gestion. Nos ventes ont augmenté de 30% en 3 mois !", rating: 5, initials: "KK" },
+    { name: "Aminata Traoré", company: "Boutique Fashion",     text: "Le site e-commerce est magnifique. Service client au top, je recommande à 100% !",    rating: 5, initials: "AT" },
+    { name: "Dr. Coulibaly",  company: "Cabinet Médical",      text: "L'ERP médical nous fait gagner des heures chaque jour. Équipe très professionnelle.", rating: 5, initials: "DC" },
   ];
 
   const tagColors: Record<string, string> = {
@@ -125,9 +120,9 @@ export default function Home() {
 
       {/* NAV */}
       <nav className="relative border-b border-[#1a2540] px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#060D1F]/85 backdrop-blur-xl z-50" style={{ boxShadow: "0 1px 0 rgba(0,153,255,0.1)" }}>
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-xl font-black tracking-[3px]">
+        <Link href="/" className="text-xl font-black tracking-[3px]">
           SORA<span className="text-[#0099FF]">TECH</span>
-        </motion.div>
+        </Link>
         <div className="hidden lg:flex items-center gap-6">
           <Link href="/"         className="text-xs uppercase tracking-widest text-[#0099FF] font-bold">Accueil</Link>
           <Link href="/services" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Services</Link>
@@ -137,10 +132,12 @@ export default function Home() {
           <Link href="/boutique" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Boutique</Link>
           <Link href="/devis"    className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Devis & RDV</Link>
           <Link href="/contact"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
+          <Link href="/suivi"    className="text-xs uppercase tracking-widest text-[#00C48C] hover:text-white transition font-bold">Suivi</Link>
         </div>
         <div className="flex items-center gap-3">
-          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
-            +225 07 00 00 00
+          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
+            +225 07 04 92 80 68
           </motion.a>
           <MobileMenu active="home" />
         </div>
@@ -151,28 +148,36 @@ export default function Home() {
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(#1a2540 1px, transparent 1px), linear-gradient(90deg, #1a2540 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
         <ScanLine />
         <div className="relative z-10 max-w-4xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 bg-[#0A1A3A] border border-[#0066FF] text-[#0099FF] text-xs tracking-[2px] px-4 py-1.5 rounded-full mb-6" style={{ boxShadow: "0 0 20px rgba(0,102,255,0.2)" }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 bg-[#0A1A3A] border border-[#0066FF] text-[#0099FF] text-xs tracking-[2px] px-4 py-1.5 rounded-full mb-6"
+            style={{ boxShadow: "0 0 20px rgba(0,102,255,0.2)" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-[#00FF88] animate-pulse" />
             ABIDJAN · CÔTE D&apos;IVOIRE
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-5xl md:text-7xl font-black leading-tight mb-6 tracking-tight">
+          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-5xl md:text-7xl font-black leading-tight mb-6 tracking-tight">
             Nous{" "}
-            <motion.span animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }} transition={{ duration: 5, repeat: Infinity }} className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#00C6FF]" style={{ backgroundSize: "200% 200%" }}>
+            <motion.span animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }} transition={{ duration: 5, repeat: Infinity }}
+              className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#00C6FF]" style={{ backgroundSize: "200% 200%" }}>
               digitalisons
             </motion.span>
             <br />votre entreprise
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.5 }} className="text-[#8899BB] text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.5 }}
+            className="text-[#8899BB] text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
             Sites web, logiciels de gestion, applications mobiles, ERP et cybersécurité. SORA TECH transforme vos idées en solutions digitales premium.
           </motion.p>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.7 }} className="flex gap-4 justify-center flex-wrap">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.7 }}
+            className="flex gap-4 justify-center flex-wrap">
             <Link href="/devis">
-              <motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 40px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">
+              <motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 40px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }}
+                className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">
                 Obtenir un devis →
               </motion.button>
             </Link>
             <Link href="/services">
-              <motion.button whileHover={{ scale: 1.05, borderColor: "#0066FF", boxShadow: "0 0 20px rgba(0,102,255,0.2)" }} whileTap={{ scale: 0.95 }} className="border border-[#1a2540] px-8 py-3.5 rounded-xl font-medium text-sm transition-all">
+              <motion.button whileHover={{ scale: 1.05, borderColor: "#0066FF", boxShadow: "0 0 20px rgba(0,102,255,0.2)" }} whileTap={{ scale: 0.95 }}
+                className="border border-[#1a2540] px-8 py-3.5 rounded-xl font-medium text-sm transition-all">
                 Nos services
               </motion.button>
             </Link>
@@ -180,21 +185,53 @@ export default function Home() {
         </div>
       </motion.section>
 
+      {/* SUIVI RAPIDE */}
+      <section className="relative z-10 px-6 pb-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className="max-w-2xl mx-auto rounded-2xl p-5 flex flex-col sm:flex-row gap-3 items-center"
+          style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
+          <div className="flex-shrink-0 text-left">
+            <div className="text-xs font-bold text-[#00C48C] uppercase tracking-widest mb-0.5">Suivi commande</div>
+            <div className="text-xs text-[#8899BB]">Entrez votre code STC-XXXX-XXXX</div>
+          </div>
+          <form onSubmit={e => { e.preventDefault(); const c = trackCode.trim().toUpperCase(); if (c) window.location.href = `/suivi/${c}`; }}
+            className="flex gap-2 flex-1 w-full">
+            <input
+              value={trackCode}
+              onChange={e => setTrackCode(e.target.value)}
+              placeholder="STC-2026-0001"
+              className="flex-1 px-4 py-2.5 rounded-xl text-white text-sm outline-none font-mono uppercase tracking-widest min-w-0"
+              style={{ background: '#060D1F', border: '1px solid #1E2D4A' }}
+            />
+            <motion.button type="submit" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+              className="px-4 py-2.5 rounded-xl text-sm font-bold flex-shrink-0"
+              style={{ background: '#00C48C', color: '#fff' }}>
+              Suivre →
+            </motion.button>
+          </form>
+        </motion.div>
+      </section>
+
       {/* STATS */}
       <section className="relative border-y border-[#1a2540] bg-[#080F20]/80 backdrop-blur py-10 px-6 z-10">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
-            { num: 50, suffix: "+", label: "PROJETS LIVRÉS",    color: "#0099FF" },
-            { num: 30, suffix: "+", label: "CLIENTS SATISFAITS", color: "#FF6B00" },
-            { num: 7,  suffix: "",  label: "EXPERTISES TECH",    color: "#00C48C" },
-            { num: 24, suffix: "/7",label: "SUPPORT CLIENT",     color: "#9B93FF" },
+            { num: 50, suffix: "+",  label: "PROJETS LIVRÉS",     color: "#0099FF", link: "/projets" },
+            { num: 30, suffix: "+",  label: "CLIENTS SATISFAITS",  color: "#FF6B00", link: "/about"   },
+            { num: 7,  suffix: "",   label: "EXPERTISES TECH",     color: "#00C48C", link: "/services" },
+            { num: 24, suffix: "/7", label: "SUPPORT CLIENT",      color: "#9B93FF", link: "/contact" },
           ].map((s, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="text-center">
-              <div className="text-4xl md:text-5xl font-black" style={{ color: s.color }}>
-                <AnimatedCounter target={s.num} suffix={s.suffix} />
-              </div>
-              <div className="text-[10px] text-[#8899BB] tracking-widest mt-1 font-mono">{s.label}</div>
-            </motion.div>
+            <Link href={s.link} key={i}>
+              <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className="text-center cursor-pointer">
+                <div className="text-4xl md:text-5xl font-black" style={{ color: s.color }}>
+                  <AnimatedCounter target={s.num} suffix={s.suffix} />
+                </div>
+                <div className="text-[10px] text-[#8899BB] tracking-widest mt-1 font-mono">{s.label}</div>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </section>
@@ -211,20 +248,25 @@ export default function Home() {
             {services.map((s, i) => (
               <Link href={s.link} key={i}>
                 <motion.div
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                   transition={{ delay: i * 0.08 }}
                   whileHover={{ y: -8, boxShadow: `0 20px 40px ${s.color}25` }}
-                  className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#0066FF] rounded-2xl p-6 cursor-pointer transition-all duration-300 h-full group"
-                >
+                  className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#0066FF] rounded-2xl p-6 cursor-pointer transition-all duration-300 h-full group">
                   <IconBox icon={s.icon} color={s.color} />
                   <h3 className="text-base font-bold mb-2">{s.title}</h3>
                   <p className="text-xs text-[#8899BB] leading-relaxed">{s.desc}</p>
-                  <div className="text-xs mt-4 font-bold transition-all" style={{ color: s.color }}>En savoir plus →</div>
+                  <div className="text-xs mt-4 font-bold" style={{ color: s.color }}>En savoir plus →</div>
                 </motion.div>
               </Link>
             ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/services">
+              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                className="border border-[#0066FF] text-[#0099FF] px-8 py-3 rounded-xl text-sm font-bold hover:bg-[#0066FF] hover:text-white transition-all">
+                Voir tous nos services →
+              </motion.button>
+            </Link>
           </div>
         </div>
       </section>
@@ -241,25 +283,23 @@ export default function Home() {
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: "none" }}>
             {articles.map((a, i) => (
-              <Link href="/blog" key={i}>
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -5, borderColor: tagColors[a.tag] || "#0066FF" }}
-                className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden min-w-[270px] max-w-[270px] flex-shrink-0 cursor-pointer transition-all duration-300"
-              >
-                <div className="h-28 flex items-center justify-center text-3xl font-mono font-black" style={{ background: `linear-gradient(135deg, ${tagColors[a.tag] || "#0066FF"}25, ${tagColors[a.tag] || "#0066FF"}05)`, color: tagColors[a.tag] || "#0099FF" }}>
-                  [{a.tag}]
-                </div>
-                <div className="p-5">
-                  <div className="text-[10px] tracking-widest font-mono mb-2" style={{ color: tagColors[a.tag] || "#0099FF" }}>{a.tag}</div>
-                  <h3 className="text-sm font-bold mb-2 leading-snug">{a.title}</h3>
-                  <p className="text-xs text-[#8899BB] leading-relaxed">{a.desc}</p>
-                  <div className="text-xs text-[#0099FF] mt-3 font-bold">Lire →</div>
-                </div>
-              </motion.div>
+              <Link href="/blog" key={i} className="flex-shrink-0">
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  whileHover={{ y: -5, borderColor: tagColors[a.tag] || "#0066FF" }}
+                  className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden min-w-[270px] max-w-[270px] cursor-pointer transition-all duration-300">
+                  <div className="h-28 flex items-center justify-center text-3xl font-mono font-black"
+                    style={{ background: `linear-gradient(135deg, ${tagColors[a.tag] || "#0066FF"}25, ${tagColors[a.tag] || "#0066FF"}05)`, color: tagColors[a.tag] || "#0099FF" }}>
+                    [{a.tag}]
+                  </div>
+                  <div className="p-5">
+                    <div className="text-[10px] tracking-widest font-mono mb-2" style={{ color: tagColors[a.tag] || "#0099FF" }}>{a.tag}</div>
+                    <h3 className="text-sm font-bold mb-2 leading-snug">{a.title}</h3>
+                    <p className="text-xs text-[#8899BB] leading-relaxed">{a.desc}</p>
+                    <div className="text-xs text-[#0099FF] mt-3 font-bold">Lire →</div>
+                  </div>
+                </motion.div>
               </Link>
             ))}
           </div>
@@ -278,33 +318,31 @@ export default function Home() {
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: "none" }}>
             {products.map((p, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -8 }}
-                className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#0066FF] rounded-2xl overflow-hidden min-w-[250px] max-w-[250px] flex-shrink-0 cursor-pointer transition-all duration-300 group"
-              >
-                <div className="h-28 flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${p.color}25, ${p.color}05)` }}>
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: `${p.color}15`, border: `1px solid ${p.color}30` }}>
-                    <p.icon className="w-8 h-8" style={{ color: p.color }} />
+              <Link href="/boutique" key={i} className="flex-shrink-0">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  whileHover={{ y: -8, boxShadow: `0 20px 40px ${p.color}25` }}
+                  className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#0066FF] rounded-2xl overflow-hidden min-w-[250px] max-w-[250px] cursor-pointer transition-all duration-300 group">
+                  <div className="h-28 flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${p.color}25, ${p.color}05)` }}>
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                      style={{ backgroundColor: `${p.color}15`, border: `1px solid ${p.color}30` }}>
+                      <p.icon className="w-8 h-8" style={{ color: p.color }} />
+                    </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <div className="text-[10px] tracking-wider font-mono mb-1" style={{ color: p.color }}>{p.tag}</div>
-                  <h3 className="text-sm font-bold mb-1">{p.title}</h3>
-                  <p className="text-xs text-[#8899BB] mb-3">{p.desc}</p>
-                  <div className="text-lg font-black mb-3" style={{ color: p.color }}>{p.price} FCFA</div>
-                  <Link href="/boutique">
-                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2" style={{ backgroundColor: p.color }}>
+                  <div className="p-4">
+                    <div className="text-[10px] tracking-wider font-mono mb-1" style={{ color: p.color }}>{p.tag}</div>
+                    <h3 className="text-sm font-bold mb-1">{p.title}</h3>
+                    <p className="text-xs text-[#8899BB] mb-3">{p.desc}</p>
+                    <div className="text-lg font-black mb-3" style={{ color: p.color }}>{p.price} FCFA</div>
+                    <div className="w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition"
+                      style={{ backgroundColor: p.color, color: '#fff' }}>
                       <ShoppingCart className="w-3 h-3" />
                       Commander
-                    </motion.button>
-                  </Link>
-                </div>
-              </motion.div>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
             ))}
           </div>
         </div>
@@ -319,21 +357,20 @@ export default function Home() {
           </motion.div>
           <div className="grid md:grid-cols-4 gap-4">
             {whyUs.map((p, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -6, boxShadow: "0 10px 30px rgba(0,153,255,0.15)" }}
-                className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#0066FF] rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 group"
-              >
-                <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 bg-[#0066FF]/10 border border-[#0066FF]/30 transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(0,102,255,0.3)]">
-                  <p.icon className="w-7 h-7 text-[#0099FF]" />
-                </div>
-                <h3 className="text-sm font-bold mb-2">{p.title}</h3>
-                <p className="text-xs text-[#8899BB]">{p.desc}</p>
-              </motion.div>
+              <Link href={p.link} key={i}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ y: -6, boxShadow: "0 10px 30px rgba(0,153,255,0.15)" }}
+                  className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#0066FF] rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 group">
+                  <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 bg-[#0066FF]/10 border border-[#0066FF]/30 transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(0,102,255,0.3)]">
+                    <p.icon className="w-7 h-7 text-[#0099FF]" />
+                  </div>
+                  <h3 className="text-sm font-bold mb-2">{p.title}</h3>
+                  <p className="text-xs text-[#8899BB]">{p.desc}</p>
+                  <div className="text-xs text-[#0099FF] mt-3 font-bold opacity-0 group-hover:opacity-100 transition-opacity">En savoir plus →</div>
+                </motion.div>
+              </Link>
             ))}
           </div>
         </div>
@@ -348,48 +385,68 @@ export default function Home() {
           </motion.div>
           <div className="grid md:grid-cols-3 gap-5">
             {testimonials.map((t, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -5, boxShadow: "0 10px 30px rgba(0,196,140,0.15)" }}
-                className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#00C48C] transition-all duration-300 rounded-2xl p-6"
-              >
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: t.rating }).map((_, k) => <span key={k} className="text-[#FFD700] text-sm">★</span>)}
-                </div>
-                <p className="text-sm text-white italic mb-5 leading-relaxed">&ldquo;{t.text}&rdquo;</p>
-                <div className="flex items-center gap-3 pt-4 border-t border-[#1a2540]">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0099FF] flex items-center justify-center text-xs font-black">{t.initials}</div>
-                  <div>
-                    <div className="text-sm font-bold">{t.name}</div>
-                    <div className="text-xs text-[#8899BB]">{t.company}</div>
+              <Link href="/contact" key={i}>
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ y: -5, boxShadow: "0 10px 30px rgba(0,196,140,0.15)" }}
+                  className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#00C48C] transition-all duration-300 rounded-2xl p-6 cursor-pointer group h-full">
+                  <div className="flex gap-1 mb-4">
+                    {Array.from({ length: t.rating }).map((_, k) => <span key={k} className="text-[#FFD700] text-sm">★</span>)}
                   </div>
-                </div>
-              </motion.div>
+                  <p className="text-sm text-white italic mb-5 leading-relaxed flex-1">&ldquo;{t.text}&rdquo;</p>
+                  <div className="flex items-center justify-between pt-4 border-t border-[#1a2540]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0099FF] flex items-center justify-center text-xs font-black">{t.initials}</div>
+                      <div>
+                        <div className="text-sm font-bold">{t.name}</div>
+                        <div className="text-xs text-[#8899BB]">{t.company}</div>
+                      </div>
+                    </div>
+                    <div className="text-xs text-[#00C48C] font-bold opacity-0 group-hover:opacity-100 transition-opacity">Nous contacter →</div>
+                  </div>
+                </motion.div>
+              </Link>
             ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/projets">
+              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                className="border border-[#00C48C] text-[#00C48C] px-8 py-3 rounded-xl text-sm font-bold hover:bg-[#00C48C] hover:text-white transition-all">
+                Voir nos réalisations →
+              </motion.button>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* CTA */}
       <section className="relative py-20 px-6 text-center z-10">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="max-w-3xl mx-auto bg-gradient-to-br from-[#0066FF]/20 via-[#0099FF]/10 to-[#FF6B00]/10 border border-[#0066FF] rounded-3xl p-10 md:p-14 backdrop-blur relative overflow-hidden" style={{ boxShadow: "0 0 60px rgba(0,102,255,0.15)" }}>
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+          className="max-w-3xl mx-auto bg-gradient-to-br from-[#0066FF]/20 via-[#0099FF]/10 to-[#FF6B00]/10 border border-[#0066FF] rounded-3xl p-10 md:p-14 backdrop-blur relative overflow-hidden"
+          style={{ boxShadow: "0 0 60px rgba(0,102,255,0.15)" }}>
           <ScanLine />
           <div className="relative z-10">
             <h2 className="text-3xl md:text-5xl font-black mb-4">Prêt à digitaliser votre entreprise ?</h2>
             <p className="text-[#8899BB] mb-8">Obtenez un devis gratuit et personnalisé en moins de 2 minutes</p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link href="/devis">
-                <motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">
+                <motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }}
+                  className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">
                   Demander un devis
                 </motion.button>
               </Link>
-              <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">
-                💬 WhatsApp direct
+              <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener"
+                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">
+                WhatsApp direct
               </motion.a>
+              <Link href="/boutique">
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  className="border border-[#FF6B00] text-[#FF6B00] px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-[#FF6B00] hover:text-white transition-all">
+                  Voir la boutique
+                </motion.button>
+              </Link>
             </div>
           </div>
         </motion.div>

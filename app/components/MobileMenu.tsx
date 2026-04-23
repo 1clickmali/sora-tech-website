@@ -5,19 +5,20 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   Home, Wrench, Info, BookOpen, FolderOpen,
-  ShoppingBag, Calendar, Mail, X, Menu, Phone, MessageCircle,
+  ShoppingBag, Calendar, Mail, X, Menu, Phone, MessageCircle, Package,
   type LucideIcon
 } from "lucide-react";
 
 const links: { href: string; label: string; id: string; icon: LucideIcon; color: string }[] = [
-  { href: "/",          label: "Accueil",    id: "home",     icon: Home,        color: "#0099FF" },
-  { href: "/services",  label: "Services",   id: "services", icon: Wrench,      color: "#FF6B00" },
-  { href: "/about",     label: "À propos",   id: "about",    icon: Info,        color: "#0099FF" },
-  { href: "/blog",      label: "Blog",       id: "blog",     icon: BookOpen,    color: "#9B93FF" },
-  { href: "/projets",   label: "Projets",    id: "projets",  icon: FolderOpen,  color: "#00C48C" },
-  { href: "/boutique",  label: "Boutique",   id: "boutique", icon: ShoppingBag, color: "#FF6B00" },
-  { href: "/devis",     label: "Devis & RDV",id: "devis",    icon: Calendar,    color: "#0066FF" },
-  { href: "/contact",   label: "Contact",    id: "contact",  icon: Mail,        color: "#00FF88" },
+  { href: "/",          label: "Accueil",       id: "home",     icon: Home,        color: "#0099FF" },
+  { href: "/services",  label: "Services",      id: "services", icon: Wrench,      color: "#FF6B00" },
+  { href: "/about",     label: "À propos",      id: "about",    icon: Info,        color: "#0099FF" },
+  { href: "/blog",      label: "Blog",          id: "blog",     icon: BookOpen,    color: "#9B93FF" },
+  { href: "/projets",   label: "Projets",       id: "projets",  icon: FolderOpen,  color: "#00C48C" },
+  { href: "/boutique",  label: "Boutique",      id: "boutique", icon: ShoppingBag, color: "#FF6B00" },
+  { href: "/devis",     label: "Devis & RDV",   id: "devis",    icon: Calendar,    color: "#0066FF" },
+  { href: "/contact",   label: "Contact",       id: "contact",  icon: Mail,        color: "#00FF88" },
+  { href: "/suivi",     label: "Suivi commande",id: "suivi",    icon: Package,     color: "#00C48C" },
 ];
 
 export default function MobileMenu({ active }: { active: string }) {
@@ -166,11 +167,11 @@ export default function MobileMenu({ active }: { active: string }) {
 
               {/* FOOTER CTA */}
               <div className="px-3 pb-4 pt-3 border-t border-[#1a2540]/80 space-y-2 flex-shrink-0">
-                <a href="tel:+22507000000" className="flex items-center gap-3 w-full bg-[#0066FF] hover:bg-[#0099FF] transition-all py-3 px-4 rounded-xl font-bold text-sm" style={{ boxShadow: "0 4px 20px rgba(0,102,255,0.35)" }}>
+                <a href="tel:+2250704928068" className="flex items-center gap-3 w-full bg-[#0066FF] hover:bg-[#0099FF] transition-all py-3 px-4 rounded-xl font-bold text-sm" style={{ boxShadow: "0 4px 20px rgba(0,102,255,0.35)" }}>
                   <Phone className="w-4 h-4 flex-shrink-0" />
                   <span>+225 07 04 92 80 68</span>
                 </a>
-                <a href="https://wa.me/22507000000" target="_blank" rel="noopener" className="flex items-center gap-3 w-full bg-[#25D366] hover:bg-[#1fb857] transition-all py-3 px-4 rounded-xl font-bold text-sm">
+                <a href="https://wa.me/2250704928068" target="_blank" rel="noopener" className="flex items-center gap-3 w-full bg-[#25D366] hover:bg-[#1fb857] transition-all py-3 px-4 rounded-xl font-bold text-sm">
                   <MessageCircle className="w-4 h-4 flex-shrink-0" />
                   <span>WhatsApp Business</span>
                 </a>
