@@ -18,6 +18,7 @@ export default function ProduitsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [filterCat, setFilterCat] = useState('Tous');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = () => api.get<{ data: Produit[] }>('/api/produits?limit=100').then(r => setProduits(r.data)).finally(() => setLoading(false));
@@ -53,36 +54,113 @@ export default function ProduitsPage() {
   const startEdit = (p: Produit) => { setForm(p); setEditing(p._id); setError(''); setShowForm(true); };
   const fmt = (n: number) => new Intl.NumberFormat('fr-FR').format(n) + ' FCFA';
 
+  const actifs = produits.filter(p => p.active).length;
+  const digitaux = produits.filter(p => p.digital).length;
+  const stockFaible = produits.filter(p => !p.digital && p.stock >= 0 && p.stock <= 5).length;
+  const filtered = filterCat === 'Tous' ? produits : produits.filter(p => p.category === filterCat);
+
+  const stockColor = (p: Produit) => {
+    if (p.digital || p.stock === -1) return '#00E5FF';
+    if (p.stock === 0) return '#EF4444';
+    if (p.stock <= 5) return '#F59E0B';
+    return '#10B981';
+  };
+  const stockLabel = (p: Produit) => {
+    if (p.digital) return 'Digital';
+    if (p.stock === -1) return 'Illimité';
+    if (p.stock === 0) return 'Rupture';
+    return 'Stock: ' + p.stock;
+  };
+
   return (
     <div className="p-8">
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-white">Produits</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Produits</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{produits.length} produit{produits.length !== 1 ? 's' : ''} au total</p>
+        </div>
         <button onClick={() => { setForm(EMPTY); setEditing(null); setError(''); setShowForm(true); }}
           className="px-4 py-2 rounded-lg text-sm font-semibold"
           style={{ background: '#00E5FF', color: '#060D1F' }}>
-          + Ajouter
+          + Ajouter un produit
         </button>
       </div>
 
-      {loading ? <div className="text-gray-400 text-sm">Chargement...</div> : (
+      {/* Stats cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {[
+          { label: 'Total produits', value: produits.length, color: '#00E5FF' },
+          { label: 'Actifs', value: actifs, color: '#10B981' },
+          { label: 'Digitaux', value: digitaux, color: '#8B5CF6' },
+          { label: 'Stock faible (≤5)', value: stockFaible, color: stockFaible > 0 ? '#F59E0B' : '#94A3B8' },
+        ].map(s => (
+          <div key={s.label} className="p-4 rounded-xl" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
+            <div className="text-2xl font-black mb-0.5" style={{ color: s.color }}>{s.value}</div>
+            <div className="text-xs text-gray-500">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Alerte stock faible */}
+      {stockFaible > 0 && (
+        <div className="mb-5 p-3 rounded-lg text-sm flex items-center gap-2" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', color: '#F59E0B' }}>
+          ⚠️ {stockFaible} produit{stockFaible > 1 ? 's ont' : ' a'} un stock faible ou en rupture — pensez à réapprovisionner.
+        </div>
+      )}
+
+      {/* Filtre catégorie */}
+      <div className="flex gap-2 mb-5 flex-wrap">
+        {['Tous', ...CATS].map(c => (
+          <button key={c} onClick={() => setFilterCat(c)}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+            style={{
+              background: filterCat === c ? '#00E5FF' : '#1E2D4A',
+              color: filterCat === c ? '#060D1F' : '#94A3B8',
+            }}>
+            {c}
+            {c !== 'Tous' && <span className="ml-1 opacity-60">({produits.filter(p => p.category === c).length})</span>}
+          </button>
+        ))}
+      </div>
+
+      {loading ? <div className="text-gray-400 text-sm">Chargement...</div> : filtered.length === 0 ? (
+        <div className="text-center py-16 text-gray-500">
+          <div className="text-4xl mb-3">📦</div>
+          <p className="text-sm">Aucun produit{filterCat !== 'Tous' ? ' dans cette catégorie' : ''}.</p>
+        </div>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {produits.map(p => (
+          {filtered.map(p => (
             <div key={p._id} className="p-4 rounded-xl" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
               {p.image && <img src={p.image} alt={p.title} className="w-full h-32 object-cover rounded-lg mb-3" />}
               <div className="flex justify-between items-start mb-2">
-                <div>
-                  <div className="text-white font-semibold">{p.title}</div>
+                <div className="flex-1 min-w-0 mr-2">
+                  <div className="text-white font-semibold truncate">{p.title}</div>
                   <div className="text-xs text-gray-500">{p.category}</div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: p.active ? '#10B98122' : '#EF444422', color: p.active ? '#10B981' : '#EF4444' }}>
+                <span className="px-2 py-0.5 rounded-full text-xs flex-shrink-0" style={{ background: p.active ? '#10B98122' : '#EF444422', color: p.active ? '#10B981' : '#EF4444' }}>
                   {p.active ? 'Actif' : 'Inactif'}
                 </span>
               </div>
               <p className="text-gray-400 text-sm mb-3 line-clamp-2">{p.description}</p>
               <div className="flex justify-between items-center text-sm mb-3">
                 <span className="text-cyan-400 font-bold">{fmt(p.price)}</span>
-                <span className="text-gray-500">{p.stock === -1 ? 'Illimité' : 'Stock: ' + p.stock}</span>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: stockColor(p) + '22', color: stockColor(p) }}>
+                  {stockLabel(p)}
+                </span>
               </div>
+              {/* Barre de stock visuelle */}
+              {!p.digital && p.stock > 0 && p.stock !== -1 && (
+                <div className="mb-3">
+                  <div className="h-1.5 rounded-full" style={{ background: '#1E2D4A' }}>
+                    <div className="h-1.5 rounded-full transition-all" style={{
+                      width: Math.min(100, (p.stock / 20) * 100) + '%',
+                      background: p.stock <= 5 ? '#F59E0B' : '#10B981',
+                    }} />
+                  </div>
+                </div>
+              )}
               <div className="flex gap-2">
                 <button onClick={() => startEdit(p)} className="flex-1 py-1.5 rounded text-xs font-medium"
                   style={{ background: '#1E2D4A', color: '#94A3B8' }}>Modifier</button>
@@ -99,7 +177,7 @@ export default function ProduitsPage() {
           <div className="w-full max-w-md rounded-2xl p-6 space-y-3 overflow-y-auto max-h-[90vh]" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-lg font-bold text-white">{editing ? 'Modifier' : 'Nouveau'} produit</h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white text-xl">X</button>
+              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white text-xl">×</button>
             </div>
 
             {error && <div className="p-3 rounded-lg text-sm text-red-400" style={{ background: 'rgba(239,68,68,0.1)' }}>{error}</div>}
@@ -126,6 +204,16 @@ export default function ProduitsPage() {
                 {CATS.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
+
+            {!form.digital && (
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Stock (-1 = illimité)</label>
+                <input type="number" value={form.stock ?? -1}
+                  onChange={e => setForm((p: any) => ({ ...p, stock: Number(e.target.value) }))}
+                  className="w-full px-3 py-2 rounded-lg text-white text-sm outline-none"
+                  style={{ background: '#060D1F', border: '1px solid #1E2D4A' }} />
+              </div>
+            )}
 
             <div>
               <label className="block text-xs text-gray-400 mb-1">Description</label>
@@ -167,7 +255,7 @@ export default function ProduitsPage() {
 
             <button onClick={save} disabled={saving} className="w-full py-2.5 rounded-lg text-sm font-bold"
               style={{ background: saving ? '#1E2D4A' : '#00E5FF', color: saving ? '#64748B' : '#060D1F' }}>
-              {saving ? 'Enregistrement...' : editing ? 'Enregistrer' : 'Creer le produit'}
+              {saving ? 'Enregistrement...' : editing ? 'Enregistrer les modifications' : 'Créer le produit'}
             </button>
           </div>
         </div>
