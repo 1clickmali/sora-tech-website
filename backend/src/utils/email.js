@@ -2,8 +2,13 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 
 const createTransporter = () => nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+  host: process.env.EMAIL_HOST || 'smtp.hostinger.com',
+  port: parseInt(process.env.EMAIL_PORT || '465'),
+  secure: process.env.EMAIL_SECURE !== 'false', // true pour le port 465
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
 // ── Template HTML premium ────────────────────────────────────────────────────
