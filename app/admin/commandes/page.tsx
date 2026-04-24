@@ -29,7 +29,7 @@ interface Commande {
   createdAt: string;
   items: Item[];
   timeline?: TimelineEvent[];
-  invoiceUrl?: string;
+  facturePublicToken?: string;
 }
 
 const STATUTS = ['nouveau', 'confirme', 'en_livraison', 'livre', 'annule'];
@@ -431,8 +431,8 @@ export default function CommandesPage() {
                       🗺️ Google Maps
                     </a>
                   )}
-                  {selected.invoiceUrl && (
-                    <a href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${selected.invoiceUrl}`}
+                  {selected.facturePublicToken && (
+                    <a href={`${process.env.NEXT_PUBLIC_API_URL || 'https://sora-tech-website-production.up.railway.app'}/api/factures/public/${selected.facturePublicToken}`}
                       target="_blank" rel="noreferrer"
                       className="px-3 py-2 rounded-lg text-xs font-medium transition"
                       style={{ background: '#EF444420', color: '#EF4444', border: '1px solid #EF444440' }}>

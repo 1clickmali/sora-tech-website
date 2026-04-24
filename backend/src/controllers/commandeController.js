@@ -106,6 +106,8 @@ const createCommande = async (req, res) => {
             issuedAt: new Date(),
           });
           facturePublicToken = facture.publicToken;
+          // Stocker le token public dans la commande pour y accéder facilement
+          await Commande.findByIdAndUpdate(commande._id, { facturePublicToken: facture.publicToken });
         } catch (factureErr) {
           console.error('[Facture create]', factureErr.message);
         }

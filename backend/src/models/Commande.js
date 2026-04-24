@@ -45,8 +45,7 @@ const commandeSchema = new mongoose.Schema({
   },
 
   notes: { type: String },
-  invoicePath: { type: String },
-  invoiceUrl: { type: String },
+  facturePublicToken: { type: String }, // token public du document Facture lié
 
   timeline: [timelineSchema],
 }, { timestamps: true });

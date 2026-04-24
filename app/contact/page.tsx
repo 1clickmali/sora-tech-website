@@ -61,8 +61,8 @@ export default function ContactPage() {
   };
 
   const contactMethods: ContactMethod[] = [
-    { icon: Phone,         title: "Téléphone", value: "+225 07 00 00 00 00", subtitle: "Lun-Ven : 8h-18h",        color: "#0099FF", action: "Appeler"    },
-    { icon: MessageCircle, title: "WhatsApp",   value: "+225 07 00 00 00 00", subtitle: "Réponse rapide garantie", color: "#25D366", action: "Écrire"     },
+    { icon: Phone,         title: "Téléphone", value: "+225 07 04 92 80 68", subtitle: "Lun-Ven : 8h-18h",        color: "#0099FF", action: "Appeler"    },
+    { icon: MessageCircle, title: "WhatsApp",   value: "+225 07 04 92 80 68", subtitle: "Réponse rapide garantie", color: "#25D366", action: "Écrire"     },
     { icon: Mail,          title: "Email",      value: "contact@soratech.ci", subtitle: "Réponse sous 24h",        color: "#FF6B00", action: "Envoyer"    },
     { icon: MapPin,        title: "Adresse",    value: "Abidjan, Côte d'Ivoire", subtitle: "Cocody - Angré 8ème", color: "#9B93FF", action: "Itinéraire" },
   ];
@@ -96,7 +96,7 @@ export default function ContactPage() {
         </div>
         <div className="flex items-center gap-3">
           <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">
-            +225 07 00 00 00
+            +225 07 04 92 80 68
           </motion.a>
           <MobileMenu active="contact" />
         </div>
@@ -387,11 +387,11 @@ export default function ContactPage() {
                 <Phone className="w-6 h-6 text-[#0099FF]" />
               </div>
               <div className="text-lg font-black mb-1">Appelez maintenant</div>
-              <div className="text-sm text-[#0099FF] font-bold font-mono">+225 07 00 00 00 00</div>
+              <div className="text-sm text-[#0099FF] font-bold font-mono">+225 07 04 92 80 68</div>
               <div className="text-xs text-[#8899BB] mt-2">Réponse immédiate pendant les heures d&apos;ouverture</div>
             </motion.div>
           </a>
-          <a href="https://wa.me/22507000000" target="_blank" rel="noopener" className="block">
+          <a href="https://wa.me/2250704928068" target="_blank" rel="noopener" className="block">
             <motion.div whileHover={{ scale: 1.02, borderColor: "#25D366" }}
               className="bg-gradient-to-br from-[#25D366]/20 to-[#25D366]/5 border border-[#25D366] rounded-2xl p-6 cursor-pointer transition">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
@@ -399,7 +399,7 @@ export default function ContactPage() {
                 <MessageCircle className="w-6 h-6 text-[#25D366]" />
               </div>
               <div className="text-lg font-black mb-1">Écrivez sur WhatsApp</div>
-              <div className="text-sm text-[#25D366] font-bold font-mono">+225 07 00 00 00 00</div>
+              <div className="text-sm text-[#25D366] font-bold font-mono">+225 07 04 92 80 68</div>
               <div className="text-xs text-[#8899BB] mt-2">Le canal préféré de nos clients, réponse rapide</div>
             </motion.div>
           </a>
