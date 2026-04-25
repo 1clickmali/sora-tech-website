@@ -31,7 +31,11 @@ articleSchema.pre('save', function (next) {
   if (this.isModified('title')) {
     this.slug = slugify(this.title, { lower: true, strict: true, locale: 'fr' });
   }
-  if (!this.readTime && this.content) {
+  if ((!this.excerpt || !this.excerpt.trim()) && this.content) {
+    const clean = this.content.replace(/\s+/g, ' ').trim();
+    this.excerpt = clean.length > 180 ? `${clean.slice(0, 177)}...` : clean;
+  }
+  if (this.isModified('content') && this.content) {
     const words = this.content.split(' ').length;
     const minutes = Math.ceil(words / 200);
     this.readTime = `${minutes} min`;

@@ -11,7 +11,7 @@ const NAV = [
   { href: '/admin/contacts',    label: 'Contacts',    icon: '✉' },
   { href: '/admin/factures',    label: 'Factures',    icon: '🧾' },
   { href: '/admin/produits',    label: 'Produits',    icon: '📦' },
-  { href: '/admin/articles',    label: 'Articles',    icon: '📝' },
+  { href: '/admin/blog',        label: 'Blog',        icon: '📝' },
   { href: '/admin/projets',     label: 'Projets',     icon: '🗂' },
   { href: '/admin/equipe',      label: 'Équipe',      icon: '👥' },
   { href: '/admin/parametres',  label: 'Paramètres',  icon: '⚙' },

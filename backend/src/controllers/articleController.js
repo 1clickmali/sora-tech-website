@@ -1,4 +1,5 @@
 const Article = require('../models/Article');
+const mongoose = require('mongoose');
 
 const getArticles = async (req, res) => {
   try {
@@ -6,14 +7,14 @@ const getArticles = async (req, res) => {
     const query = {};
     // Route publique : afficher seulement les articles publiés
     if (!req.user) query.published = true;
-    else if (published !== undefined) query.published = published === 'true';
+    else if (published === 'true' || published === 'false') query.published = published === 'true';
     if (category && category !== 'Tous') query.category = category;
-    if (featured) query.featured = featured === 'true';
+    if (featured === 'true' || featured === 'false') query.featured = featured === 'true';
 
     const total = await Article.countDocuments(query);
     const articles = await Article.find(query)
       .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
+      .skip((Number(page) - 1) * Number(limit))
       .limit(Number(limit))
       .select('-content')
       .lean();
@@ -25,7 +26,12 @@ const getArticles = async (req, res) => {
 
 const getArticle = async (req, res) => {
   try {
-    const filter = { $or: [{ _id: req.params.id }, { slug: req.params.id }] };
+    const filters = [{ slug: req.params.id }];
+    if (mongoose.isValidObjectId(req.params.id)) {
+      filters.unshift({ _id: req.params.id });
+    }
+    const filter = { $or: filters };
+    if (!req.user) filter.published = true;
     const article = await Article.findOne(filter).lean();
     if (!article) return res.status(404).json({ success: false, message: 'Article introuvable' });
     // Incrémenter les vues en arrière-plan — ne bloque pas la réponse
@@ -49,8 +55,10 @@ const createArticle = async (req, res) => {
 
 const updateArticle = async (req, res) => {
   try {
-    const article = await Article.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const article = await Article.findById(req.params.id);
     if (!article) return res.status(404).json({ success: false, message: 'Article introuvable' });
+    Object.assign(article, req.body);
+    await article.save();
     res.json({ success: true, data: article });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });

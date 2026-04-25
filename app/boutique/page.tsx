@@ -5,14 +5,17 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import MobileMenu from "../components/MobileMenu";
 import {
-  Monitor, Globe, GraduationCap, Wrench, Smartphone, Shield,
   ShoppingCart, Trash2, X, Download, Truck, Headphones, RotateCcw,
   CheckCircle, type LucideIcon
 } from "lucide-react";
 import Footer from "../components/Footer";
-
-const CAT_ICON: Record<string, LucideIcon> = { Logiciels: Monitor, Templates: Globe, Formations: GraduationCap, Services: Wrench };
-const CAT_COLOR: Record<string, string> = { Logiciels: "#0099FF", Templates: "#FF6B00", Formations: "#00C48C", Services: "#9B93FF" };
+import { resolveMediaUrl } from "@/lib/media";
+import {
+  PRODUCT_CATEGORIES,
+  getProductDisplayMeta,
+  getSubcategoriesForCategory,
+  normalizeProductTaxonomy,
+} from "@/lib/productTaxonomy";
 
 function ScanLine() {
   return (
@@ -23,25 +26,50 @@ function ScanLine() {
 }
 
 type Product = {
-  id: string | number; category: string; title: string; description: string;
+  id: string | number; category: string; subcategory: string; title: string; description: string;
   price: number; icon: LucideIcon; color: string; badge?: string;
   features: string[]; digital?: boolean; image?: string;
 };
 
+type ApiProduct = {
+  _id: string;
+  category: string;
+  subcategory?: string;
+  title: string;
+  description: string;
+  price: number;
+  badge?: string;
+  features?: string[];
+  digital?: boolean;
+  image?: string;
+  active?: boolean;
+};
+
+function buildProduct(product: Omit<Product, "icon" | "color">): Product {
+  const normalized = normalizeProductTaxonomy(product);
+  const meta = getProductDisplayMeta(normalized.category, normalized.subcategory);
+
+  return {
+    ...normalized,
+    icon: meta.icon,
+    color: meta.color,
+  };
+}
+
 const STATIC_PRODUCTS: Product[] = [
-  { id: 1, category: "Logiciels",   title: "Logiciel de caisse alimentation", description: "Gestion complète de votre alimentation — stocks, ventes, rapports journaliers", price: 150000, icon: Monitor,      color: "#0099FF", badge: "BESTSELLER", features: ["Gestion stocks temps réel","Impression tickets","Rapports auto","Multi-caisses"],            digital: true },
-  { id: 2, category: "Templates",   title: "Template site restaurant",         description: "Design premium prêt à l'emploi pour restaurants et bars",                     price: 45000,  icon: Globe,         color: "#FF6B00",             features: ["Menu interactif","Réservation en ligne","Galerie photos","Responsive"],                       digital: true },
-  { id: 3, category: "Formations",  title: "Formation création site web",      description: "10 heures de formation en ligne pour créer votre site web",                    price: 75000,  icon: GraduationCap, color: "#00C48C",             features: ["10h de vidéos HD","Exercices pratiques","Certificat","Support 3 mois"],                       digital: true },
-  { id: 4, category: "Services",    title: "Pack maintenance annuel",           description: "Maintenance informatique complète pour votre entreprise",                      price: 120000, icon: Wrench,        color: "#9B93FF",             features: ["Support 24/7","Dépannage illimité","Mises à jour","Sauvegardes auto"] },
-  { id: 5, category: "Templates",   title: "Template app mobile",              description: "UI/UX React Native prêt à l'emploi pour votre application",                   price: 80000,  icon: Smartphone,    color: "#0066FF",             features: ["Code source complet","Android + iOS","30+ écrans","Design moderne"],                          digital: true },
-  { id: 6, category: "Services",    title: "Audit cybersécurité",              description: "Rapport complet d'audit + recommandations personnalisées",                     price: 200000, icon: Shield,        color: "#FF4757", badge: "POPULAIRE", features: ["Audit complet","Rapport détaillé","Plan d'action","Suivi 1 mois"] },
-  { id: 7, category: "Logiciels",   title: "Logiciel CRM boutique",            description: "Gérez vos clients, ventes et fidélité en un seul outil",                      price: 180000, icon: Monitor,       color: "#0099FF",             features: ["Base clients","Suivi ventes","Fidélité","SMS marketing"],                                      digital: true },
-  { id: 8, category: "Templates",   title: "Template e-commerce",              description: "Boutique en ligne complète avec Mobile Money intégré",                         price: 120000, icon: Globe,         color: "#FF6B00", badge: "NOUVEAU", features: ["Paiement Wave/OM","Panier complet","Gestion commandes","Livraison GPS"],                     digital: true },
-  { id: 9, category: "Formations",  title: "Formation cybersécurité PME",      description: "Protégez votre entreprise des cyberattaques",                                  price: 90000,  icon: Shield,        color: "#FF4757",             features: ["8h de formation","Cas pratiques","Certificat","Guide PDF"],                                   digital: true },
+  buildProduct({ id: 1, category: "Logiciel", subcategory: "Gestion alimentation / magasin", title: "Logiciel de caisse alimentation", description: "Gestion complète de votre alimentation : ventes, stock, historique client et rapports journaliers.", price: 150000, badge: "BESTSELLER", features: ["Gestion stocks temps réel","Impression tickets","Rapports auto","Multi-caisses"], digital: true }),
+  buildProduct({ id: 2, category: "Logiciel", subcategory: "Microsoft Office", title: "Pack Microsoft Office pro", description: "Suite bureautique complète pour vos équipes : Word, Excel, PowerPoint et Outlook.", price: 65000, features: ["Installation assistée","Activation propre","Support de prise en main","Compatible Windows"], digital: true }),
+  buildProduct({ id: 3, category: "Logiciel", subcategory: "Odoo", title: "Déploiement Odoo PME", description: "Configuration Odoo pour ventes, stocks, facturation et suivi opérationnel.", price: 250000, badge: "POPULAIRE", features: ["Modules ventes + stock","Formation initiale","Paramétrage entreprise","Support lancement"], digital: true }),
+  buildProduct({ id: 4, category: "Logiciel", subcategory: "Gestion d'entreprise", title: "Logiciel de gestion d'entreprise", description: "Centralisez clients, factures, encaissements et tableaux de bord dans une seule solution.", price: 220000, features: ["Facturation","Suivi clients","Dashboard complet","Historique opérations"], digital: true }),
+  buildProduct({ id: 5, category: "Matériel", subcategory: "Téléphone", title: "Smartphone professionnel Android", description: "Téléphone fiable pour commerciaux, livreurs et équipes terrain.", price: 95000, badge: "NOUVEAU", features: ["Double SIM","Bonne autonomie","WhatsApp Business","Prêt à l'emploi"], digital: false }),
+  buildProduct({ id: 6, category: "Matériel", subcategory: "Ordinateur", title: "Ordinateur portable bureautique", description: "PC portable pour gestion, bureautique, caisse et suivi d'activité.", price: 275000, features: ["SSD rapide","Windows installé","Suite bureautique prête","Garantie incluse"], digital: false }),
+  buildProduct({ id: 7, category: "Matériel", subcategory: "Serveur", title: "Serveur PME local", description: "Serveur pour centraliser vos fichiers, sauvegardes et applications d'entreprise.", price: 650000, features: ["Stockage sécurisé","Sauvegarde locale","Accès équipe","Installation réseau"], digital: false }),
+  buildProduct({ id: 8, category: "Logiciel", subcategory: "Cybersécurité", title: "Pack cybersécurité entreprise", description: "Protection de vos postes, sensibilisation équipe et audit de base.", price: 180000, features: ["Audit sécurité","Antivirus entreprise","Plan d'action","Suivi mensuel"], digital: true }),
 ];
 
 export default function BoutiquePage() {
   const [activeCategory, setActiveCategory] = useState("Tous");
+  const [activeSubcategory, setActiveSubcategory] = useState("Tous");
   const [products, setProducts] = useState<Product[]>(STATIC_PRODUCTS);
   const [cart, setCart] = useState<Product[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -54,7 +82,8 @@ export default function BoutiquePage() {
   const [geoError, setGeoError] = useState('');
 
   const DELIVERY_FEE = 2500;
-  const categories = ["Tous", "Logiciels", "Templates", "Formations", "Services"];
+  const categories = ["Tous", ...PRODUCT_CATEGORIES];
+  const subcategories = activeCategory === "Tous" ? [] : getSubcategoriesForCategory(activeCategory);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -64,17 +93,16 @@ export default function BoutiquePage() {
       .then(r => {
         clearTimeout(timer);
         if (r.data?.length) {
-          setProducts(r.data.filter((p: any) => p.active).map((p: any) => ({
+          setProducts(r.data.filter((p: ApiProduct) => p.active).map((p: ApiProduct) => buildProduct({
             id: p._id,
             category: p.category,
+            subcategory: p.subcategory || '',
             title: p.title,
             description: p.description,
             price: p.price,
-            icon: CAT_ICON[p.category] || Monitor,
-            color: CAT_COLOR[p.category] || "#0099FF",
             badge: p.badge || undefined,
             features: p.features || [],
-            digital: p.digital,
+            digital: typeof p.digital === "boolean" ? p.digital : p.category === "Logiciel",
             image: p.image || undefined,
           })));
         }
@@ -83,7 +111,8 @@ export default function BoutiquePage() {
     return () => { clearTimeout(timer); ctrl.abort(); };
   }, []);
 
-  const filteredProducts = activeCategory === "Tous" ? products : products.filter(p => p.category === activeCategory);
+  const filteredProducts = (activeCategory === "Tous" ? products : products.filter((p) => p.category === activeCategory))
+    .filter((p) => activeSubcategory === "Tous" || p.subcategory === activeSubcategory);
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === "Prix croissant") return a.price - b.price;
     if (sortBy === "Prix décroissant") return b.price - a.price;
@@ -158,7 +187,7 @@ export default function BoutiquePage() {
           paymentMode: paymentMode || 'online',
         }),
       });
-    } catch (_) {}
+    } catch {}
     setOrderSuccess(true);
     setTimeout(() => { setCart([]); setCartOpen(false); resetCheckout(); }, 4000);
   };
@@ -209,7 +238,7 @@ export default function BoutiquePage() {
             </motion.span>
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-[#8899BB] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Logiciels, templates, formations et services — tout ce dont votre entreprise a besoin, disponible immédiatement.
+            Matériel et logiciels professionnels pour équiper, structurer et digitaliser votre entreprise plus vite.
           </motion.p>
         </div>
       </section>
@@ -233,7 +262,7 @@ export default function BoutiquePage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex gap-2 flex-wrap justify-center">
             {categories.map((cat) => (
-              <motion.button key={cat} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setActiveCategory(cat)}
+              <motion.button key={cat} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { setActiveCategory(cat); setActiveSubcategory("Tous"); }}
                 className={`px-5 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-200 ${activeCategory === cat ? "bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.4)]" : "bg-[#0A1525] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] hover:text-white"}`}>
                 {cat}
               </motion.button>
@@ -243,6 +272,16 @@ export default function BoutiquePage() {
             <option>Populaire</option><option>Prix croissant</option><option>Prix décroissant</option>
           </select>
         </div>
+        {subcategories.length > 0 && (
+          <div className="max-w-6xl mx-auto mt-4 flex gap-2 flex-wrap justify-center">
+            {["Tous", ...subcategories].map((subcategory) => (
+              <motion.button key={subcategory} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={() => setActiveSubcategory(subcategory)}
+                className={`px-4 py-2 rounded-full text-[11px] font-bold tracking-wide transition-all duration-200 ${activeSubcategory === subcategory ? "bg-[#FF6B00] text-white shadow-[0_0_20px_rgba(255,107,0,0.35)]" : "bg-[#101B30] border border-[#1a2540] text-[#93A4C5] hover:border-[#FF6B00] hover:text-white"}`}>
+                {subcategory}
+              </motion.button>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* GRILLE PRODUITS */}
@@ -251,13 +290,18 @@ export default function BoutiquePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedProducts.map((product, i) => (
               <motion.div key={product.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${product.color}25` }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden transition-all duration-300 group">
-                <div className="relative h-44 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(135deg, ${product.color}25, ${product.color}05)` }}>
-                  <div className="w-20 h-20 rounded-3xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: `${product.color}20`, border: `1px solid ${product.color}40`, boxShadow: `0 0 25px ${product.color}15` }}>
-                    <product.icon className="w-10 h-10" style={{ color: product.color }} />
-                  </div>
+                <div className="relative h-52 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(135deg, ${product.color}25, ${product.color}05)` }}>
+                  {product.image ? (
+                    <img src={resolveMediaUrl(product.image)} alt={product.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-20 h-20 rounded-3xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: `${product.color}20`, border: `1px solid ${product.color}40`, boxShadow: `0 0 25px ${product.color}15` }}>
+                      <product.icon className="w-10 h-10" style={{ color: product.color }} />
+                    </div>
+                  )}
                   {product.badge && <div className="absolute top-3 right-3 bg-[#FF6B00] text-white px-2 py-1 rounded text-[9px] font-black tracking-wider">{product.badge}</div>}
                   <div className="absolute top-3 left-3 bg-[#060D1F]/80 backdrop-blur px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ color: product.color }}>{product.category}</div>
-                  {product.digital && <div className="absolute bottom-3 left-3 bg-[#00C48C]/20 border border-[#00C48C] text-[#00C48C] px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1"><Download className="w-2.5 h-2.5" /> DIGITAL</div>}
+                  <div className="absolute bottom-3 left-3 bg-[#060D1F]/80 backdrop-blur px-2 py-1 rounded text-[10px] font-medium border border-white/10">{product.subcategory}</div>
+                  {product.digital && <div className="absolute bottom-3 right-3 bg-[#00C48C]/20 border border-[#00C48C] text-[#00C48C] px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1"><Download className="w-2.5 h-2.5" /> DIGITAL</div>}
                 </div>
                 <div className="p-5">
                   <h3 className="text-base font-bold mb-2 group-hover:text-[#0099FF] transition-colors duration-200">{product.title}</h3>
@@ -464,7 +508,7 @@ export default function BoutiquePage() {
       {/* GARANTIE */}
       <section className="relative py-16 px-6 z-10">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-4">
-          {[{ icon: CheckCircle, title: "Garantie 1 an", desc: "Sur tous nos produits digitaux, support inclus", color: "#00C48C" },{ icon: RotateCcw, title: "Satisfait ou remboursé", desc: "14 jours pour changer d'avis, sans justification", color: "#0099FF" },{ icon: Truck, title: "Livraison Abidjan", desc: "24-48h pour les produits physiques · 2500 FCFA", color: "#FF6B00" }].map((g, i) => (
+          {[{ icon: CheckCircle, title: "Garantie & support", desc: "Assistance incluse sur nos logiciels et équipements sélectionnés", color: "#00C48C" },{ icon: RotateCcw, title: "Satisfait ou remboursé", desc: "14 jours pour changer d'avis selon le produit commandé", color: "#0099FF" },{ icon: Truck, title: "Livraison Abidjan", desc: "24-48h pour les produits physiques · 2500 FCFA", color: "#FF6B00" }].map((g, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-[#0A1525]/80 border border-[#1a2540] rounded-2xl p-6 text-center">
               <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: `${g.color}15`, border: `1px solid ${g.color}30` }}>
                 <g.icon className="w-6 h-6" style={{ color: g.color }} />

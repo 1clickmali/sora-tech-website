@@ -43,6 +43,15 @@ export type BlogArticle = {
   createdAt?: string;
 };
 
+type RawArticle = Partial<BlogArticle> & {
+  _id?: string;
+  createdAt?: string;
+  readTime?: string | number;
+  featured?: boolean;
+  image?: string;
+  author?: string;
+};
+
 function staticContent(title: string, excerpt: string) {
   return `${excerpt}
 
@@ -209,14 +218,16 @@ export function formatReadTime(readTime?: string | number | null, content?: stri
   return "5 min";
 }
 
-export function normalizeArticle(article: any): BlogArticle {
+export function normalizeArticle(article: RawArticle): BlogArticle {
+  const fallbackId = article._id || article.id || article.slug || article.title || 'article-fallback';
+
   return {
-    id: article._id || article.id || article.slug || article.title,
+    id: fallbackId,
     slug: article.slug,
-    title: article.title,
+    title: article.title || 'Article SORA TECH',
     excerpt: article.excerpt || "",
     content: article.content || "",
-    category: article.category,
+    category: article.category || "Digitalisation",
     date: article.createdAt ? new Date(article.createdAt).toLocaleDateString("fr-FR") : article.date,
     readTime: formatReadTime(article.readTime, article.content),
     author: article.author || "SORA TECH",

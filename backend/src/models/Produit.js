@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { PRODUCT_CATEGORIES, PRODUCT_SUBCATEGORIES } = require('../config/productCatalog');
 
 const produitSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -6,8 +7,19 @@ const produitSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   category: {
     type: String,
-    enum: ['Logiciels', 'Templates', 'Formations', 'Services'],
+    enum: PRODUCT_CATEGORIES,
     required: true,
+  },
+  subcategory: {
+    type: String,
+    required: true,
+    validate: {
+      validator(value) {
+        const allowed = PRODUCT_SUBCATEGORIES[this.category] || [];
+        return allowed.includes(value);
+      },
+      message: 'Sous-catégorie invalide pour cette catégorie',
+    },
   },
   features: [String],
   image: { type: String, default: '' },
@@ -20,5 +32,6 @@ const produitSchema = new mongoose.Schema({
 
 produitSchema.index({ active: 1, order: 1, createdAt: -1 });
 produitSchema.index({ active: 1, category: 1 });
+produitSchema.index({ active: 1, category: 1, subcategory: 1 });
 
 module.exports = mongoose.model('Produit', produitSchema);
