@@ -3,6 +3,8 @@ const Devis = require('../models/Devis');
 const Contact = require('../models/Contact');
 const Facture = require('../models/Facture');
 const Produit = require('../models/Produit');
+const StockMovement = require('../models/StockMovement');
+const { normalizeProductPayload } = require('../config/productCatalog');
 
 const getStats = async (req, res) => {
   try {
@@ -81,6 +83,29 @@ const getStats = async (req, res) => {
       { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } },
     ]);
 
+    // ── Stock boutique ───────────────────────────────────────────────────────
+    const rawProducts = await Produit.find({}).sort({ updatedAt: -1 }).lean();
+    const stockProducts = rawProducts
+      .map(normalizeProductPayload)
+      .filter(p => p.category === 'Matériel' || p.digital === false);
+    const stockAlerts = stockProducts
+      .map(p => {
+        const threshold = Number(p.lowStockThreshold ?? 5);
+        const stock = Number(p.stock ?? -1);
+        const status = stock < 0 ? 'illimite' : stock <= 0 ? 'rupture' : stock <= threshold ? 'faible' : 'disponible';
+        return { ...p, stockStatus: status, lowStockThreshold: threshold };
+      })
+      .filter(p => p.stockStatus === 'rupture' || p.stockStatus === 'faible')
+      .slice(0, 6);
+    const stockMois = await StockMovement.aggregate([
+      { $match: { createdAt: { $gte: startOfMonth } } },
+      { $group: { _id: '$type', quantity: { $sum: '$quantity' } } },
+    ]);
+    const stockMoisMap = stockMois.reduce((acc, item) => {
+      acc[item._id] = item.quantity;
+      return acc;
+    }, {});
+
     res.json({
       success: true,
       data: {
@@ -115,6 +140,16 @@ const getStats = async (req, res) => {
         factures: {
           impayees: facturesImpayees[0]?.count || 0,
           montantImpaye: facturesImpayees[0]?.total || 0,
+        },
+        stock: {
+          totalProducts: stockProducts.length,
+          totalUnits: stockProducts.reduce((sum, p) => sum + (p.stock > 0 ? p.stock : 0), 0),
+          inventoryValue: stockProducts.reduce((sum, p) => sum + (p.stock > 0 ? p.stock * (p.price || 0) : 0), 0),
+          lowStock: stockAlerts.filter(p => p.stockStatus === 'faible').length,
+          outOfStock: stockAlerts.filter(p => p.stockStatus === 'rupture').length,
+          restockedThisMonth: stockMoisMap.approvisionnement || 0,
+          soldThisMonth: stockMoisMap.sortie || 0,
+          alerts: stockAlerts,
         },
       },
     });

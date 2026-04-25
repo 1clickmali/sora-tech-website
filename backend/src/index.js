@@ -50,6 +50,7 @@ app.use('/api/commandes', require('./routes/commandes'));
 app.use('/api/devis',     require('./routes/devis'));
 app.use('/api/contacts',  require('./routes/contacts'));
 app.use('/api/produits',  require('./routes/produits'));
+app.use('/api/stock',     require('./routes/stock'));
 app.use('/api/articles',  require('./routes/articles'));
 app.use('/api/projets',   require('./routes/projets'));
 app.use('/api/factures',  require('./routes/factures'));

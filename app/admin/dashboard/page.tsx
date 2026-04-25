@@ -12,6 +12,24 @@ interface Stats {
   devis: { total: number; nouveaux: number; tauxConversion: number };
   contacts: { total: number; nouveaux: number };
   factures: { impayees: number; montantImpaye: number };
+  stock: {
+    totalProducts: number;
+    totalUnits: number;
+    inventoryValue: number;
+    lowStock: number;
+    outOfStock: number;
+    restockedThisMonth: number;
+    soldThisMonth: number;
+    alerts: {
+      _id: string;
+      title: string;
+      category: string;
+      subcategory: string;
+      stock: number;
+      lowStockThreshold: number;
+      stockStatus: 'faible' | 'rupture' | 'disponible' | 'illimite';
+    }[];
+  };
   charts: {
     revenueParMois: { mois: string; revenue: number; commandes: number }[];
     statutsCommandes: Record<string, number>;
@@ -29,6 +47,11 @@ const STATUS_LABEL: Record<string, string> = {
 
 function fmt(n: number) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 }).format(n);
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  return 'Erreur inconnue';
 }
 
 function StatCard({ label, value, sub, color = '#00E5FF', icon }: {
@@ -56,8 +79,8 @@ export default function Dashboard() {
       const r = await api.get<{ data: Stats }>('/api/stats');
       setStats(r.data);
       setError('');
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(getErrorMessage(e));
     } finally {
       setRefreshing(false);
       setLastRefresh(new Date());
@@ -65,10 +88,27 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    load();
-    // Rafraîchissement automatique toutes les 30 secondes
+    let active = true;
+
+    api.get<{ data: Stats }>('/api/stats')
+      .then(r => {
+        if (active) {
+          setStats(r.data);
+          setError('');
+        }
+      })
+      .catch((e: unknown) => {
+        if (active) setError(getErrorMessage(e));
+      })
+      .finally(() => {
+        if (active) setLastRefresh(new Date());
+      });
+
     const interval = setInterval(load, 30_000);
-    return () => clearInterval(interval);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, [load]);
 
   if (error) return (
@@ -144,6 +184,37 @@ export default function Dashboard() {
         />
       </div>
 
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          label="Valeur stock"
+          value={fmt(stats.stock.inventoryValue)}
+          sub={`${stats.stock.totalUnits} unités physiques`}
+          color="#00E5FF"
+          icon="▣"
+        />
+        <StatCard
+          label="Ruptures"
+          value={stats.stock.outOfStock}
+          sub="À réapprovisionner"
+          color="#EF4444"
+          icon="!"
+        />
+        <StatCard
+          label="Stock faible"
+          value={stats.stock.lowStock}
+          sub="Sous le seuil d'alerte"
+          color="#F59E0B"
+          icon="↓"
+        />
+        <StatCard
+          label="Mouvements mois"
+          value={`+${stats.stock.restockedThisMonth}`}
+          sub={`-${stats.stock.soldThisMonth} sorties`}
+          color="#10B981"
+          icon="↕"
+        />
+      </div>
+
       {/* Evolution badge */}
       <div className="flex items-center gap-3">
         <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: evolutionColor + '20', color: evolutionColor }}>
@@ -152,6 +223,11 @@ export default function Dashboard() {
         {stats.factures.impayees > 0 && (
           <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: '#EF444420', color: '#EF4444' }}>
             ⚠️ {stats.factures.impayees} facture{stats.factures.impayees > 1 ? 's' : ''} impayée{stats.factures.impayees > 1 ? 's' : ''} — {fmt(stats.factures.montantImpaye)}
+          </span>
+        )}
+        {(stats.stock.outOfStock > 0 || stats.stock.lowStock > 0) && (
+          <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: '#F59E0B20', color: '#F59E0B' }}>
+            Stock : {stats.stock.outOfStock} rupture{stats.stock.outOfStock > 1 ? 's' : ''}, {stats.stock.lowStock} faible{stats.stock.lowStock > 1 ? 's' : ''}
           </span>
         )}
       </div>
@@ -214,6 +290,31 @@ export default function Dashboard() {
             })}
             {Object.keys(stats.charts.statutsCommandes).length === 0 && (
               <p className="text-xs text-gray-500">Aucune commande enregistrée.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="p-5 rounded-xl" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
+          <h2 className="text-sm font-semibold text-gray-300 mb-4">▣ Alertes stock boutique</h2>
+          <div className="space-y-3">
+            {stats.stock.alerts.map(item => {
+              const color = item.stockStatus === 'rupture' ? '#EF4444' : '#F59E0B';
+              return (
+                <div key={item._id} className="flex justify-between items-center py-2 border-b text-sm"
+                  style={{ borderColor: '#1E2D4A' }}>
+                  <div className="min-w-0">
+                    <div className="text-gray-300 font-semibold truncate">{item.title}</div>
+                    <div className="text-xs text-gray-500">{item.subcategory} · seuil {item.lowStockThreshold}</div>
+                  </div>
+                  <span className="font-bold font-mono ml-4" style={{ color }}>{item.stock}</span>
+                </div>
+              );
+            })}
+            {stats.stock.alerts.length === 0 && (
+              <div className="flex items-center justify-between py-2 text-sm">
+                <span className="text-gray-400">Aucune alerte stock</span>
+                <span className="font-bold text-emerald-400">OK</span>
+              </div>
             )}
           </div>
         </div>

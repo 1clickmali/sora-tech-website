@@ -178,6 +178,7 @@ export default function BoutiquePage() {
           clientAddress: deliveryInfo.address,
           clientQuartier: deliveryInfo.quartier,
           items: cart.map(p => ({
+            productId: typeof p.id === 'string' ? p.id : undefined,
             title: p.title, price: p.price, quantity: 1,
             digital: p.digital || false, image: p.image || '',
           })),

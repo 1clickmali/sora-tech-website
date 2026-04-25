@@ -26,6 +26,11 @@ const produitSchema = new mongoose.Schema({
   badge: { type: String },
   digital: { type: Boolean, default: true },
   stock: { type: Number, default: -1 }, // -1 = illimité
+  lowStockThreshold: { type: Number, default: 5 },
+  sku: { type: String, default: '' },
+  supplier: { type: String, default: '' },
+  lastUnitCost: { type: Number, default: 0 },
+  lastRestockedAt: { type: Date },
   active: { type: Boolean, default: true },
   order: { type: Number, default: 0 },
 }, { timestamps: true });

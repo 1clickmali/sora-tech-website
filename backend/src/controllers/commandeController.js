@@ -1,9 +1,46 @@
 const Commande = require('../models/Commande');
 const Facture = require('../models/Facture');
+const Produit = require('../models/Produit');
+const StockMovement = require('../models/StockMovement');
+const mongoose = require('mongoose');
 const { generateCommandePDF } = require('../utils/pdf');
 const { sendCommandeConfirmation, notifyAdminNewCommande } = require('../utils/email');
 const { sendCommandeWhatsApp, sendCommandeAdminWhatsApp } = require('../utils/whatsapp');
 const upsertContact = require('../utils/upsertContact');
+
+const reserveCommandeStock = async (commande, userName = 'Boutique') => {
+  for (const item of commande.items || []) {
+    if (!item.productId || item.digital) continue;
+    if (!mongoose.isValidObjectId(item.productId)) continue;
+
+    const product = await Produit.findById(item.productId);
+    if (!product || product.stock < 0) continue;
+
+    const qty = Number(item.quantity || 1);
+    if (product.stock < qty) {
+      throw new Error(`Stock insuffisant pour ${product.title}`);
+    }
+
+    const beforeStock = product.stock;
+    const afterStock = beforeStock - qty;
+    product.stock = afterStock;
+    await product.save();
+
+    await StockMovement.create({
+      productId: product._id,
+      type: 'sortie',
+      quantity: qty,
+      beforeStock,
+      afterStock,
+      unitCost: product.lastUnitCost || 0,
+      reference: commande.reference,
+      note: `Commande ${commande.reference}`,
+      source: 'commande',
+      commandeId: commande._id,
+      createdByName: userName,
+    });
+  }
+};
 
 // GET /api/commandes
 const getCommandes = async (req, res) => {
@@ -64,6 +101,12 @@ const createCommande = async (req, res) => {
     if (!body.clientQuartier && body.quartier) body.clientQuartier = body.quartier;
 
     const commande = await Commande.create(body);
+    try {
+      await reserveCommandeStock(commande);
+    } catch (stockErr) {
+      await Commande.findByIdAndDelete(commande._id);
+      throw stockErr;
+    }
 
     // Répondre immédiatement au client
     res.status(201).json({ success: true, data: commande });
