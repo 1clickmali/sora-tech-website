@@ -20,6 +20,12 @@ const articleSchema = new mongoose.Schema({
   readTime: { type: String },
 }, { timestamps: true });
 
+// Indexes pour les requêtes les plus fréquentes
+articleSchema.index({ published: 1, createdAt: -1 });
+articleSchema.index({ published: 1, featured: 1 });
+articleSchema.index({ published: 1, category: 1, createdAt: -1 });
+articleSchema.index({ slug: 1 });
+
 // Générer le slug automatiquement
 articleSchema.pre('save', function (next) {
   if (this.isModified('title')) {

@@ -17,4 +17,7 @@ const projetSchema = new mongoose.Schema({
   order: { type: Number, default: 0 },
 }, { timestamps: true });
 
+projetSchema.index({ order: 1, createdAt: -1 });
+projetSchema.index({ featured: 1, order: 1 });
+
 module.exports = mongoose.model('Projet', projetSchema);

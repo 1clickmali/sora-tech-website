@@ -104,9 +104,8 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-[#1a2540] pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
-        <div className="text-xs text-[#8899BB]">© 2025 SORA TECH COMPANY — Tous droits réservés</div>
-        <div className="text-xs text-[#8899BB]">Fait avec ❤️ à Abidjan par Sissoko Abdoulaye</div>
+      <div className="border-t border-[#1a2540] pt-6 text-center">
+        <div className="text-xs text-[#8899BB]">© 2026 SORA TECH COMPANY — Tous droits réservés</div>
       </div>
     </footer>
   );

@@ -6,7 +6,7 @@ const getProduits = async (req, res) => {
     const query = {};
     if (active !== 'all') query.active = active === 'true';
     if (category && category !== 'Tous') query.category = category;
-    const produits = await Produit.find(query).sort({ order: 1, createdAt: -1 });
+    const produits = await Produit.find(query).sort({ order: 1, createdAt: -1 }).lean();
     res.json({ success: true, data: produits });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

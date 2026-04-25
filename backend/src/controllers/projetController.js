@@ -5,7 +5,7 @@ const getProjets = async (req, res) => {
     const { category } = req.query;
     const query = {};
     if (category && category !== 'Tous') query.category = category;
-    const projets = await Projet.find(query).sort({ order: 1, createdAt: -1 });
+    const projets = await Projet.find(query).sort({ order: 1, createdAt: -1 }).lean();
     res.json({ success: true, data: projets });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

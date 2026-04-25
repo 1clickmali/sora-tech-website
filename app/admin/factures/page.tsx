@@ -125,9 +125,9 @@ export default function FacturesPage() {
   });
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 h-full flex flex-col" style={{ color: '#E2E8F0' }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Factures</h1>
           <p className="text-sm text-gray-500">Facturation automatique et manuelle</p>
@@ -140,7 +140,7 @@ export default function FacturesPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         {[
           { label: 'Total factures', value: total, color: '#00E5FF', icon: '🧾' },
           { label: 'Impayées', value: impayees.length, sub: fmt(montantImpaye), color: '#EF4444', icon: '⚠️' },
@@ -159,20 +159,21 @@ export default function FacturesPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
-        <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid #1E2D4A' }}>
+        <div className="flex gap-2 flex-wrap">
           {[
-            { key: 'tous', label: 'Toutes' },
-            { key: 'impayee', label: 'Impayées' },
-            { key: 'payee', label: 'Payées' },
-            { key: 'annulee', label: 'Annulées' },
+            { key: 'tous', label: 'Toutes', count: factures.length },
+            { key: 'impayee', label: 'Impayées', count: impayees.length },
+            { key: 'payee', label: 'Payées', count: payees.length },
+            { key: 'annulee', label: 'Annulées', count: factures.filter(f => f.paymentStatus === 'annulee').length },
           ].map(f => (
             <button key={f.key} onClick={() => setFilter(f.key)}
-              className="px-4 py-2 text-xs font-semibold transition"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5"
               style={{
-                background: filter === f.key ? '#1E2D4A' : 'transparent',
-                color: filter === f.key ? '#E2E8F0' : '#64748B',
+                background: filter === f.key ? (STATUS_COLOR[f.key] || '#00E5FF') : '#1E2D4A',
+                color: filter === f.key ? '#060D1F' : '#94A3B8',
               }}>
               {f.label}
+              <span className="text-[10px] opacity-70">({f.count})</span>
             </button>
           ))}
         </div>
@@ -180,24 +181,24 @@ export default function FacturesPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Chercher par N°, client..."
-          className="px-3 py-2 rounded-lg text-sm outline-none text-white"
-          style={{ background: '#0B1628', border: '1px solid #1E2D4A', minWidth: 220 }}
+          className="px-3 py-2 rounded-lg text-sm outline-none"
+          style={{ background: '#0B1628', border: '1px solid #1E2D4A', color: '#E2E8F0', minWidth: 220 }}
         />
       </div>
 
       {/* Table */}
       {loading ? (
-        <div className="flex items-center gap-3 text-gray-400 text-sm">
+        <div className="flex items-center gap-3 text-gray-400 text-sm mt-4">
           <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
           Chargement...
         </div>
       ) : (
-        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #1E2D4A' }}>
+        <div className="flex-1 overflow-auto rounded-xl mt-5" style={{ border: '1px solid #1E2D4A' }}>
           <table className="w-full text-sm">
-            <thead>
-              <tr style={{ background: '#0B1628' }}>
+            <thead style={{ background: '#0B1628', borderBottom: '1px solid #1E2D4A' }}>
+              <tr>
                 {['Numéro', 'Client', 'Commande', 'Total', 'Mode', 'Statut', 'Date', 'Actions'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-xs text-gray-500 font-semibold whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -210,7 +211,7 @@ export default function FacturesPage() {
                 </tr>
               ) : factures.map((f, i) => (
                 <tr key={f._id} className="border-t cursor-pointer hover:opacity-80 transition"
-                  style={{ borderColor: '#1E2D4A', background: i % 2 === 0 ? '#060D1F' : '#080F20' }}
+                  style={{ background: i % 2 === 0 ? '#060D1F' : '#070E1F', borderBottom: '1px solid #0d1a2e' }}
                   onClick={() => setSelected(f)}>
                   <td className="px-4 py-3 text-cyan-400 font-mono text-xs font-bold">{f.numero}</td>
                   <td className="px-4 py-3">
@@ -263,23 +264,24 @@ export default function FacturesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.75)' }}
           onClick={() => setSelected(null)}>
-          <div className="w-full max-w-lg rounded-2xl overflow-hidden"
-            style={{ background: '#0B1628', border: '1px solid #1E2D4A', maxHeight: '90vh', overflowY: 'auto' }}
+          <div className="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl flex flex-col"
+            style={{ background: '#0B1628', border: '1px solid #1E2D4A', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
             onClick={e => e.stopPropagation()}>
             {/* Modal header */}
-            <div className="px-6 py-4 border-b flex items-center justify-between"
-              style={{ borderColor: '#1E2D4A', background: '#060D1F' }}>
+            <div className="flex items-start justify-between p-6 border-b sticky top-0 z-10"
+              style={{ borderColor: '#1E2D4A', background: '#0B1628' }}>
               <div>
-                <div className="text-xs text-gray-500 uppercase tracking-widest">Facture</div>
-                <div className="text-xl font-black font-mono text-cyan-400">{selected.numero}</div>
+                <div className="text-xs text-cyan-400 font-mono mb-0.5">Facture</div>
+                <div className="text-xl font-black font-mono text-white">{selected.numero}</div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-bold"
+                    style={{ background: STATUS_COLOR[selected.paymentStatus] + '22', color: STATUS_COLOR[selected.paymentStatus] }}>
+                    {STATUS_LABEL[selected.paymentStatus]}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full text-xs font-bold"
-                  style={{ background: STATUS_COLOR[selected.paymentStatus] + '22', color: STATUS_COLOR[selected.paymentStatus] }}>
-                  {STATUS_LABEL[selected.paymentStatus]}
-                </span>
-                <button onClick={() => setSelected(null)} className="text-gray-400 text-xl leading-none ml-2">✕</button>
-              </div>
+              <button onClick={() => setSelected(null)} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white transition"
+                style={{ background: '#1E2D4A' }}>✕</button>
             </div>
 
             <div className="p-6 space-y-4">
@@ -383,12 +385,13 @@ export default function FacturesPage() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.75)' }}>
-          <div className="w-full max-w-2xl rounded-2xl overflow-y-auto"
-            style={{ background: '#0B1628', border: '1px solid #1E2D4A', maxHeight: '90vh' }}>
-            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0"
+          <div className="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl flex flex-col"
+            style={{ background: '#0B1628', border: '1px solid #1E2D4A', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}>
+            <div className="flex items-center justify-between p-6 border-b sticky top-0 z-10"
               style={{ borderColor: '#1E2D4A', background: '#0B1628' }}>
               <h2 className="text-lg font-bold text-white">Nouvelle facture manuelle</h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 text-xl">✕</button>
+              <button onClick={() => setShowForm(false)} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white transition"
+                style={{ background: '#1E2D4A' }}>✕</button>
             </div>
 
             <div className="p-6 space-y-4">

@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
@@ -12,13 +13,31 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
+// Gzip all responses — reduces JSON payload size by ~70%
+app.use(compression());
+
 // Middleware
 app.use(cors({
   origin: true,
   credentials: true,
 }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Cache-Control headers for public GET endpoints
+// Tells the browser (and Vercel CDN edge) to cache responses
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  const pub = ['/api/produits', '/api/articles', '/api/projets'];
+  const isPublic = pub.some(p => req.path.startsWith(p));
+  if (isPublic && !req.headers.authorization) {
+    // 5 min CDN cache, serves stale while revalidating for 10 min
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+  } else {
+    res.set('Cache-Control', 'private, no-store');
+  }
+  next();
+});
 
 // Static files (images produits, avatars — pas les PDFs qui sont servis via API)
 const uploadsDir = path.join(__dirname, '../uploads');

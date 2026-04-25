@@ -57,9 +57,12 @@ export default function BoutiquePage() {
   const categories = ["Tous", "Logiciels", "Templates", "Formations", "Services"];
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/produits?limit=100`)
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 5000); // 5s timeout
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/produits?limit=100`, { signal: ctrl.signal })
       .then(r => r.json())
       .then(r => {
+        clearTimeout(timer);
         if (r.data?.length) {
           setProducts(r.data.filter((p: any) => p.active).map((p: any) => ({
             id: p._id,
@@ -76,7 +79,8 @@ export default function BoutiquePage() {
           })));
         }
       })
-      .catch(() => {});
+      .catch(() => clearTimeout(timer));
+    return () => { clearTimeout(timer); ctrl.abort(); };
   }, []);
 
   const filteredProducts = activeCategory === "Tous" ? products : products.filter(p => p.category === activeCategory);

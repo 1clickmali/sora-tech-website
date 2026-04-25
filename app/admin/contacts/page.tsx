@@ -80,9 +80,9 @@ export default function ContactsPage() {
   const totalRevenu = clients.reduce((s, c) => s + (c.totalSpent || 0), 0);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 h-full flex flex-col" style={{ color: '#E2E8F0' }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Contacts & CRM</h1>
           <p className="text-sm text-gray-500">Messages clients + base de données CRM</p>
@@ -90,7 +90,7 @@ export default function ContactsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
           { label: 'Messages', value: messages.length, sub: `${nouveaux} nouveaux`, color: '#00E5FF', icon: '✉️' },
           { label: 'Clients CRM', value: totalClients, color: '#0099FF', icon: '👥' },
@@ -257,22 +257,26 @@ export default function ContactsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.75)' }}
           onClick={() => setSelected(null)}>
-          <div className="w-full max-w-lg rounded-2xl overflow-hidden"
-            style={{ background: '#0B1628', border: '1px solid #1E2D4A', maxHeight: '90vh', overflowY: 'auto' }}
+          <div className="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl flex flex-col"
+            style={{ background: '#0B1628', border: '1px solid #1E2D4A', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
             onClick={e => e.stopPropagation()}>
             {/* Modal header */}
-            <div className="px-6 py-4 border-b flex items-center justify-between"
-              style={{ borderColor: '#1E2D4A', background: '#060D1F' }}>
+            <div className="flex items-start justify-between p-6 border-b sticky top-0 z-10"
+              style={{ borderColor: '#1E2D4A', background: '#0B1628' }}>
               <div>
-                <div className="text-xl font-black text-white">{selected.name}</div>
-                {selected.clientStatus && (
-                  <span className="text-xs px-2 py-0.5 rounded-full font-bold"
-                    style={{ background: CLIENT_STATUS_COLOR[selected.clientStatus] + '22', color: CLIENT_STATUS_COLOR[selected.clientStatus] }}>
-                    {selected.clientStatus.toUpperCase()}
-                  </span>
-                )}
+                <div className="text-xl font-bold text-white">{selected.name}</div>
+                <div className="flex items-center gap-2 mt-1">
+                  {selected.clientStatus && (
+                    <span className="text-xs px-2 py-0.5 rounded-full font-bold"
+                      style={{ background: CLIENT_STATUS_COLOR[selected.clientStatus] + '22', color: CLIENT_STATUS_COLOR[selected.clientStatus] }}>
+                      {selected.clientStatus.toUpperCase()}
+                    </span>
+                  )}
+                  <span className="text-xs text-gray-500">{new Date(selected.createdAt).toLocaleDateString('fr-FR')}</span>
+                </div>
               </div>
-              <button onClick={() => setSelected(null)} className="text-gray-400 text-xl">✕</button>
+              <button onClick={() => setSelected(null)} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white transition"
+                style={{ background: '#1E2D4A' }}>✕</button>
             </div>
 
             <div className="p-6 space-y-4">

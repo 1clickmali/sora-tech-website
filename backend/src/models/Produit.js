@@ -18,4 +18,7 @@ const produitSchema = new mongoose.Schema({
   order: { type: Number, default: 0 },
 }, { timestamps: true });
 
+produitSchema.index({ active: 1, order: 1, createdAt: -1 });
+produitSchema.index({ active: 1, category: 1 });
+
 module.exports = mongoose.model('Produit', produitSchema);

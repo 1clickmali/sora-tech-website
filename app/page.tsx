@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import MobileMenu from "./components/MobileMenu";
@@ -9,6 +10,9 @@ import {
   Zap, Award, MapPin, Lock, ShoppingCart, GraduationCap,
   type LucideIcon
 } from "lucide-react";
+
+// Lazy-load background FX — does not block FCP, loads after critical content
+const BackgroundFX = dynamic(() => import("./components/BackgroundFX"), { ssr: false });
 import Footer from "./components/Footer";
 
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
@@ -59,9 +63,6 @@ function IconBox({ icon: Icon, color }: { icon: LucideIcon; color: string }) {
 }
 
 export default function Home() {
-  const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 500], [0, 120]);
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
   const [trackCode, setTrackCode] = useState('');
 
   const services: { icon: LucideIcon; title: string; desc: string; color: string; link: string }[] = [
@@ -110,13 +111,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#060D1F] text-white overflow-x-hidden">
-      {/* FOND */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(#0099FF 1px, transparent 1px), linear-gradient(90deg, #0099FF 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-        <div className="absolute top-20 left-10 w-96 h-96 bg-[#0066FF] rounded-full blur-[150px] opacity-20 animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#0099FF] rounded-full blur-[150px] opacity-15 animate-pulse" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-[#FF6B00] rounded-full blur-[180px] opacity-10 animate-pulse" style={{ animationDelay: "2s" }} />
-      </div>
+      {/* Background FX — lazy loaded, never blocks FCP */}
+      <BackgroundFX />
 
       {/* NAV */}
       <nav className="relative border-b border-[#1a2540] px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#060D1F]/85 backdrop-blur-xl z-50" style={{ boxShadow: "0 1px 0 rgba(0,153,255,0.1)" }}>
@@ -144,7 +140,7 @@ export default function Home() {
       </nav>
 
       {/* HERO */}
-      <motion.section style={{ y: heroY, opacity: heroOpacity }} className="relative py-24 md:py-36 px-6 text-center z-10 overflow-hidden">
+      <section className="relative py-24 md:py-36 px-6 text-center z-10 overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(#1a2540 1px, transparent 1px), linear-gradient(90deg, #1a2540 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
         <ScanLine />
         <div className="relative z-10 max-w-4xl mx-auto">
@@ -183,7 +179,7 @@ export default function Home() {
             </Link>
           </motion.div>
         </div>
-      </motion.section>
+      </section>
 
       {/* SUIVI RAPIDE */}
       <section className="relative z-10 px-6 pb-6">
@@ -281,7 +277,7 @@ export default function Home() {
             </motion.div>
             <Link href="/blog" className="text-sm text-[#0099FF] hover:underline font-bold">Voir tous →</Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: "none" }}>
+          <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
             {articles.map((a, i) => (
               <Link href="/blog" key={i} className="flex-shrink-0">
                 <motion.div
@@ -316,7 +312,7 @@ export default function Home() {
             </motion.div>
             <Link href="/boutique" className="text-sm text-[#0099FF] hover:underline font-bold">Toute la boutique →</Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: "none" }}>
+          <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
             {products.map((p, i) => (
               <Link href="/boutique" key={i} className="flex-shrink-0">
                 <motion.div
