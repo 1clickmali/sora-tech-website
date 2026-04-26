@@ -117,7 +117,7 @@ export default function ServicesPage() {
       </section>
 
       {/* STATS */}
-      <section className="relative border-y border-[#1a2540] backdrop-blur" style={{ background: "var(--bg2)" }} py-8 px-6 z-10">
+      <section className="relative border-y border-[#1a2540] backdrop-blur py-8 px-6 z-10" style={{ background: "var(--bg2)" }}>
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[{ num: "6", label: "EXPERTISES", color: "#0099FF" },{ num: "100%", label: "SUR MESURE", color: "#FF6B00" },{ num: "24/7", label: "SUPPORT", color: "#00C48C" },{ num: "1 AN", label: "GARANTIE", color: "#9B93FF" }].map((s, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>

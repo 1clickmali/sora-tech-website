@@ -155,7 +155,7 @@ export default function BlogPage() {
 
               return (
                 <Link key={article.id} href={getArticleHref(article)}>
-                  <motion.article initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${meta.color}20` }} className="backdrop-blur border" style={{ background: "var(--card)", borderColor: "var(--border)" }} rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer group h-full">
+                  <motion.article initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${meta.color}20` }} className="backdrop-blur border rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer group h-full" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                     <ArticleCover article={article} className="h-48 w-full object-cover" />
                     <div className="p-5">
                       <div className="flex items-center gap-2 mb-3">
