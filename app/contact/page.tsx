@@ -123,7 +123,7 @@ export default function ContactPage() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               whileHover={{ y: -5 }}
-              className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl p-5 text-center cursor-pointer transition group"
+              className="backdrop-blur rounded-2xl p-5 text-center cursor-pointer transition group border" style={{ background: "var(--card)", borderColor: "var(--border)" }}
             >
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 mx-auto transition-all duration-300 group-hover:scale-110"
@@ -132,8 +132,8 @@ export default function ContactPage() {
                 <m.icon className="w-7 h-7" style={{ color: m.color }} />
               </div>
               <div className="text-xs tracking-wider mb-1 font-bold" style={{ color: m.color }}>{m.title.toUpperCase()}</div>
-              <div className="text-sm font-bold mb-1">{m.value}</div>
-              <div className="text-xs text-[#8899BB] mb-3">{m.subtitle}</div>
+              <div className="text-sm font-bold mb-1" style={{ color: "var(--text)" }}>{m.value}</div>
+              <div className="text-xs mb-3" style={{ color: "var(--muted)" }}>{m.subtitle}</div>
               {m.title === 'Téléphone' && <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
               {m.title === 'WhatsApp' && <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
               {m.title === 'Email' && <motion.a href="mailto:contact@soratech.ci" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
@@ -149,7 +149,7 @@ export default function ContactPage() {
 
           {/* FORM */}
           <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-            <div className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl p-6 md:p-8">
+            <div className="backdrop-blur rounded-2xl p-6 md:p-8 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
               <div className="mb-6">
                 <div className="text-xs tracking-[3px] text-[#0099FF] mb-2">ENVOYEZ-NOUS UN MESSAGE</div>
                 <h2 className="text-2xl md:text-3xl font-black">Formulaire de contact</h2>
@@ -176,12 +176,12 @@ export default function ContactPage() {
                     <div>
                       <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Nom complet *</label>
                       <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                        placeholder="Votre nom" className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" />
+                        placeholder="Votre nom" className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                     </div>
                     <div>
                       <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Entreprise</label>
                       <input type="text" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })}
-                        placeholder="Nom entreprise" className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" />
+                        placeholder="Nom entreprise" className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                     </div>
                   </div>
 
@@ -189,19 +189,19 @@ export default function ContactPage() {
                     <div>
                       <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Email *</label>
                       <input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        placeholder="vous@email.com" className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" />
+                        placeholder="vous@email.com" className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                     </div>
                     <div>
                       <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Téléphone WhatsApp *</label>
                       <input type="tel" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                        placeholder="+225 07 00 00 00" className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" />
+                        placeholder="+225 07 00 00 00" className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                     </div>
                   </div>
 
                   <div>
                     <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Type de projet</label>
                     <select value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })}
-                      className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] cursor-pointer transition">
+                      className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] cursor-pointer transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }}>
                       <option value="">Sélectionnez un service</option>
                       <option>Site web (vitrine, e-commerce)</option>
                       <option>Logiciel de gestion</option>
@@ -216,7 +216,7 @@ export default function ContactPage() {
                   <div>
                     <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Budget estimé</label>
                     <select value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })}
-                      className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] cursor-pointer transition">
+                      className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] cursor-pointer transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }}>
                       <option value="">Sélectionnez votre budget</option>
                       <option>Moins de 200 000 FCFA</option>
                       <option>200 000 - 500 000 FCFA</option>
@@ -231,7 +231,7 @@ export default function ContactPage() {
                     <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Décrivez votre projet *</label>
                     <textarea required rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
                       placeholder="Dites-nous tout sur votre projet, vos besoins, vos objectifs..."
-                      className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] resize-none transition" />
+                      className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] resize-none transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                   </div>
 
                   <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
@@ -252,7 +252,7 @@ export default function ContactPage() {
           <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="space-y-5">
 
             {/* MAP MOCK */}
-            <div className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden">
+            <div className="backdrop-blur rounded-2xl overflow-hidden border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
               <div className="h-48 bg-gradient-to-br from-[#0066FF]/30 to-[#00C48C]/20 flex items-center justify-center relative">
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(#1a2540 1px, transparent 1px), linear-gradient(90deg, #1a2540 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
                 <div className="relative text-center z-10">
@@ -274,21 +274,21 @@ export default function ContactPage() {
             </div>
 
             {/* HOURS */}
-            <div className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl p-5">
+            <div className="backdrop-blur rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
               <h3 className="text-base font-black mb-4 flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#0099FF]" />
                 Nos horaires
               </h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between pb-2 border-b border-[#1a2540]">
-                  <span className="text-[#8899BB]">Lundi - Vendredi</span>
+                <div className="flex justify-between pb-2 border-b" style={{ borderColor: "var(--border)" }}>
+                  <span style={{ color: "var(--muted)" }}>Lundi - Vendredi</span>
                   <span className="font-bold text-[#00C48C]">8h00 - 18h00</span>
                 </div>
-                <div className="flex justify-between pb-2 border-b border-[#1a2540]">
-                  <span className="text-[#8899BB]">Samedi</span>
+                <div className="flex justify-between pb-2 border-b" style={{ borderColor: "var(--border)" }}>
+                  <span style={{ color: "var(--muted)" }}>Samedi</span>
                   <span className="font-bold text-[#00C48C]">9h00 - 14h00</span>
                 </div>
-                <div className="flex justify-between pb-2 border-b border-[#1a2540]">
+                <div className="flex justify-between pb-2 border-b" style={{ borderColor: "var(--border)" }}>
                   <span className="text-[#8899BB]">Dimanche</span>
                   <span className="font-bold text-[#FF4757]">Fermé</span>
                 </div>
@@ -300,7 +300,7 @@ export default function ContactPage() {
             </div>
 
             {/* SOCIAL */}
-            <div className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl p-5">
+            <div className="backdrop-blur rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
               <h3 className="text-base font-black mb-4 flex items-center gap-2">
                 <MessageCircle className="w-4 h-4 text-[#0099FF]" />
                 Suivez-nous
@@ -329,7 +329,7 @@ export default function ContactPage() {
       </section>
 
       {/* FAQ */}
-      <section className="relative py-16 px-6 bg-[#080F20]/80 backdrop-blur z-10">
+      <section className="relative py-16 px-6 backdrop-blur z-10" style={{ background: "var(--bg2)" }}>
         <div className="max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
             <div className="text-xs tracking-[3px] text-[#9B93FF] mb-2">QUESTIONS FRÉQUENTES</div>
@@ -343,7 +343,7 @@ export default function ContactPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-[#0A1525]/80 border border-[#1a2540] hover:border-[#0066FF] rounded-xl overflow-hidden transition group"
+                className="rounded-xl overflow-hidden transition group border hover:border-[#0066FF]" style={{ background: "var(--card)", borderColor: "var(--border)" }}
               >
                 <summary className="cursor-pointer p-5 flex justify-between items-center font-bold text-sm list-none">
                   <span>{f.q}</span>
