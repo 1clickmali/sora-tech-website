@@ -195,7 +195,7 @@ export default function ServicesPage() {
       </section>
 
       {/* PROCESSUS */}
-      <section className="relative py-20 px-6 backdrop-blur" style={{ background: "var(--bg2)" }} z-10">
+      <section className="relative py-20 px-6 backdrop-blur z-10" style={{ background: "var(--bg2)" }}>
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <div className="text-[10px] tracking-[4px] text-[#FF6B00] mb-2 font-mono">// COMMENT_ÇA_MARCHE</div>
@@ -222,7 +222,7 @@ export default function ServicesPage() {
           </motion.div>
           <div className="grid md:grid-cols-3 gap-5">
             {testimonials.map((t, i) => (
-              <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -5 }} className="backdrop-blur border" style={{ background: "var(--card)", borderColor: "var(--border)" }} hover:border-[#00C48C] transition-all duration-300 rounded-2xl p-6">
+              <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -5 }} className="backdrop-blur border hover:border-[#00C48C] transition-all duration-300 rounded-2xl p-6" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <div className="flex gap-1 mb-4">{Array.from({ length: t.rating }).map((_, k) => <span key={k} className="text-[#FFD700]">★</span>)}</div>
                 <p className="text-sm text-white italic mb-5 leading-relaxed">&ldquo;{t.text}&rdquo;</p>
                 <div className="flex items-center gap-3 pt-4 border-t border-[#1a2540]">
@@ -236,7 +236,7 @@ export default function ServicesPage() {
       </section>
 
       {/* FAQ */}
-      <section className="relative py-20 px-6 backdrop-blur" style={{ background: "var(--bg2)" }} z-10">
+      <section className="relative py-20 px-6 backdrop-blur z-10" style={{ background: "var(--bg2)" }}>
         <div className="max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <div className="text-[10px] tracking-[4px] text-[#9B93FF] mb-2 font-mono">// FAQ</div>
