@@ -78,6 +78,7 @@ export default function BoutiquePage() {
   const [paymentMode, setPaymentMode] = useState<"online" | "cod" | null>(null);
   const [deliveryInfo, setDeliveryInfo] = useState({ name: "", phone: "", email: "", address: "", quartier: "" });
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [orderLoading, setOrderLoading] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoError, setGeoError] = useState('');
 
@@ -167,6 +168,8 @@ export default function BoutiquePage() {
     setOrderSuccess(false);
   };
   const confirmOrder = async () => {
+    if (orderLoading) return;
+    setOrderLoading(true);
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/commandes`, {
         method: 'POST',
@@ -189,6 +192,7 @@ export default function BoutiquePage() {
         }),
       });
     } catch {}
+    setOrderLoading(false);
     setOrderSuccess(true);
     setTimeout(() => { setCart([]); setCartOpen(false); resetCheckout(); }, 4000);
   };
@@ -489,7 +493,14 @@ export default function BoutiquePage() {
                   {checkoutStep === 0 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setCheckoutStep(1)} className="w-full bg-[#0066FF] py-3.5 rounded-xl font-bold text-sm">Commander →</motion.button>}
                   {checkoutStep === 1 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => paymentMode && setCheckoutStep(2)} disabled={!paymentMode} className={`w-full py-3.5 rounded-xl font-bold text-sm transition ${paymentMode ? "bg-[#0066FF]" : "bg-[#1a2540] text-[#8899BB] cursor-not-allowed"}`}>Continuer →</motion.button>}
                   {checkoutStep === 2 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { if (deliveryInfo.name && deliveryInfo.phone && (paymentMode === "online" || (deliveryInfo.quartier && deliveryInfo.address))) setCheckoutStep(3); }} className="w-full bg-[#0066FF] py-3.5 rounded-xl font-bold text-sm">Vérifier la commande →</motion.button>}
-                  {checkoutStep === 3 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={confirmOrder} className={`w-full py-3.5 rounded-xl font-bold text-sm ${paymentMode === "online" ? "bg-[#0066FF]" : "bg-[#FF6B00]"}`}>{paymentMode === "online" ? "💳 Payer maintenant" : "✓ Confirmer la commande"}</motion.button>}
+                  {checkoutStep === 3 && (
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                      onClick={confirmOrder}
+                      disabled={orderLoading}
+                      className={`w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition ${paymentMode === "online" ? "bg-[#0066FF]" : "bg-[#FF6B00]"} ${orderLoading ? "opacity-70 cursor-not-allowed" : ""}`}>
+                      {orderLoading ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Traitement...</> : paymentMode === "online" ? "💳 Payer maintenant" : "✓ Confirmer la commande"}
+                    </motion.button>
+                  )}
                 </div>
               )}
             </motion.div>

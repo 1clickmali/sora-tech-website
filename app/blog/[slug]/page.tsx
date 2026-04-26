@@ -25,16 +25,16 @@ function renderContent(content: string) {
       const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
 
       if (block.startsWith('## ')) {
-        return <h2 key={index} className="text-2xl md:text-3xl font-black text-white mt-10 mb-4">{block.slice(3)}</h2>;
+        return <h2 key={index} className="text-2xl md:text-3xl font-black mt-10 mb-4" style={{ color: "var(--text)" }}>{block.slice(3)}</h2>;
       }
 
       if (block.startsWith('# ')) {
-        return <h2 key={index} className="text-3xl md:text-4xl font-black text-white mt-10 mb-4">{block.slice(2)}</h2>;
+        return <h2 key={index} className="text-3xl md:text-4xl font-black mt-10 mb-4" style={{ color: "var(--text)" }}>{block.slice(2)}</h2>;
       }
 
       if (lines.length > 1 && lines.every((line) => line.startsWith('- '))) {
         return (
-          <ul key={index} className="space-y-3 my-6 text-[#C5D1E6]">
+          <ul key={index} className="space-y-3 my-6" style={{ color: "var(--muted)" }}>
             {lines.map((line, lineIndex) => (
               <li key={lineIndex} className="flex items-start gap-3">
                 <span className="text-[#0099FF] mt-1.5 text-[10px]">●</span>
@@ -45,7 +45,7 @@ function renderContent(content: string) {
         );
       }
 
-      return <p key={index} className="text-[#C5D1E6] leading-8 text-base md:text-lg mb-6">{block}</p>;
+      return <p key={index} className="leading-8 text-base md:text-lg mb-6" style={{ color: "var(--muted)" }}>{block}</p>;
     });
 }
 

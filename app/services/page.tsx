@@ -224,7 +224,7 @@ export default function ServicesPage() {
             {testimonials.map((t, i) => (
               <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -5 }} className="backdrop-blur border hover:border-[#00C48C] transition-all duration-300 rounded-2xl p-6" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <div className="flex gap-1 mb-4">{Array.from({ length: t.rating }).map((_, k) => <span key={k} className="text-[#FFD700]">★</span>)}</div>
-                <p className="text-sm text-white italic mb-5 leading-relaxed">&ldquo;{t.text}&rdquo;</p>
+                <p className="text-sm italic mb-5 leading-relaxed" style={{ color: "var(--text)" }}>&ldquo;{t.text}&rdquo;</p>
                 <div className="flex items-center gap-3 pt-4 border-t border-[#1a2540]">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0099FF] flex items-center justify-center text-xs font-black">{t.name.split(' ').map(n => n[0]).join('')}</div>
                   <div><div className="text-sm font-bold">{t.name}</div><div className="text-xs text-[var(--muted)]">{t.company}</div></div>

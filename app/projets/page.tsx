@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
-import { useApp } from "../i18n/AppContext";
 import {
   Globe, Monitor, Smartphone, Shield, ShoppingCart,
   GraduationCap, Pill, Car, CheckCircle, type LucideIcon

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
-import { useApp } from '../i18n/AppContext';
 
 export default function SuiviSearchPage() {
   const [code, setCode] = useState('');

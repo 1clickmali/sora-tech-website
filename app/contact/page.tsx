@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useApp } from "../i18n/AppContext";
 
 function ScanLine() {
   return (

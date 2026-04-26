@@ -50,10 +50,14 @@ export default function DevisPage() {
   const [complexity, setComplexity] = useState(1);
   const [modules, setModules] = useState(3);
   const [options, setOptions] = useState<{ [key: string]: boolean }>({});
-  const [selectedDate, setSelectedDate] = useState("22 Avril 2025");
-  const [selectedSlot, setSelectedSlot] = useState("11:00");
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const d = new Date();
+    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  });
+  const [selectedSlot, setSelectedSlot] = useState("09:00");
   const [clientInfo, setClientInfo] = useState({ name: "", email: "", phone: "", company: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const services: Service[] = [
     { id: "web",   icon: Globe,      name: "Site web",         basePrice: 400000,  baseDays: 21, color: "#0099FF" },
@@ -336,12 +340,12 @@ export default function DevisPage() {
                       <div className="text-sm font-bold">{calendar.month}</div>
                       <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">›</motion.button>
                     </div>
-                    <div className="grid grid-cols-7 gap-1 text-center mb-2">
+                    <div className="grid grid-cols-7 gap-0.5 text-center mb-2">
                       {["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"].map((d) => (
-                        <div key={d} className="text-[10px] text-[#8899BB] font-bold py-1">{d}</div>
+                        <div key={d} className="text-[9px] text-[#8899BB] font-bold py-1">{d}</div>
                       ))}
                     </div>
-                    <div className="grid grid-cols-7 gap-1">
+                    <div className="grid grid-cols-7 gap-0.5">
                       {calendar.days.map((d, i) => (
                         <button
                           key={i}
@@ -369,7 +373,7 @@ export default function DevisPage() {
                         <Clock className="w-3.5 h-3.5" />
                         Créneaux disponibles — {selectedDate}
                       </div>
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                         {slots.map((s) => (
                           <button
                             key={s.time}
@@ -425,14 +429,25 @@ export default function DevisPage() {
                   <motion.button onClick={() => setStep(2)} whileHover={{ scale: 1.03, x: -2 }} whileTap={{ scale: 0.97 }} className="px-6 py-3 rounded-lg font-bold text-sm border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">
                     ← Retour
                   </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    onClick={() => { if (clientInfo.name && clientInfo.phone && clientInfo.email) { setStep(4); submitDevis(); } }}
-                    className="bg-[#00C48C] hover:bg-[#00E5A0] transition px-8 py-3 rounded-lg font-bold text-sm flex items-center gap-2"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    Confirmer le RDV & devis
-                  </motion.button>
+                  <div className="flex flex-col items-end gap-2">
+                    {formError && <p className="text-red-400 text-xs">{formError}</p>}
+                    <motion.button
+                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        if (!clientInfo.name || !clientInfo.phone || !clientInfo.email) {
+                          setFormError("Veuillez remplir votre nom, téléphone et email.");
+                          return;
+                        }
+                        setFormError("");
+                        setStep(4);
+                        submitDevis();
+                      }}
+                      className="bg-[#00C48C] hover:bg-[#00E5A0] transition px-8 py-3 rounded-lg font-bold text-sm flex items-center gap-2"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      Confirmer le RDV & devis
+                    </motion.button>
+                  </div>
                 </div>
               </motion.div>
             )}
