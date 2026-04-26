@@ -60,38 +60,38 @@ function IconBox({ icon: Icon, color }: { icon: LucideIcon; color: string }) {
 }
 
 export default function Home() {
-  const { t } = useApp();
+  const { t, lang } = useApp();
   const h = t.home;
   const [trackCode, setTrackCode] = useState('');
 
   const statColors = ["#0099FF", "#FF6B00", "#00C48C", "#9B93FF"];
 
   const services: { icon: LucideIcon; title: string; desc: string; color: string }[] = [
-    { icon: Globe,      title: t.lang === "fr" ? "Sites web" : "Web sites",             desc: t.lang === "fr" ? "Sites vitrines et e-commerce premium sur mesure"  : "Premium showcase and e-commerce sites", color: "#0099FF" },
-    { icon: Monitor,    title: t.lang === "fr" ? "Logiciels de gestion" : "Management software", desc: t.lang === "fr" ? "Caisse, stock, CRM pour commerces et PME" : "POS, stock, CRM for businesses",        color: "#FF6B00" },
-    { icon: Smartphone, title: t.lang === "fr" ? "Applications mobiles" : "Mobile apps", desc: t.lang === "fr" ? "Apps Android & iOS natives pour votre business"  : "Native Android & iOS apps for your business", color: "#00C48C" },
-    { icon: Layers,     title: "ERP",                                                    desc: t.lang === "fr" ? "RH, comptabilité, ventes, stock intégrés"         : "HR, accounting, sales, stock integrated", color: "#9B93FF" },
-    { icon: Shield,     title: t.lang === "fr" ? "Cybersécurité" : "Cybersecurity",    desc: t.lang === "fr" ? "Audit, protection et formation anti-piratage"       : "Audit, protection and anti-piracy training", color: "#FF4757" },
-    { icon: Wrench,     title: t.lang === "fr" ? "Maintenance IT" : "IT Maintenance",  desc: t.lang === "fr" ? "Support 24/7, préventive et corrective"             : "24/7 support, preventive and corrective", color: "#0066FF" },
+    { icon: Globe,      title: lang === "fr" ? "Sites web" : "Web sites",             desc: lang === "fr" ? "Sites vitrines et e-commerce premium sur mesure"  : "Premium showcase and e-commerce sites", color: "#0099FF" },
+    { icon: Monitor,    title: lang === "fr" ? "Logiciels de gestion" : "Management software", desc: lang === "fr" ? "Caisse, stock, CRM pour commerces et PME" : "POS, stock, CRM for businesses",        color: "#FF6B00" },
+    { icon: Smartphone, title: lang === "fr" ? "Applications mobiles" : "Mobile apps", desc: lang === "fr" ? "Apps Android & iOS natives pour votre business"  : "Native Android & iOS apps for your business", color: "#00C48C" },
+    { icon: Layers,     title: "ERP",                                                    desc: lang === "fr" ? "RH, comptabilité, ventes, stock intégrés"         : "HR, accounting, sales, stock integrated", color: "#9B93FF" },
+    { icon: Shield,     title: lang === "fr" ? "Cybersécurité" : "Cybersecurity",    desc: lang === "fr" ? "Audit, protection et formation anti-piratage"       : "Audit, protection and anti-piracy training", color: "#FF4757" },
+    { icon: Wrench,     title: lang === "fr" ? "Maintenance IT" : "IT Maintenance",  desc: lang === "fr" ? "Support 24/7, préventive et corrective"             : "24/7 support, preventive and corrective", color: "#0066FF" },
   ];
 
   const whyUs: { icon: LucideIcon; title: string; desc: string; link: string }[] = [
-    { icon: Zap,   title: t.lang === "fr" ? "Rapidité"  : "Speed",    desc: t.lang === "fr" ? "Livraison dans les délais garantie"   : "On-time delivery guaranteed", link: "/about" },
-    { icon: Award, title: t.lang === "fr" ? "Qualité"   : "Quality",  desc: t.lang === "fr" ? "Standards internationaux premium"      : "Premium international standards", link: "/projets" },
-    { icon: MapPin,title: t.lang === "fr" ? "Proximité" : "Proximity",desc: t.lang === "fr" ? "Équipe locale à Abidjan"               : "Local team in Abidjan", link: "/about" },
-    { icon: Lock,  title: t.lang === "fr" ? "Sécurité"  : "Security", desc: t.lang === "fr" ? "Vos données sont protégées"            : "Your data is protected", link: "/services" },
+    { icon: Zap,   title: lang === "fr" ? "Rapidité"  : "Speed",    desc: lang === "fr" ? "Livraison dans les délais garantie"   : "On-time delivery guaranteed", link: "/about" },
+    { icon: Award, title: lang === "fr" ? "Qualité"   : "Quality",  desc: lang === "fr" ? "Standards internationaux premium"      : "Premium international standards", link: "/projets" },
+    { icon: MapPin,title: lang === "fr" ? "Proximité" : "Proximity",desc: lang === "fr" ? "Équipe locale à Abidjan"               : "Local team in Abidjan", link: "/about" },
+    { icon: Lock,  title: lang === "fr" ? "Sécurité"  : "Security", desc: lang === "fr" ? "Vos données sont protégées"            : "Your data is protected", link: "/services" },
   ];
 
   const products: { icon: LucideIcon; tag: string; title: string; desc: string; price: string; color: string }[] = [
-    { icon: Monitor,       tag: t.lang === "fr" ? "LOGICIEL"    : "SOFTWARE",    title: t.lang === "fr" ? "Logiciel caisse alimentation" : "Food store POS software",     desc: t.lang === "fr" ? "Gestion stocks, ventes, rapports"  : "Stock, sales, reports",   price: "150 000", color: "#0099FF" },
-    { icon: Globe,         tag: "TEMPLATE",                                       title: t.lang === "fr" ? "Template site restaurant"      : "Restaurant website template", desc: t.lang === "fr" ? "Design premium prêt à l'emploi"    : "Ready-to-use premium design", price: "45 000",  color: "#FF6B00" },
-    { icon: GraduationCap, tag: t.lang === "fr" ? "FORMATION"   : "TRAINING",    title: t.lang === "fr" ? "Formation création site web"   : "Web design training",         desc: t.lang === "fr" ? "10h de formation en ligne"          : "10h of online training",  price: "75 000",  color: "#00C48C" },
-    { icon: Wrench,        tag: "MAINTENANCE",                                    title: t.lang === "fr" ? "Pack maintenance annuel"        : "Annual maintenance pack",     desc: t.lang === "fr" ? "Suivi, mises à jour, support"       : "Monitoring, updates, support", price: "120 000", color: "#9B93FF" },
-    { icon: Smartphone,    tag: "TEMPLATE",                                       title: t.lang === "fr" ? "Template app mobile"            : "Mobile app template",         desc: t.lang === "fr" ? "UI/UX React Native prêt"            : "Ready React Native UI/UX", price: "80 000",  color: "#0066FF" },
-    { icon: Shield,        tag: t.lang === "fr" ? "SERVICE"     : "SERVICE",     title: t.lang === "fr" ? "Audit cybersécurité"            : "Cybersecurity audit",         desc: t.lang === "fr" ? "Rapport complet + recommandations"  : "Full report + recommendations", price: "200 000", color: "#FF4757" },
+    { icon: Monitor,       tag: lang === "fr" ? "LOGICIEL"    : "SOFTWARE",    title: lang === "fr" ? "Logiciel caisse alimentation" : "Food store POS software",     desc: lang === "fr" ? "Gestion stocks, ventes, rapports"  : "Stock, sales, reports",   price: "150 000", color: "#0099FF" },
+    { icon: Globe,         tag: "TEMPLATE",                                       title: lang === "fr" ? "Template site restaurant"      : "Restaurant website template", desc: lang === "fr" ? "Design premium prêt à l'emploi"    : "Ready-to-use premium design", price: "45 000",  color: "#FF6B00" },
+    { icon: GraduationCap, tag: lang === "fr" ? "FORMATION"   : "TRAINING",    title: lang === "fr" ? "Formation création site web"   : "Web design training",         desc: lang === "fr" ? "10h de formation en ligne"          : "10h of online training",  price: "75 000",  color: "#00C48C" },
+    { icon: Wrench,        tag: "MAINTENANCE",                                    title: lang === "fr" ? "Pack maintenance annuel"        : "Annual maintenance pack",     desc: lang === "fr" ? "Suivi, mises à jour, support"       : "Monitoring, updates, support", price: "120 000", color: "#9B93FF" },
+    { icon: Smartphone,    tag: "TEMPLATE",                                       title: lang === "fr" ? "Template app mobile"            : "Mobile app template",         desc: lang === "fr" ? "UI/UX React Native prêt"            : "Ready React Native UI/UX", price: "80 000",  color: "#0066FF" },
+    { icon: Shield,        tag: lang === "fr" ? "SERVICE"     : "SERVICE",     title: lang === "fr" ? "Audit cybersécurité"            : "Cybersecurity audit",         desc: lang === "fr" ? "Rapport complet + recommandations"  : "Full report + recommendations", price: "200 000", color: "#FF4757" },
   ];
 
-  const articles = t.lang === "fr"
+  const articles = lang === "fr"
     ? [
         { tag: "DIGITALISATION", title: "Comment digitaliser votre boutique en 2025",       desc: "Guide complet pour les commerçants d'Abidjan" },
         { tag: "CYBERSÉCURITÉ",  title: "5 erreurs fatales pour la sécurité de votre PME",  desc: "Protégez vos données dès maintenant" },
@@ -108,9 +108,9 @@ export default function Home() {
       ];
 
   const testimonials = [
-    { name: "Konan Kouassi",  company: "Supermarché Abidjan",  text: t.lang === "fr" ? "SORA TECH a révolutionné notre gestion. Nos ventes ont augmenté de 30% en 3 mois !" : "SORA TECH revolutionized our management. Sales increased by 30% in 3 months!", rating: 5, initials: "KK" },
-    { name: "Aminata Traoré", company: "Boutique Fashion",     text: t.lang === "fr" ? "Le site e-commerce est magnifique. Service client au top, je recommande à 100% !"    : "The e-commerce site is beautiful. Top client service, 100% recommended!",          rating: 5, initials: "AT" },
-    { name: "Dr. Coulibaly",  company: "Cabinet Médical",      text: t.lang === "fr" ? "L'ERP médical nous fait gagner des heures chaque jour. Équipe très professionnelle."  : "The medical ERP saves us hours every day. Very professional team.",                   rating: 5, initials: "DC" },
+    { name: "Konan Kouassi",  company: "Supermarché Abidjan",  text: lang === "fr" ? "SORA TECH a révolutionné notre gestion. Nos ventes ont augmenté de 30% en 3 mois !" : "SORA TECH revolutionized our management. Sales increased by 30% in 3 months!", rating: 5, initials: "KK" },
+    { name: "Aminata Traoré", company: "Boutique Fashion",     text: lang === "fr" ? "Le site e-commerce est magnifique. Service client au top, je recommande à 100% !"    : "The e-commerce site is beautiful. Top client service, 100% recommended!",          rating: 5, initials: "AT" },
+    { name: "Dr. Coulibaly",  company: "Cabinet Médical",      text: lang === "fr" ? "L'ERP médical nous fait gagner des heures chaque jour. Équipe très professionnelle."  : "The medical ERP saves us hours every day. Very professional team.",                   rating: 5, initials: "DC" },
   ];
 
   const tagColors: Record<string, string> = {

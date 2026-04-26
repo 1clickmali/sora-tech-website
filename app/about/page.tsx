@@ -18,7 +18,7 @@ function ScanLine() {
 }
 
 export default function AboutPage() {
-  const { t } = useApp();
+  const { t, lang } = useApp();
   const a = t.about;
 
   const valueIcons: LucideIcon[] = [Target, Lightbulb, Users, Lock, Zap, Globe2];
@@ -70,12 +70,12 @@ export default function AboutPage() {
       <section className="relative py-16 px-6 z-10">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
           {[
-            { icon: Target,    title: t.lang === "fr" ? "Notre Mission" : "Our Mission", color: "#0066FF",
-              text: t.lang === "fr"
+            { icon: Target,    title: lang === "fr" ? "Notre Mission" : "Our Mission", color: "#0066FF",
+              text: lang === "fr"
                 ? "Rendre la technologie accessible à toutes les entreprises ivoiriennes et africaines, peu importe leur taille."
                 : "Make technology accessible to all businesses in Côte d'Ivoire and Africa, regardless of size." },
-            { icon: Telescope, title: t.lang === "fr" ? "Notre Vision"  : "Our Vision",  color: "#FF6B00",
-              text: t.lang === "fr"
+            { icon: Telescope, title: lang === "fr" ? "Notre Vision"  : "Our Vision",  color: "#FF6B00",
+              text: lang === "fr"
                 ? "Faire d'Abidjan un hub technologique majeur en Afrique de l'Ouest et devenir la référence en digitalisation."
                 : "Make Abidjan a major tech hub in West Africa and become the reference for digitalization." },
           ].map((item, i) => (
