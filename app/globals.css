@@ -57,3 +57,61 @@ html {
 /* Hide scrollbar on overflow-x scroll containers (blog/boutique carousels) */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─────────────────────────────────────────────────
+   LIGHT MODE — automatic overrides for hardcoded
+   dark-mode Tailwind classes used across all pages.
+   This block fixes text/bg visibility without having
+   to touch every individual component.
+───────────────────────────────────────────────── */
+
+/* Text that should adapt to the theme */
+[data-theme="light"] .text-white      { color: var(--text) !important; }
+[data-theme="light"] .text-gray-400,
+[data-theme="light"] .text-gray-500   { color: var(--muted) !important; }
+[data-theme="light"] .text-\[\#8899BB\] { color: var(--muted) !important; }
+[data-theme="light"] .text-\[\#94A3B8\] { color: var(--muted) !important; }
+
+/* Preserve white text ON intentionally colored buttons/badges */
+[data-theme="light"] [class*="bg-[#0066FF]"],
+[data-theme="light"] [class*="bg-[#0099FF]"],
+[data-theme="light"] [class*="bg-[#FF6B00]"],
+[data-theme="light"] [class*="bg-[#FF4757]"],
+[data-theme="light"] [class*="bg-[#00C48C]"],
+[data-theme="light"] [class*="bg-[#25D366]"],
+[data-theme="light"] [class*="bg-[#9B93FF]"] { color: #fff !important; }
+
+/* Dark card/panel backgrounds → light equivalents */
+[data-theme="light"] .bg-\[\#060D1F\]  { background: var(--bg)    !important; }
+[data-theme="light"] .bg-\[\#080F20\]  { background: var(--bg2)   !important; }
+[data-theme="light"] .bg-\[\#0A1525\]  { background: var(--card)  !important; }
+[data-theme="light"] .bg-\[\#0B1628\]  { background: var(--card2) !important; }
+[data-theme="light"] .bg-\[\#0A1A3A\]  { background: var(--card)  !important; }
+[data-theme="light"] .bg-\[\#040A14\]  { background: var(--footer-bg) !important; }
+
+/* Opacity variants */
+[data-theme="light"] .bg-\[\#060D1F\]\/80,
+[data-theme="light"] .bg-\[\#060D1F\]\/85,
+[data-theme="light"] .bg-\[\#060D1F\]\/90 { background: var(--nav-bg) !important; }
+[data-theme="light"] .bg-\[\#080F20\]\/80  { background: var(--bg2)   !important; }
+
+/* Dark borders → light equivalents */
+[data-theme="light"] .border-\[\#1a2540\]  { border-color: var(--border)  !important; }
+[data-theme="light"] .border-\[\#1E2D4A\]  { border-color: var(--border2) !important; }
+
+/* Input backgrounds */
+[data-theme="light"] input.bg-\[\#060D1F\],
+[data-theme="light"] input.bg-\[\#0A1525\],
+[data-theme="light"] input.bg-\[\#0B1628\],
+[data-theme="light"] textarea.bg-\[\#060D1F\],
+[data-theme="light"] textarea.bg-\[\#0A1525\],
+[data-theme="light"] select.bg-\[\#060D1F\],
+[data-theme="light"] select.bg-\[\#0A1525\] {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* Fixed/absolute backgrounds that create visual boxes */
+[data-theme="light"] .backdrop-blur     { backdrop-filter: blur(16px); }
+[data-theme="light"] .font-mono         { color: var(--text); }

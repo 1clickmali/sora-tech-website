@@ -131,15 +131,15 @@ export default function Dashboard() {
   const evolutionColor = evolution > 0 ? '#10B981' : evolution < 0 ? '#EF4444' : '#94A3B8';
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-5 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-          <p className="text-sm text-gray-500">Vue d&apos;ensemble — SORA TECH</p>
+          <h1 className="text-xl md:text-2xl font-bold text-white">Dashboard</h1>
+          <p className="text-xs md:text-sm text-gray-500">Vue d&apos;ensemble — SORA TECH</p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-500">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="hidden sm:block text-xs text-gray-500">
             Actualisé à {lastRefresh.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </span>
           <button onClick={load} disabled={refreshing}
@@ -216,7 +216,7 @@ export default function Dashboard() {
       </div>
 
       {/* Evolution badge */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: evolutionColor + '20', color: evolutionColor }}>
           {evolutionLabel}
         </span>
