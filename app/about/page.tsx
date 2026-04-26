@@ -2,89 +2,66 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import MobileMenu from "../components/MobileMenu";
-import {
-  Target, Telescope, Zap, Lightbulb, Users, Lock, Globe2,
-  type LucideIcon
-} from "lucide-react";
+import { Target, Telescope, Zap, Lightbulb, Users, Lock, Globe2, type LucideIcon } from "lucide-react";
+import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useApp } from "../i18n/AppContext";
 
 function ScanLine() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <motion.div animate={{ y: ["-5%", "105%"] }} transition={{ duration: 8, repeat: Infinity, ease: "linear", repeatDelay: 4 }} className="absolute left-0 right-0 h-[2px]" style={{ background: "linear-gradient(90deg, transparent, rgba(0,153,255,0.5), rgba(0,198,255,0.8), rgba(0,153,255,0.5), transparent)" }} />
+      <motion.div animate={{ y: ["-5%", "105%"] }} transition={{ duration: 8, repeat: Infinity, ease: "linear", repeatDelay: 4 }}
+        className="absolute left-0 right-0 h-[2px]"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(0,153,255,0.5), rgba(0,198,255,0.8), rgba(0,153,255,0.5), transparent)" }} />
     </div>
   );
 }
 
-const NAV_LINKS = [
-  { href: "/", label: "Accueil" }, { href: "/services", label: "Services" },
-  { href: "/about", label: "À propos", active: true }, { href: "/blog", label: "Blog" },
-  { href: "/projets", label: "Projets" }, { href: "/boutique", label: "Boutique" },
-  { href: "/devis", label: "Devis & RDV" }, { href: "/contact", label: "Contact" },
-];
-
 export default function AboutPage() {
-  const values: { icon: LucideIcon; title: string; desc: string; color: string }[] = [
-    { icon: Target,     title: "Excellence",     desc: "Chaque projet est livré avec les plus hauts standards de qualité internationale.", color: "#0099FF" },
-    { icon: Lightbulb,  title: "Innovation",     desc: "Nous utilisons les technologies les plus récentes pour garder votre entreprise en avance.", color: "#FF6B00" },
-    { icon: Users,      title: "Proximité",      desc: "Équipe locale à Abidjan, disponible, à l'écoute et qui parle votre langue.", color: "#00C48C" },
-    { icon: Lock,       title: "Fiabilité",      desc: "Support 24/7 garanti et une garantie d'un an sur tous nos livrables.", color: "#FF4757" },
-    { icon: Zap,        title: "Rapidité",       desc: "Livraison dans les délais promis, avec un suivi transparent à chaque étape.", color: "#9B93FF" },
-    { icon: Globe2,     title: "Impact local",   desc: "Notre mission : faire de la Côte d'Ivoire un hub technologique africain.", color: "#00FF88" },
-  ];
+  const { t } = useApp();
+  const a = t.about;
 
-  const team = [
-    { name: "Sissoko Abdoulaye", role: "Fondateur & CEO",    desc: "Expert en cybersécurité et digitalisation des entreprises", initials: "SA", color: "#0099FF" },
-    { name: "Lead Developer",    role: "Développeur Senior", desc: "Architecture logicielle & backend",                          initials: "LD", color: "#FF6B00" },
-    { name: "UI/UX Designer",    role: "Design Lead",        desc: "Expérience utilisateur premium",                            initials: "UX", color: "#00C48C" },
-    { name: "Security Expert",   role: "Cybersécurité",      desc: "Protection & audit des systèmes",                           initials: "SE", color: "#FF4757" },
-  ];
+  const valueIcons: LucideIcon[] = [Target, Lightbulb, Users, Lock, Zap, Globe2];
+  const valueColors = ["#0099FF", "#FF6B00", "#00C48C", "#FF4757", "#9B93FF", "#00FF88"];
 
-  const timeline = [
-    { year: "2024", title: "Création de SORA TECH",  desc: "Fondation de l'entreprise à Abidjan par Sissoko Abdoulaye avec une vision claire : digitaliser l'Afrique.", color: "#0099FF" },
-    { year: "2025", title: "Premiers clients",        desc: "Lancement officiel des services et signature des premiers contrats à Abidjan.", color: "#FF6B00" },
-    { year: "2026", title: "Expansion nationale",     desc: "Objectif : servir toute la Côte d'Ivoire avec 100+ clients actifs.", color: "#00C48C" },
-    { year: "2027", title: "Ouverture régionale",     desc: "Extension vers le Mali, le Burkina Faso et le Sénégal.", color: "#9B93FF" },
-  ];
+  const teamColors = ["#0099FF", "#FF6B00", "#00C48C"];
+  const teamInitials = ["AS", "FK", "MD"];
+
+  const timelineColors = ["#0099FF", "#FF6B00", "#00C48C", "#9B93FF", "#FF4757", "#00FF88"];
 
   return (
-    <div className="min-h-screen bg-[#060D1F] text-white overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(#0099FF 1px, transparent 1px), linear-gradient(90deg, #0099FF 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-        <div className="absolute top-20 left-10 w-96 h-96 bg-[#0066FF] rounded-full blur-[150px] opacity-20 animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#FF6B00] rounded-full blur-[150px] opacity-15 animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="absolute top-20 left-10 w-96 h-96 bg-[#0066FF] rounded-full blur-[150px] opacity-10 animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#FF6B00] rounded-full blur-[150px] opacity-10 animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
 
-      {/* NAV */}
-      <nav className="relative border-b border-[#1a2540] px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#060D1F]/85 backdrop-blur-xl z-50">
-        <Link href="/" className="text-xl font-black tracking-[3px]">SORA<span className="text-[#0099FF]">TECH</span></Link>
-        <div className="hidden lg:flex items-center gap-6">
-          {NAV_LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className={`text-xs uppercase tracking-widest transition ${l.active ? "text-[#0099FF] font-bold" : "text-[#8899BB] hover:text-white"}`}>{l.label}</Link>
-          ))}
-        </div>
-        <div className="flex items-center gap-3">
-          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 04 92 80 68</motion.a>
-          <MobileMenu active="about" />
-        </div>
-      </nav>
+      <Navbar active="about" />
 
       {/* HERO */}
       <section className="relative py-24 md:py-32 px-6 text-center z-10 overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(#1a2540 1px, transparent 1px), linear-gradient(90deg, #1a2540 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
         <ScanLine />
         <div className="relative z-10 max-w-4xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 bg-[#0A1A3A] border border-[#0066FF] text-[#0099FF] text-xs tracking-[2px] px-4 py-1.5 rounded-full mb-6" style={{ boxShadow: "0 0 20px rgba(0,102,255,0.2)" }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 text-[#0099FF] text-xs tracking-[2px] px-4 py-1.5 rounded-full mb-6 border border-[#0066FF]"
+            style={{ background: "var(--card)", boxShadow: "0 0 20px rgba(0,102,255,0.2)" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-[#00FF88] animate-pulse" />
-            NOTRE HISTOIRE
+            {a.badge}
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-4xl md:text-7xl font-black leading-tight mb-6 tracking-tight">
-            Nous sommes{" "}
-            <motion.span animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }} transition={{ duration: 5, repeat: Infinity }} className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#FF6B00]" style={{ backgroundSize: "200% 200%" }}>SORA TECH</motion.span>
+          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-4xl md:text-7xl font-black leading-tight mb-6 tracking-tight">
+            {a.title}{" "}
+            <motion.span animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }} transition={{ duration: 5, repeat: Infinity }}
+              className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#FF6B00]" style={{ backgroundSize: "200% 200%" }}>
+              {a.gradient}
+            </motion.span>
+            <br />{a.title2}
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-[#8899BB] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Une entreprise tech panafricaine née de la passion pour l&apos;innovation et le désir de transformer le paysage digital africain.
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-base md:text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: "var(--muted)" }}>
+            {a.subtitle}
           </motion.p>
         </div>
       </section>
@@ -93,72 +70,38 @@ export default function AboutPage() {
       <section className="relative py-16 px-6 z-10">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
           {[
-            { icon: Target,     title: "Notre Mission", color: "#0066FF", text: "Rendre la technologie accessible à toutes les entreprises ivoiriennes et africaines, peu importe leur taille. Nous croyons que chaque commerce mérite d'avoir les meilleurs outils digitaux pour réussir et grandir." },
-            { icon: Telescope,  title: "Notre Vision",  color: "#FF6B00", text: "Faire d'Abidjan un hub technologique majeur en Afrique de l'Ouest. Devenir la référence absolue en matière de digitalisation des PME et grandes entreprises africaines." },
+            { icon: Target,    title: t.lang === "fr" ? "Notre Mission" : "Our Mission", color: "#0066FF",
+              text: t.lang === "fr"
+                ? "Rendre la technologie accessible à toutes les entreprises ivoiriennes et africaines, peu importe leur taille."
+                : "Make technology accessible to all businesses in Côte d'Ivoire and Africa, regardless of size." },
+            { icon: Telescope, title: t.lang === "fr" ? "Notre Vision"  : "Our Vision",  color: "#FF6B00",
+              text: t.lang === "fr"
+                ? "Faire d'Abidjan un hub technologique majeur en Afrique de l'Ouest et devenir la référence en digitalisation."
+                : "Make Abidjan a major tech hub in West Africa and become the reference for digitalization." },
           ].map((item, i) => (
-            <motion.div key={i} initial={{ opacity: 0, x: i === 0 ? -40 : 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="rounded-2xl p-8 border" style={{ background: `linear-gradient(135deg, ${item.color}15, ${item.color}05)`, borderColor: `${item.color}40` }}>
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: `${item.color}15`, border: `1px solid ${item.color}40` }}>
+            <motion.div key={i} initial={{ opacity: 0, x: i === 0 ? -40 : 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+              className="rounded-2xl p-8 border" style={{ background: `linear-gradient(135deg, ${item.color}15, ${item.color}05)`, borderColor: `${item.color}40` }}>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+                style={{ backgroundColor: `${item.color}15`, border: `1px solid ${item.color}40` }}>
                 <item.icon className="w-7 h-7" style={{ color: item.color }} />
               </div>
-              <h3 className="text-2xl font-black mb-3">{item.title}</h3>
-              <p className="text-[#8899BB] leading-relaxed text-sm">{item.text}</p>
+              <h3 className="text-2xl font-black mb-3" style={{ color: "var(--text)" }}>{item.title}</h3>
+              <p className="leading-relaxed text-sm" style={{ color: "var(--muted)" }}>{item.text}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* FONDATEUR */}
-      <section className="relative py-20 px-6 bg-[#080F20]/80 backdrop-blur z-10">
+      {/* STATS */}
+      <section className="relative py-16 px-6 z-10" style={{ background: "var(--bg2)" }}>
         <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">// LE_FONDATEUR</div>
-            <h2 className="text-3xl md:text-5xl font-black">L&apos;homme derrière SORA TECH</h2>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-gradient-to-br from-[#0066FF]/20 via-[#0099FF]/10 to-[#FF6B00]/10 border border-[#0066FF]/50 rounded-3xl p-8 md:p-12 backdrop-blur" style={{ boxShadow: "0 0 60px rgba(0,102,255,0.1)" }}>
-            <div className="grid md:grid-cols-3 gap-8 items-center">
-              <div className="text-center">
-                <div className="w-40 h-40 mx-auto rounded-full bg-gradient-to-br from-[#0066FF] to-[#0099FF] flex items-center justify-center text-5xl font-black shadow-2xl mb-4" style={{ boxShadow: "0 0 40px rgba(0,102,255,0.4)" }}>SA</div>
-                <div className="flex justify-center gap-2 flex-wrap">
-                  <div className="text-xs bg-[#080F20] border border-[#0066FF]/40 px-3 py-1 rounded-full text-[#0099FF] font-bold">🇲🇱 Malien</div>
-                  <div className="text-xs bg-[#080F20] border border-[#FF6B00]/40 px-3 py-1 rounded-full text-[#FF6B00] font-bold">🇨🇮 Basé à Abidjan</div>
-                </div>
-              </div>
-              <div className="md:col-span-2">
-                <div className="text-[10px] tracking-[3px] text-[#0099FF] mb-2 font-mono">FONDATEUR & CEO</div>
-                <h3 className="text-3xl md:text-4xl font-black mb-3">Sissoko Abdoulaye</h3>
-                <div className="flex gap-2 flex-wrap mb-4">
-                  <div className="text-xs bg-[#0A1525] border border-[#1a2540] px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5"><Lock className="w-3 h-3 text-[#FF4757]" /> Expert Cybersécurité</div>
-                  <div className="text-xs bg-[#0A1525] border border-[#1a2540] px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5"><Globe2 className="w-3 h-3 text-[#0099FF]" /> Digitalisation</div>
-                </div>
-                <p className="text-[#8899BB] leading-relaxed mb-4 text-sm">Jeune entrepreneur malien passionné par la technologie, Sissoko Abdoulaye a fondé SORA TECH COMPANY avec une vision claire : rendre la digitalisation accessible à toutes les entreprises d&apos;Afrique de l&apos;Ouest.</p>
-                <p className="text-[#8899BB] leading-relaxed italic border-l-2 border-[#0066FF] pl-4 text-sm">&ldquo;Mon rêve est de faire d&apos;Abidjan un hub technologique majeur en Afrique, où chaque entreprise a accès aux meilleurs outils digitaux, peu importe sa taille.&rdquo;</p>
-                <div className="flex gap-3 mt-6 flex-wrap">
-                  <Link href="/contact"><motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-5 py-2.5 rounded-xl font-bold text-xs">Contacter le fondateur</motion.button></Link>
-                  <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-5 py-2.5 rounded-xl font-bold text-xs">💬 WhatsApp</motion.a>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* HISTOIRE */}
-      <section className="relative py-20 px-6 z-10">
-        <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">// NOTRE_PARCOURS</div>
-            <h2 className="text-3xl md:text-5xl font-black">L&apos;aventure SORA TECH</h2>
-          </motion.div>
-          <div className="relative">
-            <div className="absolute left-1/2 top-0 bottom-0 w-px hidden md:block" style={{ background: "linear-gradient(to bottom, transparent, #0066FF, #0099FF, transparent)" }} />
-            {timeline.map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className={`relative mb-8 md:w-1/2 ${i % 2 === 0 ? "md:pr-10 md:text-right" : "md:ml-auto md:pl-10"}`}>
-                <div className="hidden md:block absolute top-6 w-3 h-3 rounded-full border-2 border-[#060D1F]" style={{ [i % 2 === 0 ? "right" : "left"]: "-7px", backgroundColor: item.color, boxShadow: `0 0 10px ${item.color}` }} />
-                <div className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#0066FF] transition-all duration-300 rounded-2xl p-6" style={{ boxShadow: "none" }}>
-                  <div className="text-2xl font-black font-mono mb-2" style={{ color: item.color }}>{item.year}</div>
-                  <h3 className="text-lg font-bold mb-2">{item.title}</h3>
-                  <p className="text-sm text-[#8899BB]">{item.desc}</p>
-                </div>
+          <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-8 font-mono text-center">{a.statsLabel}</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {a.stats.map((s, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }} className="border rounded-2xl p-6" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+                <div className="text-4xl font-black font-mono" style={{ color: valueColors[i] }}>{s.n}</div>
+                <div className="text-[10px] tracking-widest mt-2 font-mono" style={{ color: "var(--muted)" }}>{s.l}</div>
               </motion.div>
             ))}
           </div>
@@ -166,73 +109,103 @@ export default function AboutPage() {
       </section>
 
       {/* VALEURS */}
-      <section className="relative py-20 px-6 bg-[#080F20]/80 backdrop-blur z-10">
+      <section className="relative py-20 px-6 z-10">
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <div className="text-[10px] tracking-[4px] text-[#FF6B00] mb-2 font-mono">// NOS_VALEURS</div>
-            <h2 className="text-3xl md:text-5xl font-black">Nos valeurs fondamentales</h2>
+            <div className="text-[10px] tracking-[4px] text-[#FF6B00] mb-2 font-mono">{a.valuesLabel}</div>
+            <h2 className="text-3xl md:text-5xl font-black" style={{ color: "var(--text)" }}>{a.valuesTitle}</h2>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-5">
-            {values.map((v, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} whileHover={{ y: -8, boxShadow: `0 10px 30px ${v.color}20` }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#0066FF] rounded-2xl p-6 transition-all duration-300 group">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110" style={{ backgroundColor: `${v.color}15`, border: `1px solid ${v.color}40`, boxShadow: `0 0 15px ${v.color}10` }}>
-                  <v.icon className="w-6 h-6" style={{ color: v.color }} />
-                </div>
-                <h3 className="text-lg font-bold mb-2">{v.title}</h3>
-                <p className="text-sm text-[#8899BB] leading-relaxed">{v.desc}</p>
-              </motion.div>
-            ))}
+            {a.values.map((v, i) => {
+              const Icon = valueIcons[i];
+              return (
+                <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }} whileHover={{ y: -8, boxShadow: `0 10px 30px ${valueColors[i]}20` }}
+                  className="border rounded-2xl p-6 transition-all duration-300 group"
+                  style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110"
+                    style={{ backgroundColor: `${valueColors[i]}15`, border: `1px solid ${valueColors[i]}40` }}>
+                    <Icon className="w-6 h-6" style={{ color: valueColors[i] }} />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>{v.title}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>{v.desc}</p>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* ÉQUIPE */}
-      <section className="relative py-20 px-6 z-10">
+      <section className="relative py-20 px-6 z-10" style={{ background: "var(--bg2)" }}>
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <div className="text-[10px] tracking-[4px] text-[#00C48C] mb-2 font-mono">// NOTRE_ÉQUIPE</div>
-            <h2 className="text-3xl md:text-5xl font-black">Les talents derrière SORA TECH</h2>
+            <div className="text-[10px] tracking-[4px] text-[#00C48C] mb-2 font-mono">{a.teamLabel}</div>
+            <h2 className="text-3xl md:text-5xl font-black" style={{ color: "var(--text)" }}>{a.teamTitle}</h2>
           </motion.div>
-          <div className="grid md:grid-cols-4 gap-5">
-            {team.map((m, i) => (
-              <motion.div key={i} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -5, boxShadow: `0 10px 30px ${m.color}25` }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl p-6 text-center transition-all duration-300">
-                <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center text-2xl font-black mb-4 shadow-lg" style={{ backgroundColor: m.color, boxShadow: `0 0 20px ${m.color}40` }}>{m.initials}</div>
-                <h3 className="text-base font-bold mb-1">{m.name}</h3>
-                <div className="text-xs font-bold mb-2 font-mono" style={{ color: m.color }}>{m.role}</div>
-                <p className="text-xs text-[#8899BB]">{m.desc}</p>
+          <div className="grid md:grid-cols-3 gap-5 max-w-3xl mx-auto">
+            {a.team.map((m, i) => (
+              <motion.div key={i} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }} whileHover={{ y: -5, boxShadow: `0 10px 30px ${teamColors[i]}25` }}
+                className="border rounded-2xl p-6 text-center transition-all duration-300"
+                style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+                <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center text-2xl font-black mb-4 shadow-lg text-white"
+                  style={{ backgroundColor: teamColors[i], boxShadow: `0 0 20px ${teamColors[i]}40` }}>{teamInitials[i]}</div>
+                <h3 className="text-base font-bold mb-1" style={{ color: "var(--text)" }}>{m.name}</h3>
+                <div className="text-xs font-bold mb-2 font-mono" style={{ color: teamColors[i] }}>{m.role}</div>
+                <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>{m.bio}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* STATS */}
-      <section className="relative py-16 px-6 bg-[#080F20]/80 backdrop-blur z-10">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {[
-            { num: "50+",  label: "PROJETS LIVRÉS",    color: "#0099FF" },
-            { num: "30+",  label: "CLIENTS SATISFAITS", color: "#FF6B00" },
-            { num: "6",    label: "EXPERTISES TECH",    color: "#00C48C" },
-            { num: "100%", label: "SATISFACTION",       color: "#9B93FF" },
-          ].map((s, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-[#0A1525]/80 border border-[#1a2540] rounded-2xl p-6">
-              <div className="text-4xl md:text-5xl font-black font-mono" style={{ color: s.color }}>{s.num}</div>
-              <div className="text-[10px] text-[#8899BB] tracking-widest mt-2 font-mono">{s.label}</div>
-            </motion.div>
-          ))}
+      {/* TIMELINE */}
+      <section className="relative py-20 px-6 z-10">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
+            <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">{a.timelineLabel}</div>
+            <h2 className="text-3xl md:text-5xl font-black" style={{ color: "var(--text)" }}>{a.timelineTitle}</h2>
+          </motion.div>
+          <div className="relative">
+            <div className="absolute left-1/2 top-0 bottom-0 w-px hidden md:block" style={{ background: "linear-gradient(to bottom, transparent, #0066FF, #0099FF, transparent)" }} />
+            {a.timeline.map((item, i) => (
+              <motion.div key={i} initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }} className={`relative mb-8 md:w-1/2 ${i % 2 === 0 ? "md:pr-10 md:text-right" : "md:ml-auto md:pl-10"}`}>
+                <div className="hidden md:block absolute top-6 w-3 h-3 rounded-full border-2"
+                  style={{ [i % 2 === 0 ? "right" : "left"]: "-7px", backgroundColor: timelineColors[i], borderColor: "var(--bg)", boxShadow: `0 0 10px ${timelineColors[i]}` }} />
+                <div className="border rounded-2xl p-6 transition-all duration-300 hover:border-[#0066FF]"
+                  style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+                  <div className="text-2xl font-black font-mono mb-2" style={{ color: timelineColors[i] }}>{item.year}</div>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text)" }}>{item.title}</h3>
+                  <p className="text-sm" style={{ color: "var(--muted)" }}>{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA */}
       <section className="relative py-20 px-6 text-center z-10">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="max-w-3xl mx-auto bg-gradient-to-br from-[#0066FF]/20 via-[#0099FF]/10 to-[#FF6B00]/10 border border-[#0066FF]/50 rounded-3xl p-10 md:p-14 backdrop-blur relative overflow-hidden">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+          className="max-w-3xl mx-auto border border-[#0066FF]/50 rounded-3xl p-10 md:p-14 backdrop-blur relative overflow-hidden"
+          style={{ background: "linear-gradient(135deg, rgba(0,102,255,0.1), rgba(255,107,0,0.05))" }}>
           <ScanLine />
           <div className="relative z-10">
-            <h2 className="text-3xl md:text-5xl font-black mb-4">Rejoignez notre aventure</h2>
-            <p className="text-[#8899BB] mb-8">Devenez l&apos;un de nos prochains clients satisfaits en Côte d&apos;Ivoire</p>
+            <h2 className="text-3xl md:text-5xl font-black mb-4" style={{ color: "var(--text)" }}>{a.ctaTitle}</h2>
+            <p className="mb-8" style={{ color: "var(--muted)" }}>{a.ctaDesc}</p>
             <div className="flex gap-4 justify-center flex-wrap">
-              <Link href="/devis"><motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">Demander un devis</motion.button></Link>
-              <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">💬 WhatsApp direct</motion.a>
+              <Link href="/devis">
+                <motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }}
+                  className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm text-white">{a.ctaDevis}</motion.button>
+              </Link>
+              <Link href="/contact">
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  className="border border-[#0066FF] text-[#0099FF] px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-[#0066FF] hover:text-white transition-all">
+                  {a.ctaContact}
+                </motion.button>
+              </Link>
             </div>
           </div>
         </motion.div>

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BookOpen, Clock, User } from "lucide-react";
-import MobileMenu from "../components/MobileMenu";
+import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {
   BLOG_CATEGORY_META,
@@ -70,30 +70,14 @@ export default function BlogPage() {
   const featured = articles.find((article) => article.featured) || articles[0];
 
   return (
-    <div className="min-h-screen bg-[#060D1F] text-white overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(#0099FF 1px, transparent 1px), linear-gradient(90deg, #0099FF 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-        <div className="absolute top-20 left-10 w-96 h-96 bg-[#0066FF] rounded-full blur-[150px] opacity-20 animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#9B93FF] rounded-full blur-[150px] opacity-15 animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="absolute top-20 left-10 w-96 h-96 bg-[#0066FF] rounded-full blur-[150px] opacity-10 animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#9B93FF] rounded-full blur-[150px] opacity-10 animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
 
-      <nav className="relative border-b border-[#1a2540] px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#060D1F]/85 backdrop-blur-xl z-50">
-        <Link href="/" className="text-xl font-black tracking-[3px]">SORA<span className="text-[#0099FF]">TECH</span></Link>
-        <div className="hidden lg:flex items-center gap-6">
-          <Link href="/" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Accueil</Link>
-          <Link href="/services" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Services</Link>
-          <Link href="/about" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">À propos</Link>
-          <Link href="/blog" className="text-xs uppercase tracking-widest text-[#0099FF] font-bold">Blog</Link>
-          <Link href="/projets" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Projets</Link>
-          <Link href="/boutique" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Boutique</Link>
-          <Link href="/devis" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Devis & RDV</Link>
-          <Link href="/contact" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
-        </div>
-        <div className="flex items-center gap-3">
-          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 04 92 80 68</motion.a>
-          <MobileMenu active="blog" />
-        </div>
-      </nav>
+      <Navbar active="blog" />
 
       <section className="relative py-20 md:py-24 px-6 text-center z-10 overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(#1a2540 1px, transparent 1px), linear-gradient(90deg, #1a2540 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
@@ -109,7 +93,7 @@ export default function BlogPage() {
               et guides concrets
             </motion.span>
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-[#8899BB] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-[var(--muted)] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             Nos articles sur la digitalisation, les logiciels de gestion, la cybersécurité et les solutions pratiques pour les entreprises.
           </motion.p>
         </div>
@@ -128,8 +112,8 @@ export default function BlogPage() {
                       <div className="text-[10px] tracking-widest text-[#0099FF] font-mono">{featured.category.toUpperCase()}</div>
                     </div>
                     <h2 className="text-2xl md:text-3xl font-black mb-4 leading-tight">{featured.title}</h2>
-                    <p className="text-sm text-[#8899BB] mb-5 leading-relaxed">{featured.excerpt}</p>
-                    <div className="flex items-center gap-4 text-xs text-[#8899BB] mb-5 flex-wrap">
+                    <p className="text-sm text-[var(--muted)] mb-5 leading-relaxed">{featured.excerpt}</p>
+                    <div className="flex items-center gap-4 text-xs text-[var(--muted)] mb-5 flex-wrap">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0099FF] flex items-center justify-center">
                           <User className="w-3.5 h-3.5 text-white" />
@@ -155,7 +139,7 @@ export default function BlogPage() {
           <div className="flex gap-2 flex-wrap justify-center">
             {categories.map((category) => (
               <motion.button key={category} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setActiveCategory(category)}
-                className={`px-5 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-200 ${activeCategory === category ? "bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.4)]" : "bg-[#0A1525] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] hover:text-white"}`}>
+                className={`px-5 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-200 ${activeCategory === category ? "bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.4)]" : "bg-[#0A1525] border border-[#1a2540] text-[var(--muted)] hover:border-[#0066FF] hover:text-white"}`}>
                 {category}
               </motion.button>
             ))}
@@ -171,23 +155,23 @@ export default function BlogPage() {
 
               return (
                 <Link key={article.id} href={getArticleHref(article)}>
-                  <motion.article initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${meta.color}20` }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer group h-full">
+                  <motion.article initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${meta.color}20` }} className="backdrop-blur border" style={{ background: "var(--card)", borderColor: "var(--border)" }} rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer group h-full">
                     <ArticleCover article={article} className="h-48 w-full object-cover" />
                     <div className="p-5">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="text-[10px] tracking-widest font-mono px-2 py-1 rounded" style={{ color: meta.color, backgroundColor: `${meta.color}15` }}>{article.category}</div>
-                        <div className="text-[10px] text-[#8899BB] flex items-center gap-1"><Clock className="w-3 h-3" />{article.readTime}</div>
+                        <div className="text-[10px] text-[var(--muted)] flex items-center gap-1"><Clock className="w-3 h-3" />{article.readTime}</div>
                       </div>
                       <h3 className="text-base font-bold mb-3 leading-snug group-hover:text-[#0099FF] transition-colors duration-200">{article.title}</h3>
-                      <p className="text-xs text-[#8899BB] leading-relaxed mb-4 line-clamp-3">{article.excerpt}</p>
+                      <p className="text-xs text-[var(--muted)] leading-relaxed mb-4 line-clamp-3">{article.excerpt}</p>
                       <div className="flex items-center justify-between pt-3 border-t border-[#1a2540]">
                         <div className="flex items-center gap-2 min-w-0">
                           <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0099FF] flex items-center justify-center">
                             <User className="w-3 h-3 text-white" />
                           </div>
-                          <div className="text-[10px] text-[#8899BB] truncate">{article.author}</div>
+                          <div className="text-[10px] text-[var(--muted)] truncate">{article.author}</div>
                         </div>
-                        <div className="text-[10px] text-[#8899BB] whitespace-nowrap">{article.date}</div>
+                        <div className="text-[10px] text-[var(--muted)] whitespace-nowrap">{article.date}</div>
                       </div>
                     </div>
                   </motion.article>
@@ -197,7 +181,7 @@ export default function BlogPage() {
           </div>
 
           {filtered.length === 0 && (
-            <div className="text-center py-12 text-[#8899BB]">
+            <div className="text-center py-12 text-[var(--muted)]">
               <p>Aucun article dans cette catégorie pour le moment.</p>
             </div>
           )}
@@ -212,12 +196,12 @@ export default function BlogPage() {
               <BookOpen className="w-8 h-8 text-[#0099FF]" />
             </div>
             <h2 className="text-3xl md:text-4xl font-black mb-3">Restez informés</h2>
-            <p className="text-[#8899BB] mb-6">Recevez nos meilleurs articles directement dans votre boîte mail, chaque semaine</p>
+            <p className="text-[var(--muted)] mb-6">Recevez nos meilleurs articles directement dans votre boîte mail, chaque semaine</p>
             <div className="flex gap-3 max-w-md mx-auto flex-col sm:flex-row">
               <input type="email" placeholder="votre@email.com" className="flex-1 bg-[#0A1525] border border-[#1a2540] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition-colors" />
               <motion.button type="button" whileHover={{ scale: 1.05, boxShadow: "0 8px 25px rgba(0,102,255,0.4)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-6 py-3 rounded-xl font-bold text-sm whitespace-nowrap">S&apos;abonner</motion.button>
             </div>
-            <p className="text-xs text-[#8899BB] mt-4">🔒 Zéro spam. Désabonnement en un clic.</p>
+            <p className="text-xs text-[var(--muted)] mt-4">🔒 Zéro spam. Désabonnement en un clic.</p>
           </div>
         </motion.div>
       </section>

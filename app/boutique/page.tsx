@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import MobileMenu from "../components/MobileMenu";
+import Navbar from "../components/Navbar";
 import {
   ShoppingCart, Trash2, X, Download, Truck, Headphones, RotateCcw,
   CheckCircle, type LucideIcon
@@ -194,34 +194,25 @@ export default function BoutiquePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060D1F] text-white overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(#0099FF 1px, transparent 1px), linear-gradient(90deg, #0099FF 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
         <div className="absolute top-20 left-10 w-96 h-96 bg-[#FF6B00] rounded-full blur-[150px] opacity-15 animate-pulse" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#0099FF] rounded-full blur-[150px] opacity-15 animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
 
-      {/* NAV */}
-      <nav className="relative border-b border-[#1a2540] px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#060D1F]/85 backdrop-blur-xl z-50">
-        <Link href="/" className="text-xl font-black tracking-[3px]">SORA<span className="text-[#0099FF]">TECH</span></Link>
-        <div className="hidden lg:flex items-center gap-6">
-          <Link href="/"         className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Accueil</Link>
-          <Link href="/services" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Services</Link>
-          <Link href="/about"    className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">À propos</Link>
-          <Link href="/blog"     className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Blog</Link>
-          <Link href="/projets"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Projets</Link>
-          <Link href="/boutique" className="text-xs uppercase tracking-widest text-[#0099FF] font-bold">Boutique</Link>
-          <Link href="/devis"    className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Devis & RDV</Link>
-          <Link href="/contact"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
-        </div>
-        <div className="flex items-center gap-3">
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setCartOpen(true)} className="relative bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2" style={{ boxShadow: cart.length > 0 ? "0 0 20px rgba(0,102,255,0.5)" : "none" }}>
-            <ShoppingCart className="w-4 h-4" /> Panier
-            {cart.length > 0 && <span className="bg-[#FF6B00] text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-black">{cart.length}</span>}
-          </motion.button>
-          <MobileMenu active="boutique" />
-        </div>
-      </nav>
+      <Navbar active="boutique" />
+
+      {/* Floating cart button */}
+      <motion.button
+        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+        onClick={() => setCartOpen(true)}
+        className="fixed bottom-6 right-6 z-50 bg-[#0066FF] hover:bg-[#0099FF] transition px-5 py-3 rounded-2xl text-xs font-bold flex items-center gap-2"
+        style={{ boxShadow: cart.length > 0 ? "0 0 30px rgba(0,102,255,0.6)" : "0 4px 20px rgba(0,0,0,0.4)" }}
+      >
+        <ShoppingCart className="w-4 h-4" /> Panier
+        {cart.length > 0 && <span className="bg-[#FF6B00] text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-black">{cart.length}</span>}
+      </motion.button>
 
       {/* HERO */}
       <section className="relative py-20 md:py-24 px-6 text-center z-10 overflow-hidden">

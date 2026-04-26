@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AppProvider } from "./i18n/AppContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-  display: "swap",   // non-blocking: renders fallback font immediately, swaps when ready
+  display: "swap",
   preload: true,
 });
 
@@ -13,7 +14,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
-  preload: false,    // monospace not critical for initial render
+  preload: false,
 });
 
 export const viewport: Viewport = {
@@ -66,10 +67,17 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      data-theme="dark"
     >
       <head>
-        {/* DNS prefetch + preconnect to API server — reduces TTFB on first API call */}
+        {/* Apply saved theme before first paint — no flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();`,
+          }}
+        />
         <link rel="dns-prefetch" href="//sora-tech-website-production.up.railway.app" />
         <link
           rel="preconnect"
@@ -77,8 +85,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#060D1F] text-white">
-        {children}
+      <body className="min-h-full flex flex-col" style={{ background: "var(--bg)", color: "var(--text)" }}>
+        <AppProvider>
+          {children}
+        </AppProvider>
       </body>
     </html>
   );

@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Footer from '../components/Footer';
-import MobileMenu from '../components/MobileMenu';
+import Navbar from '../components/Navbar';
+import { useApp } from '../i18n/AppContext';
 
 export default function SuiviSearchPage() {
   const [code, setCode] = useState('');
@@ -23,28 +24,11 @@ export default function SuiviSearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#060D1F] text-white">
+    <div className="min-h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.07]"
         style={{ backgroundImage: 'linear-gradient(#0099FF 1px,transparent 1px),linear-gradient(90deg,#0099FF 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
 
-      {/* Nav */}
-      <nav className="relative border-b border-[#1a2540] px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#060D1F]/90 backdrop-blur-xl z-50">
-        <Link href="/" className="text-xl font-black tracking-[3px]">SORA<span className="text-[#0099FF]">TECH</span></Link>
-        <div className="hidden lg:flex items-center gap-6">
-          <Link href="/"         className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Accueil</Link>
-          <Link href="/services" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Services</Link>
-          <Link href="/boutique" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Boutique</Link>
-          <Link href="/devis"    className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Devis</Link>
-          <Link href="/contact"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
-          <Link href="/suivi"    className="text-xs uppercase tracking-widest text-[#0099FF] font-bold">Suivi commande</Link>
-        </div>
-        <div className="flex items-center gap-3">
-          <a href="tel:+2250704928068" className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold">
-            +225 07 04 92 80 68
-          </a>
-          <MobileMenu active="suivi" />
-        </div>
-      </nav>
+      <Navbar active="suivi" />
 
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[80vh] px-4 py-16">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}

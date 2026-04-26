@@ -2,12 +2,13 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import MobileMenu from "../components/MobileMenu";
+import Navbar from "../components/Navbar";
 import {
   Globe, Monitor, Smartphone, Layers, Shield, Wrench,
   CheckCircle, DollarSign, Clock, type LucideIcon
 } from "lucide-react";
 import Footer from "../components/Footer";
+import { useApp } from "../i18n/AppContext";
 
 function ScanLine() {
   return (
@@ -24,6 +25,8 @@ function ScanLine() {
 
 
 export default function ServicesPage() {
+  const { t } = useApp();
+  const s = t.services;
   const services: {
     icon: LucideIcon; title: string; subtitle: string;
     price: string; delay: string; features: string[];
@@ -82,31 +85,14 @@ export default function ServicesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#060D1F] text-white overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(#0099FF 1px, transparent 1px), linear-gradient(90deg, #0099FF 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-        <div className="absolute top-20 left-10 w-96 h-96 bg-[#0066FF] rounded-full blur-[150px] opacity-20 animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#0099FF] rounded-full blur-[150px] opacity-15 animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="absolute top-20 left-10 w-96 h-96 bg-[#0066FF] rounded-full blur-[150px] opacity-10 animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#0099FF] rounded-full blur-[150px] opacity-10 animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
 
-      {/* NAV */}
-      <nav className="relative border-b border-[#1a2540] px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#060D1F]/85 backdrop-blur-xl z-50">
-        <Link href="/" className="text-xl font-black tracking-[3px]">SORA<span className="text-[#0099FF]">TECH</span></Link>
-        <div className="hidden lg:flex items-center gap-6">
-          <Link href="/"         className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Accueil</Link>
-          <Link href="/services" className="text-xs uppercase tracking-widest text-[#0099FF] font-bold">Services</Link>
-          <Link href="/about"    className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">À propos</Link>
-          <Link href="/blog"     className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Blog</Link>
-          <Link href="/projets"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Projets</Link>
-          <Link href="/boutique" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Boutique</Link>
-          <Link href="/devis"    className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Devis & RDV</Link>
-          <Link href="/contact"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
-        </div>
-        <div className="flex items-center gap-3">
-          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 04 92 80 68</motion.a>
-          <MobileMenu active="services" />
-        </div>
-      </nav>
+      <Navbar active="services" />
 
       {/* HERO */}
       <section className="relative py-24 md:py-32 px-6 text-center z-10 overflow-hidden">
@@ -124,19 +110,19 @@ export default function ServicesPage() {
             </motion.span>
             <br />sur-mesure
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-[#8899BB] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-[var(--muted)] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             De la création de votre site web à la mise en place d&apos;un ERP complet, nous accompagnons chaque étape de votre transformation digitale.
           </motion.p>
         </div>
       </section>
 
       {/* STATS */}
-      <section className="relative border-y border-[#1a2540] bg-[#080F20]/80 backdrop-blur py-8 px-6 z-10">
+      <section className="relative border-y border-[#1a2540] backdrop-blur" style={{ background: "var(--bg2)" }} py-8 px-6 z-10">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[{ num: "6", label: "EXPERTISES", color: "#0099FF" },{ num: "100%", label: "SUR MESURE", color: "#FF6B00" },{ num: "24/7", label: "SUPPORT", color: "#00C48C" },{ num: "1 AN", label: "GARANTIE", color: "#9B93FF" }].map((s, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
               <div className="text-3xl font-black font-mono" style={{ color: s.color }}>{s.num}</div>
-              <div className="text-[10px] text-[#8899BB] tracking-widest mt-1 font-mono">{s.label}</div>
+              <div className="text-[10px] text-[var(--muted)] tracking-widest mt-1 font-mono">{s.label}</div>
             </motion.div>
           ))}
         </div>
@@ -148,7 +134,7 @@ export default function ServicesPage() {
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
             <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">// CATALOGUE_COMPLET</div>
             <h2 className="text-3xl md:text-5xl font-black">Choisissez votre solution</h2>
-            <p className="text-[#8899BB] mt-3 text-sm max-w-xl mx-auto">Cliquez sur un service pour obtenir un devis personnalisé gratuit</p>
+            <p className="text-[var(--muted)] mt-3 text-sm max-w-xl mx-auto">Cliquez sur un service pour obtenir un devis personnalisé gratuit</p>
           </motion.div>
           <div className="grid md:grid-cols-2 gap-6">
             {services.map((service, i) => (
@@ -172,20 +158,20 @@ export default function ServicesPage() {
                         <service.icon className="w-8 h-8" style={{ color: service.color }} />
                       </div>
                       <h3 className="text-2xl font-black mb-1">{service.title}</h3>
-                      <p className="text-xs text-[#8899BB] mb-4 font-mono">{service.subtitle}</p>
+                      <p className="text-xs text-[var(--muted)] mb-4 font-mono">{service.subtitle}</p>
                     </div>
                   </div>
                   <div className="flex gap-3 mb-5 flex-wrap">
                     <div className="bg-[#080F20]/80 border border-[#1a2540] px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5" style={{ color: service.color }}>
                       <DollarSign className="w-3 h-3" /> {service.price}
                     </div>
-                    <div className="bg-[#080F20]/80 border border-[#1a2540] px-3 py-1.5 rounded-xl text-xs font-bold text-[#8899BB] flex items-center gap-1.5">
+                    <div className="bg-[#080F20]/80 border border-[#1a2540] px-3 py-1.5 rounded-xl text-xs font-bold text-[var(--muted)] flex items-center gap-1.5">
                       <Clock className="w-3 h-3" /> {service.delay}
                     </div>
                   </div>
                   <ul className="space-y-2 mb-5">
                     {service.features.map((feature, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm text-[#8899BB]">
+                      <li key={j} className="flex items-start gap-2 text-sm text-[var(--muted)]">
                         <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: service.color }} />
                         <span>{feature}</span>
                       </li>
@@ -193,7 +179,7 @@ export default function ServicesPage() {
                   </ul>
                   <div className="flex gap-2 flex-wrap mb-5">
                     {service.tech.map((t, k) => (
-                      <span key={k} className="text-[10px] bg-[#080F20] border border-[#1a2540] px-2 py-1 rounded font-mono text-[#8899BB]">{t}</span>
+                      <span key={k} className="text-[10px] bg-[#080F20] border border-[#1a2540] px-2 py-1 rounded font-mono text-[var(--muted)]">{t}</span>
                     ))}
                   </div>
                   <Link href="/devis">
@@ -209,7 +195,7 @@ export default function ServicesPage() {
       </section>
 
       {/* PROCESSUS */}
-      <section className="relative py-20 px-6 bg-[#080F20]/80 backdrop-blur z-10">
+      <section className="relative py-20 px-6 backdrop-blur" style={{ background: "var(--bg2)" }} z-10">
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <div className="text-[10px] tracking-[4px] text-[#FF6B00] mb-2 font-mono">// COMMENT_ÇA_MARCHE</div>
@@ -220,7 +206,7 @@ export default function ServicesPage() {
               <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="relative bg-[#0A1525]/80 border border-[#1a2540] rounded-xl p-5 hover:border-[#0066FF] hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] transition-all duration-300">
                 <div className="text-3xl font-black font-mono mb-2" style={{ color: "rgba(0,153,255,0.3)" }}>{p.num}</div>
                 <h3 className="text-sm font-bold mb-2">{p.title}</h3>
-                <p className="text-xs text-[#8899BB] leading-relaxed">{p.desc}</p>
+                <p className="text-xs text-[var(--muted)] leading-relaxed">{p.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -236,12 +222,12 @@ export default function ServicesPage() {
           </motion.div>
           <div className="grid md:grid-cols-3 gap-5">
             {testimonials.map((t, i) => (
-              <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -5 }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] hover:border-[#00C48C] transition-all duration-300 rounded-2xl p-6">
+              <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -5 }} className="backdrop-blur border" style={{ background: "var(--card)", borderColor: "var(--border)" }} hover:border-[#00C48C] transition-all duration-300 rounded-2xl p-6">
                 <div className="flex gap-1 mb-4">{Array.from({ length: t.rating }).map((_, k) => <span key={k} className="text-[#FFD700]">★</span>)}</div>
                 <p className="text-sm text-white italic mb-5 leading-relaxed">&ldquo;{t.text}&rdquo;</p>
                 <div className="flex items-center gap-3 pt-4 border-t border-[#1a2540]">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0066FF] to-[#0099FF] flex items-center justify-center text-xs font-black">{t.name.split(' ').map(n => n[0]).join('')}</div>
-                  <div><div className="text-sm font-bold">{t.name}</div><div className="text-xs text-[#8899BB]">{t.company}</div></div>
+                  <div><div className="text-sm font-bold">{t.name}</div><div className="text-xs text-[var(--muted)]">{t.company}</div></div>
                 </div>
               </motion.div>
             ))}
@@ -250,7 +236,7 @@ export default function ServicesPage() {
       </section>
 
       {/* FAQ */}
-      <section className="relative py-20 px-6 bg-[#080F20]/80 backdrop-blur z-10">
+      <section className="relative py-20 px-6 backdrop-blur" style={{ background: "var(--bg2)" }} z-10">
         <div className="max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <div className="text-[10px] tracking-[4px] text-[#9B93FF] mb-2 font-mono">// FAQ</div>
@@ -269,7 +255,7 @@ export default function ServicesPage() {
                   <span>{f.q}</span>
                   <span className="text-[#0099FF] group-open:rotate-45 transition-transform text-xl ml-4 flex-shrink-0">+</span>
                 </summary>
-                <div className="px-5 pb-5 text-sm text-[#8899BB] leading-relaxed">{f.a}</div>
+                <div className="px-5 pb-5 text-sm text-[var(--muted)] leading-relaxed">{f.a}</div>
               </motion.details>
             ))}
           </div>
@@ -282,7 +268,7 @@ export default function ServicesPage() {
           <ScanLine />
           <div className="relative z-10">
             <h2 className="text-3xl md:text-5xl font-black mb-4">Prêt à commencer ?</h2>
-            <p className="text-[#8899BB] mb-8">Obtenez votre devis personnalisé en moins de 2 minutes — gratuit et sans engagement</p>
+            <p className="text-[var(--muted)] mb-8">Obtenez votre devis personnalisé en moins de 2 minutes — gratuit et sans engagement</p>
             <div className="flex gap-4 justify-center flex-wrap">
 <Link href="/devis"><motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">Demander un devis</motion.button></Link>
 <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">💬 WhatsApp direct</motion.a>

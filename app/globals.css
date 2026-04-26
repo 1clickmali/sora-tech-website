@@ -1,17 +1,41 @@
 @import "tailwindcss";
 
-:root {
-  /* Dark by default — eliminates the white flash on page load */
-  --background: #060D1F;
-  --foreground: #E2E8F0;
+/* ── Dark theme (default) ── */
+:root, [data-theme="dark"] {
+  --bg:          #060D1F;
+  --bg2:         #080F20;
+  --card:        #0A1525;
+  --card2:       #0B1628;
+  --footer-bg:   #040A14;
+  --border:      #1a2540;
+  --border2:     #1E2D4A;
+  --text:        #E2E8F0;
+  --muted:       #8899BB;
+  --nav-bg:      rgba(6,13,31,0.88);
+  --input-bg:    #060D1F;
+}
+
+/* ── Light theme ── */
+[data-theme="light"] {
+  --bg:          #F0F4FF;
+  --bg2:         #E8EFFF;
+  --card:        #FFFFFF;
+  --card2:       #F4F7FF;
+  --footer-bg:   #E2EAFF;
+  --border:      #D1DCEF;
+  --border2:     #CBD5E1;
+  --text:        #0F172A;
+  --muted:       #5A6890;
+  --nav-bg:      rgba(240,244,255,0.92);
+  --input-bg:    #FFFFFF;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
-  /* Prevent horizontal scroll on mobile */
   overflow-x: hidden;
+  transition: background 0.25s, color 0.25s;
 }
 
 /* Respect reduced-motion for accessibility + perf on low-end devices */

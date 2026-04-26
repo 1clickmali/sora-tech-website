@@ -3,7 +3,8 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import MobileMenu from "../components/MobileMenu";
+import Navbar from "../components/Navbar";
+import { useApp } from "../i18n/AppContext";
 import {
   Globe, Monitor, Smartphone, Shield, ShoppingCart,
   GraduationCap, Pill, Car, CheckCircle, type LucideIcon
@@ -55,31 +56,14 @@ export default function ProjetsPage() {
   const filtered = activeCategory === "Tous" ? projects : projects.filter(p => p.category === activeCategory);
 
   return (
-    <div className="min-h-screen bg-[#060D1F] text-white overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(#0099FF 1px, transparent 1px), linear-gradient(90deg, #0099FF 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
         <div className="absolute top-20 left-10 w-96 h-96 bg-[#0066FF] rounded-full blur-[150px] opacity-20 animate-pulse" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#00C48C] rounded-full blur-[150px] opacity-15 animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
 
-      {/* NAV */}
-      <nav className="relative border-b border-[#1a2540] px-6 md:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#060D1F]/85 backdrop-blur-xl z-50">
-        <Link href="/" className="text-xl font-black tracking-[3px]">SORA<span className="text-[#0099FF]">TECH</span></Link>
-        <div className="hidden lg:flex items-center gap-6">
-          <Link href="/"         className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Accueil</Link>
-          <Link href="/services" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Services</Link>
-          <Link href="/about"    className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">À propos</Link>
-          <Link href="/blog"     className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Blog</Link>
-          <Link href="/projets"  className="text-xs uppercase tracking-widest text-[#0099FF] font-bold">Projets</Link>
-          <Link href="/boutique" className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Boutique</Link>
-          <Link href="/devis"    className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Devis & RDV</Link>
-          <Link href="/contact"  className="text-xs uppercase tracking-widest text-[#8899BB] hover:text-white transition">Contact</Link>
-        </div>
-        <div className="flex items-center gap-3">
-          <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="hidden sm:block bg-[#0066FF] hover:bg-[#0099FF] transition px-4 py-2 rounded-md text-xs font-bold tracking-wide">+225 07 04 92 80 68</motion.a>
-          <MobileMenu active="projets" />
-        </div>
-      </nav>
+      <Navbar active="projets" />
 
       {/* HERO */}
       <section className="relative py-20 md:py-24 px-6 text-center z-10 overflow-hidden">
