@@ -56,21 +56,10 @@ function buildProduct(product: Omit<Product, "icon" | "color">): Product {
   };
 }
 
-const STATIC_PRODUCTS: Product[] = [
-  buildProduct({ id: 1, category: "Logiciel", subcategory: "Gestion alimentation / magasin", title: "Logiciel de caisse alimentation", description: "Gestion complète de votre alimentation : ventes, stock, historique client et rapports journaliers.", price: 150000, badge: "BESTSELLER", features: ["Gestion stocks temps réel","Impression tickets","Rapports auto","Multi-caisses"], digital: true }),
-  buildProduct({ id: 2, category: "Logiciel", subcategory: "Microsoft Office", title: "Pack Microsoft Office pro", description: "Suite bureautique complète pour vos équipes : Word, Excel, PowerPoint et Outlook.", price: 65000, features: ["Installation assistée","Activation propre","Support de prise en main","Compatible Windows"], digital: true }),
-  buildProduct({ id: 3, category: "Logiciel", subcategory: "Odoo", title: "Déploiement Odoo PME", description: "Configuration Odoo pour ventes, stocks, facturation et suivi opérationnel.", price: 250000, badge: "POPULAIRE", features: ["Modules ventes + stock","Formation initiale","Paramétrage entreprise","Support lancement"], digital: true }),
-  buildProduct({ id: 4, category: "Logiciel", subcategory: "Gestion d'entreprise", title: "Logiciel de gestion d'entreprise", description: "Centralisez clients, factures, encaissements et tableaux de bord dans une seule solution.", price: 220000, features: ["Facturation","Suivi clients","Dashboard complet","Historique opérations"], digital: true }),
-  buildProduct({ id: 5, category: "Matériel", subcategory: "Téléphone", title: "Smartphone professionnel Android", description: "Téléphone fiable pour commerciaux, livreurs et équipes terrain.", price: 95000, badge: "NOUVEAU", features: ["Double SIM","Bonne autonomie","WhatsApp Business","Prêt à l'emploi"], digital: false }),
-  buildProduct({ id: 6, category: "Matériel", subcategory: "Ordinateur", title: "Ordinateur portable bureautique", description: "PC portable pour gestion, bureautique, caisse et suivi d'activité.", price: 275000, features: ["SSD rapide","Windows installé","Suite bureautique prête","Garantie incluse"], digital: false }),
-  buildProduct({ id: 7, category: "Matériel", subcategory: "Serveur", title: "Serveur PME local", description: "Serveur pour centraliser vos fichiers, sauvegardes et applications d'entreprise.", price: 650000, features: ["Stockage sécurisé","Sauvegarde locale","Accès équipe","Installation réseau"], digital: false }),
-  buildProduct({ id: 8, category: "Logiciel", subcategory: "Cybersécurité", title: "Pack cybersécurité entreprise", description: "Protection de vos postes, sensibilisation équipe et audit de base.", price: 180000, features: ["Audit sécurité","Antivirus entreprise","Plan d'action","Suivi mensuel"], digital: true }),
-];
-
 export default function BoutiquePage() {
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [activeSubcategory, setActiveSubcategory] = useState("Tous");
-  const [products, setProducts] = useState<Product[]>(STATIC_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<Product[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [sortBy, setSortBy] = useState("Populaire");
@@ -93,20 +82,19 @@ export default function BoutiquePage() {
       .then(r => r.json())
       .then(r => {
         clearTimeout(timer);
-        if (r.data?.length) {
-          setProducts(r.data.filter((p: ApiProduct) => p.active).map((p: ApiProduct) => buildProduct({
-            id: p._id,
-            category: p.category,
-            subcategory: p.subcategory || '',
-            title: p.title,
-            description: p.description,
-            price: p.price,
-            badge: p.badge || undefined,
-            features: p.features || [],
-            digital: typeof p.digital === "boolean" ? p.digital : p.category === "Logiciel",
-            image: p.image || undefined,
-          })));
-        }
+        const items = (r.data || []).filter((p: ApiProduct) => p.active !== false);
+        setProducts(items.map((p: ApiProduct) => buildProduct({
+          id: p._id,
+          category: p.category,
+          subcategory: p.subcategory || '',
+          title: p.title,
+          description: p.description,
+          price: p.price,
+          badge: p.badge || undefined,
+          features: p.features || [],
+          digital: typeof p.digital === "boolean" ? p.digital : p.category === "Logiciel",
+          image: p.image || undefined,
+        })));
       })
       .catch(() => clearTimeout(timer));
     return () => { clearTimeout(timer); ctrl.abort(); };
@@ -240,7 +228,7 @@ export default function BoutiquePage() {
       </section>
 
       {/* AVANTAGES */}
-      <section className="relative border-y border-[#1a2540] bg-[#080F20]/80 backdrop-blur py-8 px-6 z-10">
+      <section className="relative border-y backdrop-blur py-8 px-6 z-10" style={{ background: "var(--bg2)", borderColor: "var(--border)" }}>
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {[{ icon: Download, label: "Livraison instantanée", color: "#0099FF" },{ icon: ShoppingCart, label: "Mobile Money + Cash", color: "#FF6B00" },{ icon: Truck, label: "Livraison Abidjan 2500F", color: "#00C48C" },{ icon: Headphones, label: "Support 24/7", color: "#9B93FF" }].map((a, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
@@ -283,9 +271,18 @@ export default function BoutiquePage() {
       {/* GRILLE PRODUITS */}
       <section className="relative py-8 px-6 z-10">
         <div className="max-w-6xl mx-auto">
+          {sortedProducts.length === 0 && (
+            <div className="text-center py-20">
+              <div className="w-16 h-16 mx-auto rounded-2xl border flex items-center justify-center mb-4" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+                <ShoppingCart className="w-8 h-8 text-[#0099FF]" />
+              </div>
+              <p className="font-bold mb-2" style={{ color: "var(--text)" }}>Aucun produit disponible</p>
+              <p className="text-sm" style={{ color: "var(--muted)" }}>Les produits seront affichés ici dès qu&apos;ils seront ajoutés.</p>
+            </div>
+          )}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedProducts.map((product, i) => (
-              <motion.div key={product.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${product.color}25` }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden transition-all duration-300 group">
+              <motion.div key={product.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${product.color}25` }} className="backdrop-blur rounded-2xl overflow-hidden transition-all duration-300 group border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <div className="relative h-52 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(135deg, ${product.color}25, ${product.color}05)` }}>
                   {product.image ? (
                     <img src={resolveMediaUrl(product.image)} alt={product.title} className="w-full h-full object-cover" />
@@ -512,7 +509,7 @@ export default function BoutiquePage() {
       <section className="relative py-16 px-6 z-10">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-4">
           {[{ icon: CheckCircle, title: "Garantie & support", desc: "Assistance incluse sur nos logiciels et équipements sélectionnés", color: "#00C48C" },{ icon: RotateCcw, title: "Satisfait ou remboursé", desc: "14 jours pour changer d'avis selon le produit commandé", color: "#0099FF" },{ icon: Truck, title: "Livraison Abidjan", desc: "24-48h pour les produits physiques · 2500 FCFA", color: "#FF6B00" }].map((g, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-[#0A1525]/80 border border-[#1a2540] rounded-2xl p-6 text-center">
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="rounded-2xl p-6 text-center border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
               <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: `${g.color}15`, border: `1px solid ${g.color}30` }}>
                 <g.icon className="w-6 h-6" style={{ color: g.color }} />
               </div>

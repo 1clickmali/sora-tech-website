@@ -7,10 +7,11 @@ import { useEffect, useRef, useState } from "react";
 import Navbar from "./components/Navbar";
 import {
   Globe, Monitor, Smartphone, Layers, Shield, Wrench,
-  Zap, Award, MapPin, Lock, ShoppingCart, GraduationCap,
+  Zap, Award, MapPin, Lock, ShoppingCart, CheckCircle,
   type LucideIcon
 } from "lucide-react";
 import { useApp } from "./i18n/AppContext";
+import { resolveMediaUrl } from "@/lib/media";
 
 const BackgroundFX = dynamic(() => import("./components/BackgroundFX"), { ssr: false });
 import Footer from "./components/Footer";
@@ -59,10 +60,41 @@ function IconBox({ icon: Icon, color }: { icon: LucideIcon; color: string }) {
   );
 }
 
+type HomeProduct = { _id: string; category: string; title: string; description: string; price: number; image?: string; active?: boolean };
+type HomeArticle = { _id: string; slug?: string; category: string; title: string; excerpt: string };
+type HomeProject = { _id: string; category: string; title: string; client?: string; results?: string[]; tech?: string[]; image?: string; createdAt?: string };
+
+const CAT_COLORS: Record<string, string> = {
+  Logiciel: "#0099FF", Matériel: "#FF6B00", Service: "#00C48C", Formation: "#9B93FF",
+  "Site web": "#0099FF", Application: "#00C48C", ERP: "#9B93FF", Cybersécurité: "#FF4757",
+  Digitalisation: "#0099FF", Web: "#0066FF", Mobile: "#00C48C", Business: "#FF6B00",
+};
+
+const CAT_ICONS: Record<string, LucideIcon> = {
+  Logiciel: Monitor, Matériel: Wrench, Service: Globe, Formation: Layers,
+  "Site web": Globe, Application: Smartphone, ERP: Layers, Cybersécurité: Shield,
+};
+
 export default function Home() {
   const { t, lang } = useApp();
   const h = t.home;
   const [trackCode, setTrackCode] = useState('');
+  const [apiProducts, setApiProducts] = useState<HomeProduct[]>([]);
+  const [apiArticles, setApiArticles] = useState<HomeArticle[]>([]);
+  const [apiProjects, setApiProjects] = useState<HomeProject[]>([]);
+
+  useEffect(() => {
+    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    fetch(`${base}/api/produits?limit=8`)
+      .then(r => r.json()).then(r => setApiProducts((r.data || []).filter((p: HomeProduct) => p.active !== false)))
+      .catch(() => {});
+    fetch(`${base}/api/articles?limit=6`)
+      .then(r => r.json()).then(r => setApiArticles(r.data || []))
+      .catch(() => {});
+    fetch(`${base}/api/projets?limit=6`)
+      .then(r => r.json()).then(r => setApiProjects(r.data || []))
+      .catch(() => {});
+  }, []);
 
   const statColors = ["#0099FF", "#FF6B00", "#00C48C", "#9B93FF"];
 
@@ -82,30 +114,6 @@ export default function Home() {
     { icon: Lock,  title: lang === "fr" ? "Sécurité"  : "Security", desc: lang === "fr" ? "Vos données sont protégées"            : "Your data is protected", link: "/services" },
   ];
 
-  const products: { icon: LucideIcon; tag: string; title: string; desc: string; price: string; color: string }[] = [
-    { icon: Monitor,       tag: lang === "fr" ? "LOGICIEL"    : "SOFTWARE",    title: lang === "fr" ? "Logiciel caisse alimentation" : "Food store POS software",     desc: lang === "fr" ? "Gestion stocks, ventes, rapports"  : "Stock, sales, reports",   price: "150 000", color: "#0099FF" },
-    { icon: Globe,         tag: "TEMPLATE",                                       title: lang === "fr" ? "Template site restaurant"      : "Restaurant website template", desc: lang === "fr" ? "Design premium prêt à l'emploi"    : "Ready-to-use premium design", price: "45 000",  color: "#FF6B00" },
-    { icon: GraduationCap, tag: lang === "fr" ? "FORMATION"   : "TRAINING",    title: lang === "fr" ? "Formation création site web"   : "Web design training",         desc: lang === "fr" ? "10h de formation en ligne"          : "10h of online training",  price: "75 000",  color: "#00C48C" },
-    { icon: Wrench,        tag: "MAINTENANCE",                                    title: lang === "fr" ? "Pack maintenance annuel"        : "Annual maintenance pack",     desc: lang === "fr" ? "Suivi, mises à jour, support"       : "Monitoring, updates, support", price: "120 000", color: "#9B93FF" },
-    { icon: Smartphone,    tag: "TEMPLATE",                                       title: lang === "fr" ? "Template app mobile"            : "Mobile app template",         desc: lang === "fr" ? "UI/UX React Native prêt"            : "Ready React Native UI/UX", price: "80 000",  color: "#0066FF" },
-    { icon: Shield,        tag: lang === "fr" ? "SERVICE"     : "SERVICE",     title: lang === "fr" ? "Audit cybersécurité"            : "Cybersecurity audit",         desc: lang === "fr" ? "Rapport complet + recommandations"  : "Full report + recommendations", price: "200 000", color: "#FF4757" },
-  ];
-
-  const articles = lang === "fr"
-    ? [
-        { tag: "DIGITALISATION", title: "Comment digitaliser votre boutique en 2025",       desc: "Guide complet pour les commerçants d'Abidjan" },
-        { tag: "CYBERSÉCURITÉ",  title: "5 erreurs fatales pour la sécurité de votre PME",  desc: "Protégez vos données dès maintenant" },
-        { tag: "ERP",            title: "Pourquoi votre entreprise a besoin d'un ERP",       desc: "Gagnez en efficacité avec un système intégré" },
-        { tag: "WEB",            title: "Site vitrine ou e-commerce : que choisir ?",        desc: "On vous aide à faire le bon choix" },
-        { tag: "MOBILE",         title: "L'avenir des apps en Côte d'Ivoire",                desc: "Pourquoi investir dans le mobile maintenant" },
-      ]
-    : [
-        { tag: "DIGITALIZATION", title: "How to digitalize your store in 2025",              desc: "Complete guide for Abidjan merchants" },
-        { tag: "CYBERSECURITY",  title: "5 fatal mistakes for your SME's security",          desc: "Protect your data right now" },
-        { tag: "ERP",            title: "Why your business needs an ERP",                    desc: "Gain efficiency with an integrated system" },
-        { tag: "WEB",            title: "Showcase vs e-commerce: which to choose?",          desc: "We help you make the right choice" },
-        { tag: "MOBILE",         title: "The future of apps in Côte d'Ivoire",               desc: "Why invest in mobile now" },
-      ];
 
   const testimonials = [
     { name: "Konan Kouassi",  company: "Supermarché Abidjan",  text: lang === "fr" ? "SORA TECH a révolutionné notre gestion. Nos ventes ont augmenté de 30% en 3 mois !" : "SORA TECH revolutionized our management. Sales increased by 30% in 3 months!", rating: 5, initials: "KK" },
@@ -113,11 +121,6 @@ export default function Home() {
     { name: "Dr. Coulibaly",  company: "Cabinet Médical",      text: lang === "fr" ? "L'ERP médical nous fait gagner des heures chaque jour. Équipe très professionnelle."  : "The medical ERP saves us hours every day. Very professional team.",                   rating: 5, initials: "DC" },
   ];
 
-  const tagColors: Record<string, string> = {
-    DIGITALISATION: "#0099FF", DIGITALIZATION: "#0099FF",
-    CYBERSÉCURITÉ: "#FF4757", CYBERSECURITY: "#FF4757",
-    ERP: "#9B93FF", WEB: "#0099FF", MOBILE: "#00C48C",
-  };
 
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
@@ -240,79 +243,150 @@ export default function Home() {
       </section>
 
       {/* BLOG */}
-      <section className="relative py-16 px-6 z-10" style={{ background: "var(--bg2)" }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">// DERNIERS_ARTICLES</div>
-              <h2 className="text-2xl md:text-4xl font-black" style={{ color: "var(--text)" }}>{h.blogTitle}</h2>
-            </motion.div>
-            <Link href="/blog" className="text-sm text-[#0099FF] hover:underline font-bold">{h.blogAll}</Link>
+      {apiArticles.length > 0 && (
+        <section className="relative py-16 px-6 z-10" style={{ background: "var(--bg2)" }}>
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
+              <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">// DERNIERS_ARTICLES</div>
+                <h2 className="text-2xl md:text-4xl font-black" style={{ color: "var(--text)" }}>{h.blogTitle}</h2>
+              </motion.div>
+              <Link href="/blog" className="text-sm text-[#0099FF] hover:underline font-bold">{h.blogAll}</Link>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+              {apiArticles.map((a, i) => {
+                const color = CAT_COLORS[a.category] || "#0099FF";
+                return (
+                  <Link href={`/blog/${a.slug || a._id}`} key={a._id} className="flex-shrink-0">
+                    <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                      transition={{ delay: i * 0.08 }} whileHover={{ y: -5 }}
+                      className="border rounded-2xl overflow-hidden min-w-[270px] max-w-[270px] cursor-pointer transition-all duration-300"
+                      style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+                      <div className="h-28 flex items-center justify-center text-2xl font-mono font-black"
+                        style={{ background: `linear-gradient(135deg, ${color}25, ${color}05)`, color }}>
+                        [{a.category.toUpperCase()}]
+                      </div>
+                      <div className="p-5">
+                        <div className="text-[10px] tracking-widest font-mono mb-2" style={{ color }}>{a.category.toUpperCase()}</div>
+                        <h3 className="text-sm font-bold mb-2 leading-snug" style={{ color: "var(--text)" }}>{a.title}</h3>
+                        <p className="text-xs leading-relaxed line-clamp-2" style={{ color: "var(--muted)" }}>{a.excerpt}</p>
+                        <div className="text-xs text-[#0099FF] mt-3 font-bold">{h.blogRead}</div>
+                      </div>
+                    </motion.div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-            {articles.map((a, i) => (
-              <Link href="/blog" key={i} className="flex-shrink-0">
-                <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }} whileHover={{ y: -5 }}
-                  className="border rounded-2xl overflow-hidden min-w-[270px] max-w-[270px] cursor-pointer transition-all duration-300"
-                  style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-                  <div className="h-28 flex items-center justify-center text-3xl font-mono font-black"
-                    style={{ background: `linear-gradient(135deg, ${tagColors[a.tag] || "#0066FF"}25, ${tagColors[a.tag] || "#0066FF"}05)`, color: tagColors[a.tag] || "#0099FF" }}>
-                    [{a.tag}]
-                  </div>
-                  <div className="p-5">
-                    <div className="text-[10px] tracking-widest font-mono mb-2" style={{ color: tagColors[a.tag] || "#0099FF" }}>{a.tag}</div>
-                    <h3 className="text-sm font-bold mb-2 leading-snug" style={{ color: "var(--text)" }}>{a.title}</h3>
-                    <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>{a.desc}</p>
-                    <div className="text-xs text-[#0099FF] mt-3 font-bold">{h.blogRead}</div>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* BOUTIQUE */}
-      <section className="relative py-16 px-6 z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <div className="text-[10px] tracking-[4px] text-[#FF6B00] mb-2 font-mono">// NOS_PRODUITS</div>
-              <h2 className="text-2xl md:text-4xl font-black" style={{ color: "var(--text)" }}>{h.boutiqueTitle}</h2>
-            </motion.div>
-            <Link href="/boutique" className="text-sm text-[#0099FF] hover:underline font-bold">{h.boutiqueAll}</Link>
+      {apiProducts.length > 0 && (
+        <section className="relative py-16 px-6 z-10">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
+              <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                <div className="text-[10px] tracking-[4px] text-[#FF6B00] mb-2 font-mono">// NOUVEAUX_PRODUITS</div>
+                <h2 className="text-2xl md:text-4xl font-black" style={{ color: "var(--text)" }}>{h.boutiqueTitle}</h2>
+              </motion.div>
+              <Link href="/boutique" className="text-sm text-[#0099FF] hover:underline font-bold">{h.boutiqueAll}</Link>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+              {apiProducts.map((p, i) => {
+                const color = CAT_COLORS[p.category] || "#0099FF";
+                const Icon = CAT_ICONS[p.category] || Monitor;
+                return (
+                  <Link href="/boutique" key={p._id} className="flex-shrink-0">
+                    <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                      transition={{ delay: i * 0.08 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${color}25` }}
+                      className="border hover:border-[#0066FF] rounded-2xl overflow-hidden min-w-[250px] max-w-[250px] cursor-pointer transition-all duration-300 group"
+                      style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+                      <div className="h-28 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(135deg, ${color}25, ${color}05)` }}>
+                        {p.image
+                          ? <img src={resolveMediaUrl(p.image)} alt={p.title} className="w-full h-full object-cover" />
+                          : <div className="w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                              style={{ backgroundColor: `${color}15`, border: `1px solid ${color}30` }}>
+                              <Icon className="w-8 h-8" style={{ color }} />
+                            </div>
+                        }
+                      </div>
+                      <div className="p-4">
+                        <div className="text-[10px] tracking-wider font-mono mb-1" style={{ color }}>{p.category.toUpperCase()}</div>
+                        <h3 className="text-sm font-bold mb-1 line-clamp-1" style={{ color: "var(--text)" }}>{p.title}</h3>
+                        <p className="text-xs mb-3 line-clamp-2" style={{ color: "var(--muted)" }}>{p.description}</p>
+                        <div className="text-lg font-black mb-3" style={{ color }}>{p.price.toLocaleString("fr-FR")} FCFA</div>
+                        <div className="w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 text-white"
+                          style={{ backgroundColor: color }}>
+                          <ShoppingCart className="w-3 h-3" />
+                          {h.boutiqueOrder}
+                        </div>
+                      </div>
+                    </motion.div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-            {products.map((p, i) => (
-              <Link href="/boutique" key={i} className="flex-shrink-0">
-                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${p.color}25` }}
-                  className="border hover:border-[#0066FF] rounded-2xl overflow-hidden min-w-[250px] max-w-[250px] cursor-pointer transition-all duration-300 group"
-                  style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-                  <div className="h-28 flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${p.color}25, ${p.color}05)` }}>
-                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-                      style={{ backgroundColor: `${p.color}15`, border: `1px solid ${p.color}30` }}>
-                      <p.icon className="w-8 h-8" style={{ color: p.color }} />
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="text-[10px] tracking-wider font-mono mb-1" style={{ color: p.color }}>{p.tag}</div>
-                    <h3 className="text-sm font-bold mb-1" style={{ color: "var(--text)" }}>{p.title}</h3>
-                    <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>{p.desc}</p>
-                    <div className="text-lg font-black mb-3" style={{ color: p.color }}>{p.price} FCFA</div>
-                    <div className="w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 text-white"
-                      style={{ backgroundColor: p.color }}>
-                      <ShoppingCart className="w-3 h-3" />
-                      {h.boutiqueOrder}
-                    </div>
-                  </div>
-                </motion.div>
+        </section>
+      )}
+
+      {/* PROJETS */}
+      {apiProjects.length > 0 && (
+        <section className="relative py-16 px-6 z-10" style={{ background: "var(--bg2)" }}>
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
+              <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                <div className="text-[10px] tracking-[4px] text-[#00C48C] mb-2 font-mono">// DERNIERS_PROJETS</div>
+                <h2 className="text-2xl md:text-4xl font-black" style={{ color: "var(--text)" }}>
+                  {lang === "fr" ? "Nos derniers projets" : "Our latest projects"}
+                </h2>
+              </motion.div>
+              <Link href="/projets" className="text-sm text-[#0099FF] hover:underline font-bold">
+                {lang === "fr" ? "Voir tous les projets →" : "See all projects →"}
               </Link>
-            ))}
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+              {apiProjects.map((p, i) => {
+                const color = CAT_COLORS[p.category] || "#0099FF";
+                const Icon = CAT_ICONS[p.category] || Globe;
+                return (
+                  <Link href="/projets" key={p._id} className="flex-shrink-0">
+                    <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                      transition={{ delay: i * 0.08 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${color}20` }}
+                      className="border rounded-2xl overflow-hidden min-w-[260px] max-w-[260px] cursor-pointer transition-all duration-300 group"
+                      style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+                      <div className="h-32 flex items-center justify-center overflow-hidden relative" style={{ background: `linear-gradient(135deg, ${color}30, ${color}08)` }}>
+                        {p.image
+                          ? <img src={resolveMediaUrl(p.image)} alt={p.title} className="w-full h-full object-cover" />
+                          : <div className="w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110"
+                              style={{ backgroundColor: `${color}20`, border: `1px solid ${color}40` }}>
+                              <Icon className="w-8 h-8" style={{ color }} />
+                            </div>
+                        }
+                        <div className="absolute top-3 left-3 px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ background: "var(--card)", color }}>{p.category}</div>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="text-sm font-bold mb-1 line-clamp-1 group-hover:text-[#0099FF] transition-colors" style={{ color: "var(--text)" }}>{p.title}</h3>
+                        {p.client && <div className="text-[10px] font-bold font-mono mb-2" style={{ color }}>{p.client}</div>}
+                        {p.results && p.results.length > 0 && (
+                          <div className="space-y-1">
+                            {p.results.slice(0, 2).map((r, k) => (
+                              <div key={k} className="flex items-center gap-1.5 text-[10px]" style={{ color: "var(--muted)" }}>
+                                <CheckCircle className="w-3 h-3 flex-shrink-0" style={{ color }} />{r}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* POURQUOI NOUS */}
       <section className="relative py-20 px-6 z-10" style={{ background: "var(--bg2)" }}>

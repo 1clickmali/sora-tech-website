@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import {
   Globe, Monitor, Smartphone, Shield, ShoppingCart,
-  GraduationCap, Pill, Car, CheckCircle, type LucideIcon
+  GraduationCap, CheckCircle, type LucideIcon
 } from "lucide-react";
 import Footer from "../components/Footer";
 
@@ -21,32 +21,21 @@ function ScanLine() {
 const ICON_MAP: Record<string, LucideIcon> = { web: Globe, logiciel: Monitor, mobile: Smartphone, cybersecurite: Shield, erp: GraduationCap };
 const COLOR_MAP: Record<string, string> = { web: "#0099FF", logiciel: "#FF6B00", mobile: "#00C48C", cybersecurite: "#FF4757", erp: "#9B93FF", reseau: "#F59E0B" };
 
-const STATIC_PROJECTS = [
-    { id: 1, category: "Logiciel",       title: "SuperMarché Abidjan",  client: "Chaîne de supermarchés",  description: "Logiciel de caisse et gestion des stocks pour 3 points de vente synchronisés en temps réel.",                               results: ["3 points de vente connectés","Gestion stock temps réel","+30% rapidité des ventes"],     tech: ["React","Node.js","MongoDB"],           icon: ShoppingCart, color: "#FF6B00", year: "2025" },
-    { id: 2, category: "Site web",       title: "BoutiqueMode CI",       client: "E-commerce de vêtements", description: "Boutique en ligne complète avec paiement Mobile Money, gestion des commandes et livraison.",                               results: ["Paiement Wave intégré","Livraison Abidjan géolocalisée","200+ produits en ligne"],         tech: ["Next.js","Stripe","Wave API"],          icon: Globe,        color: "#0099FF", year: "2025" },
-    { id: 3, category: "Application",    title: "DelivCI",               client: "Livraison de repas",      description: "Application mobile de livraison sur Abidjan — clients, restaurants et livreurs connectés en temps réel.",               results: ["Android + iOS","50+ restaurants partenaires","Livraison en 30 min"],                        tech: ["React Native","Firebase","Maps API"],   icon: Smartphone,   color: "#00C48C", year: "2024" },
-    { id: 4, category: "ERP",            title: "Cabinet Médical Cocody", client: "Cabinet médical",        description: "Système complet de gestion patients, rendez-vous, facturation et stocks pharmaceutiques.",                               results: ["500+ patients gérés","Rendez-vous en ligne","Facturation automatique"],                     tech: ["Vue.js","Express","MySQL"],             icon: Pill,         color: "#9B93FF", year: "2024" },
-    { id: 5, category: "Cybersécurité",  title: "Banque Régionale",      client: "Institution financière",  description: "Audit complet de cybersécurité + mise en place des protections contre les cyberattaques.",                               results: ["Audit 40+ serveurs","0 faille critique restante","Formation 150 employés"],                  tech: ["CrowdStrike","Bitdefender","Cisco"],    icon: Shield,       color: "#FF4757", year: "2025" },
-    { id: 6, category: "Site web",       title: "Restaurant Le Gourmet", client: "Restaurant haut de gamme",description: "Site vitrine premium avec réservation de table en ligne, menu interactif et galerie photo.",                            results: ["Réservations en ligne +80%","Menu QR code","Design premium"],                                tech: ["Next.js","Tailwind","Framer Motion"],   icon: Globe,        color: "#0066FF", year: "2025" },
-    { id: 7, category: "Logiciel",       title: "Pharmacie Centrale",    client: "Pharmacie",               description: "Logiciel de gestion des médicaments, alertes de péremption, et suivi des ordonnances.",                                 results: ["10 000+ produits gérés","Alertes automatiques","Historique patients"],                       tech: ["Electron","SQLite","Node.js"],          icon: Monitor,      color: "#00C48C", year: "2024" },
-    { id: 8, category: "Application",    title: "TaxiCI",                client: "Plateforme de VTC",        description: "Application de réservation de taxi style Uber pour Abidjan avec paiement intégré.",                                    results: ["100+ chauffeurs actifs","GPS temps réel","Paiement Mobile Money"],                           tech: ["React Native","Socket.io","Redis"],     icon: Car,          color: "#FF6B00", year: "2024" },
-    { id: 9, category: "ERP",            title: "École Privée 2000",     client: "Établissement scolaire",  description: "Plateforme de gestion scolaire — élèves, notes, emploi du temps, paiements scolarité.",                                results: ["800+ élèves gérés","Bulletins automatiques","Paiement parents en ligne"],                    tech: ["Next.js","PostgreSQL","Docker"],        icon: GraduationCap,color: "#9B93FF", year: "2025" },
-];
 
 export default function ProjetsPage() {
   const [activeCategory, setActiveCategory] = useState("Tous");
   const categories = ["Tous", "Site web", "Logiciel", "Application", "ERP", "Cybersécurité"];
-  const [projects, setProjects] = useState<any[]>(STATIC_PROJECTS);
+  const [projects, setProjects] = useState<any[]>([]);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/projets`)
       .then(r => r.json())
       .then(r => {
-        if (r.data?.length) setProjects(r.data.map((p: any) => ({
+        setProjects((r.data || []).map((p: any) => ({
           ...p, id: p._id,
           icon: ICON_MAP[p.category] || Globe,
           color: COLOR_MAP[p.category] || "#0099FF",
-          year: new Date(p.createdAt).getFullYear().toString(),
+          year: p.createdAt ? new Date(p.createdAt).getFullYear().toString() : "2025",
         })));
       })
       .catch(() => {});
@@ -113,21 +102,21 @@ export default function ProjetsPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((project, i) => (
-              <Link href="/contact"><motion.div key={project.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${project.color}25` }} className="bg-[#0A1525]/80 backdrop-blur border border-[#1a2540] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300">
+              <Link href="/contact"><motion.div key={project.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${project.color}25` }} className="rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <div className="relative h-44 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(135deg, ${project.color}30, ${project.color}08)` }}>
                   <div className="w-20 h-20 rounded-3xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110" style={{ backgroundColor: `${project.color}20`, border: `1px solid ${project.color}40`, boxShadow: `0 0 30px ${project.color}20` }}>
                     <project.icon className="w-10 h-10" style={{ color: project.color }} />
                   </div>
-                  <div className="absolute top-3 right-3 bg-[#060D1F]/80 backdrop-blur px-2 py-1 rounded font-mono text-[10px] font-bold" style={{ color: project.color }}>{project.year}</div>
-                  <div className="absolute top-3 left-3 bg-[#060D1F]/80 backdrop-blur px-2 py-1 rounded text-[10px] tracking-widest text-white font-mono">{project.category}</div>
+                  <div className="absolute top-3 right-3 backdrop-blur px-2 py-1 rounded font-mono text-[10px] font-bold" style={{ background: "var(--card)", color: project.color }}>{project.year}</div>
+                  <div className="absolute top-3 left-3 backdrop-blur px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ background: "var(--card)", color: "var(--text)" }}>{project.category}</div>
                 </div>
                 <div className="p-5">
                   <h3 className="text-lg font-black mb-1 group-hover:text-[#0099FF] transition-colors duration-200">{project.title}</h3>
                   <div className="text-xs font-bold mb-3 font-mono" style={{ color: project.color }}>{project.client}</div>
-                  <p className="text-xs text-[#8899BB] leading-relaxed mb-4">{project.description}</p>
+                  <p className="text-xs leading-relaxed mb-4">{project.description}</p>
                   <div className="space-y-1.5 mb-4">
                     {project.results.map((r: string, k: number) => (
-                      <div key={k} className="flex items-start gap-2 text-xs text-[#8899BB]">
+                      <div key={k} className="flex items-start gap-2 text-xs">
                         <CheckCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: project.color }} />
                         <span>{r}</span>
                       </div>
@@ -135,7 +124,7 @@ export default function ProjetsPage() {
                   </div>
                   <div className="flex gap-1.5 flex-wrap pt-3 border-t border-[#1a2540]">
                     {project.tech.map((t: string, k: number) => (
-                      <span key={k} className="text-[9px] bg-[#080F20] border border-[#1a2540] px-2 py-1 rounded font-mono text-[#8899BB]">{t}</span>
+                      <span key={k} className="text-[9px] px-2 py-1 rounded font-mono" style={{ background: "var(--card2)", border: "1px solid var(--border)", color: "var(--muted)" }}>{t}</span>
                     ))}
                   </div>
                 </div>
@@ -156,7 +145,7 @@ export default function ProjetsPage() {
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#FF6B00] to-[#0099FF] flex items-center justify-center text-lg font-black" style={{ boxShadow: "0 0 20px rgba(0,153,255,0.3)" }}>KK</div>
               <div>
                 <div className="text-base font-bold">Konan Kouassi</div>
-                <div className="text-xs text-[#8899BB]">Directeur — Supermarché Abidjan</div>
+                <div className="text-xs">Directeur — Supermarché Abidjan</div>
                 <div className="flex gap-0.5 mt-1">{[1,2,3,4,5].map(i => <span key={i} className="text-[#FFD700] text-xs">★</span>)}</div>
               </div>
             </div>

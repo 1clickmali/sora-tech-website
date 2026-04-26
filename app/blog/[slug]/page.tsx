@@ -10,7 +10,6 @@ import Footer from "../../components/Footer";
 import {
   BLOG_CATEGORY_META,
   BLOG_FALLBACK_META,
-  STATIC_ARTICLES,
   normalizeArticle,
   type BlogArticle,
 } from "@/lib/blog";
@@ -52,10 +51,9 @@ function renderContent(content: string) {
 export default function BlogArticlePage() {
   const params = useParams<{ slug: string }>();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
-  const fallbackArticle = STATIC_ARTICLES.find((article) => article.slug === slug) || null;
 
-  const [article, setArticle] = useState<BlogArticle | null>(fallbackArticle);
-  const [loading, setLoading] = useState(!fallbackArticle);
+  const [article, setArticle] = useState<BlogArticle | null>(null);
+  const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
@@ -74,9 +72,7 @@ export default function BlogArticlePage() {
         }
       })
       .catch(() => {
-        if (active && !fallbackArticle) {
-          setNotFound(true);
-        }
+        if (active) setNotFound(true);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -85,7 +81,7 @@ export default function BlogArticlePage() {
     return () => {
       active = false;
     };
-  }, [fallbackArticle, slug]);
+  }, [slug]);
 
   const meta = BLOG_CATEGORY_META[article?.category || ""] || BLOG_FALLBACK_META;
   const Icon = meta.icon;

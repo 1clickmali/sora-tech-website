@@ -203,7 +203,7 @@ export default function ServicesPage() {
           </motion.div>
           <div className="grid md:grid-cols-5 gap-4">
             {process.map((p, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="relative bg-[#0A1525]/80 border border-[#1a2540] rounded-xl p-5 hover:border-[#0066FF] hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] transition-all duration-300">
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="relative rounded-xl p-5 hover:border-[#0066FF] hover:shadow-[0_0_20px_rgba(0,102,255,0.15)] transition-all duration-300 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <div className="text-3xl font-black font-mono mb-2" style={{ color: "rgba(0,153,255,0.3)" }}>{p.num}</div>
                 <h3 className="text-sm font-bold mb-2">{p.title}</h3>
                 <p className="text-xs text-[var(--muted)] leading-relaxed">{p.desc}</p>
@@ -250,7 +250,7 @@ export default function ServicesPage() {
               { q: "Travaillez-vous avec des clients hors Abidjan ?",   a: "Absolument ! Nous servons toute la Côte d'Ivoire et la sous-région. Les réunions se font en visio, et nous nous déplaçons pour les gros projets." },
               { q: "Comment se passe la première consultation ?",       a: "Prenez RDV via notre page Devis & RDV. La consultation est gratuite (30-60 min), en ligne ou en présentiel à Abidjan, et vous repartez avec un devis personnalisé." },
             ].map((f, i) => (
-              <motion.details key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="bg-[#0A1525]/80 border border-[#1a2540] hover:border-[#0066FF] rounded-xl overflow-hidden transition-all duration-300 group">
+              <motion.details key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border hover:border-[#0066FF] rounded-xl overflow-hidden transition-all duration-300 group" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <summary className="cursor-pointer p-5 flex justify-between items-center font-bold text-sm list-none">
                   <span>{f.q}</span>
                   <span className="text-[#0099FF] group-open:rotate-45 transition-transform text-xl ml-4 flex-shrink-0">+</span>

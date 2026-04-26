@@ -9,7 +9,6 @@ import Footer from "../components/Footer";
 import {
   BLOG_CATEGORY_META,
   BLOG_FALLBACK_META,
-  STATIC_ARTICLES,
   getArticleHref,
   getBlogCategories,
   normalizeArticle,
@@ -52,15 +51,13 @@ function ArticleCover({ article, className }: { article: BlogArticle; className:
 
 export default function BlogPage() {
   const [activeCategory, setActiveCategory] = useState("Tous");
-  const [articles, setArticles] = useState<BlogArticle[]>(STATIC_ARTICLES);
+  const [articles, setArticles] = useState<BlogArticle[]>([]);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/articles`)
       .then((response) => response.json())
       .then((response) => {
-        if (response.data?.length) {
-          setArticles(response.data.map(normalizeArticle));
-        }
+        setArticles((response.data || []).map(normalizeArticle));
       })
       .catch(() => {});
   }, []);

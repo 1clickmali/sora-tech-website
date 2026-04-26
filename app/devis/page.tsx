@@ -169,7 +169,7 @@ export default function DevisPage() {
       {/* STEPPER */}
       <section className="relative px-6 pb-6 z-10">
         <div className="max-w-5xl mx-auto">
-          <div className="flex gap-1 bg-[#0A1525] border border-[#1a2540] rounded-xl p-2">
+          <div className="flex gap-1 border rounded-xl p-2" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
             {[
               { n: 1, label: "Votre projet" },
               { n: 2, label: "Configuration" },
@@ -212,15 +212,14 @@ export default function DevisPage() {
                       whileHover={{ y: -4 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setSelectedService(s)}
-                      className={`p-6 rounded-2xl text-center transition border-2 group ${
-                        selectedService?.id === s.id
-                          ? ""
-                          : "border-[#1a2540] bg-[#0A1525]/80 hover:border-[#0066FF]/60"
-                      }`}
+                      className="p-6 rounded-2xl text-center transition border-2 group"
                       style={selectedService?.id === s.id ? {
                         borderColor: s.color,
                         backgroundColor: `${s.color}10`,
-                      } : undefined}
+                      } : {
+                        borderColor: "var(--border)",
+                        background: "var(--card)",
+                      }}
                     >
                       <IconBox icon={s.icon} color={s.color} />
                       <div className="text-base font-bold mb-1" style={{ color: selectedService?.id === s.id ? s.color : "#fff" }}>
@@ -253,7 +252,7 @@ export default function DevisPage() {
                 <p className="text-sm text-[#8899BB] mb-8">Le prix et le délai se mettent à jour automatiquement.</p>
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                   {/* CONFIG */}
-                  <div className="bg-[#0A1525]/80 border border-[#1a2540] rounded-2xl p-6">
+                  <div className="rounded-2xl p-6 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                     <div className="mb-6">
                       <label className="text-xs text-[#8899BB] uppercase tracking-wide font-bold mb-3 block">Complexité du projet</label>
                       <div className="flex items-center gap-3">
@@ -279,8 +278,8 @@ export default function DevisPage() {
                       <div className="space-y-2">
                         {availableOptions.map((o) => (
                           <label key={o.id} className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${
-                            options[o.id] ? "bg-[#00C48C]/10 border border-[#00C48C]" : "bg-[#060D1F] border border-[#1a2540] hover:border-[#0066FF]"
-                          }`}>
+                            options[o.id] ? "bg-[#00C48C]/10 border border-[#00C48C]" : "border hover:border-[#0066FF]"
+                          }`} style={!options[o.id] ? { background: "var(--input-bg)", borderColor: "var(--border)" } : undefined}>
                             <input type="checkbox" checked={options[o.id] || false} onChange={() => toggleOption(o.id)} className="accent-[#00C48C]" />
                             <span className="text-xs flex-1">{o.name}</span>
                             <span className="text-xs font-bold text-[#8899BB] font-mono">+ {formatPrice(o.price)} F</span>
@@ -304,7 +303,7 @@ export default function DevisPage() {
                       </div>
                       <div className="text-[10px] text-[#8899BB] mt-3">* Estimation automatique — Un RDV confirmera le devis définitif</div>
                     </div>
-                    <div className="bg-[#0A1525]/80 border border-[#1a2540] rounded-2xl p-5">
+                    <div className="rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                       <div className="text-xs font-bold mb-3 uppercase tracking-wide">Votre configuration</div>
                       <div className="space-y-2 text-xs">
                         <div className="flex justify-between"><span className="text-[#8899BB]">Service</span><span className="font-bold">{selectedService.name}</span></div>
@@ -334,7 +333,7 @@ export default function DevisPage() {
                 <p className="text-sm text-[#8899BB] mb-8">Prenez RDV avec notre équipe pour discuter de votre projet — gratuit et sans engagement.</p>
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                   {/* CALENDAR */}
-                  <div className="bg-[#0A1525]/80 border border-[#1a2540] rounded-2xl p-5">
+                  <div className="rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                     <div className="flex justify-between items-center mb-4">
                       <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">‹</motion.button>
                       <div className="text-sm font-bold">{calendar.month}</div>
@@ -356,7 +355,7 @@ export default function DevisPage() {
                             d.full ? "bg-[#FF4757]/10 text-[#FF4757] line-through cursor-not-allowed" :
                             d.selected || selectedDate === `${d.num} Avril 2025` ? "bg-[#0066FF] text-white font-bold" :
                             d.today ? "border border-[#FF6B00] text-[#FF6B00] font-bold" :
-                            "bg-[#060D1F] hover:bg-[#1a2540] text-white"
+                            "hover:bg-[#0066FF]/10"
                           }`}
                         >
                           {d.num}
@@ -380,9 +379,9 @@ export default function DevisPage() {
                             disabled={s.booked}
                             onClick={() => !s.booked && setSelectedSlot(s.time)}
                             className={`text-[11px] py-2 rounded-lg font-bold transition font-mono ${
-                              s.booked ? "opacity-30 line-through cursor-not-allowed bg-[#060D1F]" :
+                              s.booked ? "opacity-30 line-through cursor-not-allowed" :
                               selectedSlot === s.time ? "bg-[#0066FF] text-white" :
-                              "bg-[#060D1F] border border-[#1a2540] hover:border-[#0066FF] text-white"
+                              "border hover:border-[#0066FF]"
                             }`}
                           >
                             {s.time}
@@ -394,23 +393,23 @@ export default function DevisPage() {
 
                   {/* CLIENT INFO */}
                   <div className="space-y-4">
-                    <div className="bg-[#0A1525]/80 border border-[#1a2540] rounded-2xl p-5">
+                    <div className="rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                       <div className="text-xs font-bold mb-3 uppercase tracking-wide">Vos coordonnées</div>
                       <div className="space-y-3">
                         <input type="text" value={clientInfo.name} onChange={(e) => setClientInfo({ ...clientInfo, name: e.target.value })}
-                          placeholder="Nom complet *" className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" />
+                          placeholder="Nom complet *" className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                         <input type="tel" value={clientInfo.phone} onChange={(e) => setClientInfo({ ...clientInfo, phone: e.target.value })}
-                          placeholder="+225 07 00 00 00 *" className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" />
+                          placeholder="+225 07 00 00 00 *" className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                         <input type="email" value={clientInfo.email} onChange={(e) => setClientInfo({ ...clientInfo, email: e.target.value })}
-                          placeholder="Email *" className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" />
+                          placeholder="Email *" className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                         <input type="text" value={clientInfo.company} onChange={(e) => setClientInfo({ ...clientInfo, company: e.target.value })}
-                          placeholder="Entreprise (facultatif)" className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" />
+                          placeholder="Entreprise (facultatif)" className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                         <textarea value={clientInfo.message} onChange={(e) => setClientInfo({ ...clientInfo, message: e.target.value })}
                           placeholder="Décrivez brièvement votre projet..." rows={3}
-                          className="w-full bg-[#060D1F] border border-[#1a2540] rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition resize-none" />
+                          className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition resize-none" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                       </div>
                     </div>
-                    <div className="bg-[#0A1525]/80 border border-[#1a2540] rounded-2xl p-5">
+                    <div className="rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                       <div className="text-xs font-bold mb-3 uppercase tracking-wide">Récapitulatif du RDV</div>
                       <div className="space-y-2 text-xs">
                         <div className="flex justify-between"><span className="text-[#8899BB]">Service</span><span className="font-bold">{selectedService.name}</span></div>
@@ -470,7 +469,7 @@ export default function DevisPage() {
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto mb-8">
-                  <div className="bg-[#0A1525]/80 border border-[#0066FF] rounded-2xl p-5 text-left">
+                  <div className="rounded-2xl p-5 text-left border border-[#0066FF]" style={{ background: "var(--card)" }}>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                         style={{ background: "rgba(0,102,255,0.15)", border: "1px solid rgba(0,102,255,0.4)" }}>
@@ -488,7 +487,7 @@ export default function DevisPage() {
                       <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />Adresse + lien visio</li>
                     </ul>
                   </div>
-                  <div className="bg-[#0A1525]/80 border border-[#25D366] rounded-2xl p-5 text-left">
+                  <div className="rounded-2xl p-5 text-left border border-[#25D366]" style={{ background: "var(--card)" }}>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                         style={{ background: "rgba(37,211,102,0.15)", border: "1px solid rgba(37,211,102,0.4)" }}>
