@@ -37,7 +37,7 @@ export default function ServicesPage() {
       title: isFr ? "Création de sites web" : "Website creation",
       subtitle: isFr ? "Design premium & responsive" : "Premium responsive design",
       price: isFr ? "Dès 200 000 FCFA" : "From 200,000 XOF",
-      delay: isFr ? "15-30 jours" : "15-30 days",
+      delay: isFr ? "2-10 jours" : "2-10 days",
       features: isFr
         ? ["Sites vitrines professionnels","Sites e-commerce complets","Applications web sur mesure","Design responsive (mobile, tablette, PC)","Optimisation SEO incluse","Hébergement et domaine 1ère année offerts"]
         : ["Professional showcase websites","Complete e-commerce websites","Custom web applications","Responsive design for mobile, tablet and desktop","SEO optimization included","Hosting and domain included for the 1st year"],
