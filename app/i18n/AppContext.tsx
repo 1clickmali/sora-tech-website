@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, startTransition, useContext, useEffect, useState } from "react";
 import { translations, type Translations } from "./translations";
 
 type Lang = "fr" | "en";
@@ -27,8 +27,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const savedLang = (localStorage.getItem("lang") as Lang) || "fr";
     const savedTheme = (localStorage.getItem("theme") as Theme) || "dark";
-    setLang(savedLang);
-    setTheme(savedTheme);
+    startTransition(() => {
+      setLang(savedLang);
+      setTheme(savedTheme);
+    });
+    document.documentElement.lang = savedLang;
     document.documentElement.setAttribute("data-theme", savedTheme);
   }, []);
 
@@ -36,6 +39,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const next = lang === "fr" ? "en" : "fr";
     setLang(next);
     localStorage.setItem("lang", next);
+    document.documentElement.lang = next;
   };
 
   const toggleTheme = () => {

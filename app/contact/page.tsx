@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useState } from "react";
 import {
   Phone, MessageCircle, Mail, MapPin, Clock, CheckCircle,
@@ -9,6 +8,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useApp } from "../i18n/AppContext";
 
 function ScanLine() {
   return (
@@ -24,6 +24,7 @@ function ScanLine() {
 }
 
 type ContactMethod = {
+  kind: "phone" | "whatsapp" | "email" | "address";
   icon: LucideIcon;
   title: string;
   value: string;
@@ -33,6 +34,9 @@ type ContactMethod = {
 };
 
 export default function ContactPage() {
+  const { t, lang } = useApp();
+  const c = t.contact;
+  const isFr = lang === "fr";
   const [form, setForm] = useState({
     name: "", email: "", phone: "", company: "", service: "", budget: "", message: "",
   });
@@ -48,11 +52,11 @@ export default function ContactPage() {
           name: form.name,
           email: form.email,
           phone: form.phone,
-          subject: form.service || 'Contact général',
+          subject: form.service || (isFr ? 'Contact général' : 'General contact'),
           message: form.message,
         }),
       });
-    } catch (_) {}
+    } catch {}
     setSent(true);
     setTimeout(() => {
       setSent(false);
@@ -61,18 +65,13 @@ export default function ContactPage() {
   };
 
   const contactMethods: ContactMethod[] = [
-    { icon: Phone,         title: "Téléphone", value: "+225 07 04 92 80 68", subtitle: "Lun-Ven : 8h-18h",        color: "#0099FF", action: "Appeler"    },
-    { icon: MessageCircle, title: "WhatsApp",   value: "+225 07 04 92 80 68", subtitle: "Réponse rapide garantie", color: "#25D366", action: "Écrire"     },
-    { icon: Mail,          title: "Email",      value: "contact@soratech.ci", subtitle: "Réponse sous 24h",        color: "#FF6B00", action: "Envoyer"    },
-    { icon: MapPin,        title: "Adresse",    value: "Abidjan, Côte d'Ivoire", subtitle: "Cocody - Angré 8ème", color: "#9B93FF", action: "Itinéraire" },
+    { kind: "phone", icon: Phone, title: c.contactMethods[0]?.title ?? "Phone", value: "+225 07 04 92 80 68", subtitle: c.contactMethods[0]?.subtitle ?? "Mon-Fri: 8am-6pm", color: "#0099FF", action: c.contactMethods[0]?.action ?? "Call" },
+    { kind: "whatsapp", icon: MessageCircle, title: c.contactMethods[1]?.title ?? "WhatsApp", value: "+225 07 04 92 80 68", subtitle: c.contactMethods[1]?.subtitle ?? "Fast response guaranteed", color: "#25D366", action: c.contactMethods[1]?.action ?? "Message" },
+    { kind: "email", icon: Mail, title: c.contactMethods[2]?.title ?? "Email", value: "contact@soratech.ci", subtitle: c.contactMethods[2]?.subtitle ?? "Reply within 24h", color: "#FF6B00", action: c.contactMethods[2]?.action ?? "Send" },
+    { kind: "address", icon: MapPin, title: c.contactMethods[3]?.title ?? "Address", value: "Abidjan, Côte d'Ivoire", subtitle: c.contactMethods[3]?.value2 ?? "Cocody - Angré 8ème", color: "#9B93FF", action: c.contactMethods[3]?.action ?? "Directions" },
   ];
 
-  const faqs = [
-    { q: "Dans quels délais répondez-vous ?",           a: "Nous répondons à toutes les demandes en moins de 24 heures, et souvent en quelques heures seulement pour WhatsApp." },
-    { q: "Proposez-vous des consultations gratuites ?", a: "Oui ! La première consultation de 30-45 minutes est 100% gratuite et sans engagement, en visio ou à Abidjan." },
-    { q: "Travaillez-vous en dehors d'Abidjan ?",       a: "Absolument. Nous servons toute la Côte d'Ivoire et la sous-région. Les réunions se font en visio et nous nous déplaçons pour les gros projets." },
-    { q: "Quels sont vos horaires d'ouverture ?",       a: "Lundi-Vendredi : 8h-18h | Samedi : 9h-14h | WhatsApp 24/7 pour les urgences." },
-  ];
+  const faqs = c.faqs;
 
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
@@ -91,23 +90,23 @@ export default function ContactPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 bg-[#0A1A3A] border border-[#0066FF] text-[#0099FF] text-xs tracking-[2px] px-4 py-1.5 rounded-full mb-6">
             <MessageCircle className="w-3 h-3" />
-            NOUS CONTACTER
+            {c.badge}
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
             className="text-4xl md:text-6xl font-black leading-tight mb-6 tracking-tight">
-            Parlons de votre{" "}
+            {c.title}{" "}
             <motion.span
               animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
               transition={{ duration: 5, repeat: Infinity }}
               className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#FF6B00]"
               style={{ backgroundSize: "200% 200%" }}
             >
-              projet
+              {c.gradient}
             </motion.span>
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }}
             className="text-[#8899BB] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Notre équipe est là pour répondre à toutes vos questions. Consultation gratuite et sans engagement.
+            {c.subtitle}
           </motion.p>
         </div>
       </section>
@@ -134,10 +133,10 @@ export default function ContactPage() {
               <div className="text-xs tracking-wider mb-1 font-bold" style={{ color: m.color }}>{m.title.toUpperCase()}</div>
               <div className="text-sm font-bold mb-1" style={{ color: "var(--text)" }}>{m.value}</div>
               <div className="text-xs mb-3" style={{ color: "var(--muted)" }}>{m.subtitle}</div>
-              {m.title === 'Téléphone' && <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
-              {m.title === 'WhatsApp' && <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
-              {m.title === 'Email' && <motion.a href="mailto:contact@soratech.ci" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
-              {m.title === 'Adresse' && <motion.a href="https://www.google.com/maps/search/Cocody+Angré+Abidjan" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
+              {m.kind === 'phone' && <motion.a href="tel:+2250704928068" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
+              {m.kind === 'whatsapp' && <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
+              {m.kind === 'email' && <motion.a href="mailto:contact@soratech.ci" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
+              {m.kind === 'address' && <motion.a href="https://www.google.com/maps/search/Cocody+Angré+Abidjan" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="text-xs font-bold hover:underline" style={{ color: m.color }}>{m.action} →</motion.a>}
             </motion.div>
           ))}
         </div>
@@ -151,8 +150,8 @@ export default function ContactPage() {
           <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
             <div className="backdrop-blur rounded-2xl p-6 md:p-8 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
               <div className="mb-6">
-                <div className="text-xs tracking-[3px] text-[#0099FF] mb-2">ENVOYEZ-NOUS UN MESSAGE</div>
-                <h2 className="text-2xl md:text-3xl font-black">Formulaire de contact</h2>
+                <div className="text-xs tracking-[3px] text-[#0099FF] mb-2">{isFr ? "ENVOYEZ-NOUS UN MESSAGE" : "SEND US A MESSAGE"}</div>
+                <h2 className="text-2xl md:text-3xl font-black">{c.formTitle}</h2>
               </div>
 
               {sent ? (
@@ -167,81 +166,76 @@ export default function ContactPage() {
                   >
                     <CheckCircle className="w-10 h-10 text-[#00C48C]" />
                   </motion.div>
-                  <h3 className="text-xl font-black mb-2">Message envoyé !</h3>
-                  <p className="text-sm text-[#8899BB]">Notre équipe vous répondra dans les 24 heures.</p>
+                  <h3 className="text-xl font-black mb-2">{c.formSent}</h3>
+                  <p className="text-sm text-[#8899BB]">{isFr ? "Notre équipe vous répondra dans les 24 heures." : "Our team will reply within 24 hours."}</p>
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Nom complet *</label>
+                      <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">{c.formName}</label>
                       <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                        placeholder="Votre nom" className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
+                        placeholder={isFr ? "Votre nom" : "Your name"} className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                     </div>
                     <div>
-                      <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Entreprise</label>
+                      <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">{c.formCompany}</label>
                       <input type="text" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })}
-                        placeholder="Nom entreprise" className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
+                        placeholder={isFr ? "Nom entreprise" : "Company name"} className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Email *</label>
+                      <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">{c.formEmail}</label>
                       <input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                         placeholder="vous@email.com" className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                     </div>
                     <div>
-                      <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Téléphone WhatsApp *</label>
+                      <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">{c.formPhone}</label>
                       <input type="tel" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
                         placeholder="+225 07 00 00 00" className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Type de projet</label>
+                    <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">{c.formService}</label>
                     <select value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })}
                       className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] cursor-pointer transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }}>
-                      <option value="">Sélectionnez un service</option>
-                      <option>Site web (vitrine, e-commerce)</option>
-                      <option>Logiciel de gestion</option>
-                      <option>Application mobile</option>
-                      <option>ERP complet</option>
-                      <option>Cybersécurité</option>
-                      <option>Maintenance informatique</option>
-                      <option>Autre / Projet personnalisé</option>
+                      <option value="">{isFr ? "Sélectionnez un service" : "Select a service"}</option>
+                      {(isFr
+                        ? ["Site web (vitrine, e-commerce)", "Logiciel de gestion", "Application mobile", "ERP complet", "Cybersécurité", "Maintenance informatique", "Autre / Projet personnalisé"]
+                        : ["Website (showcase, e-commerce)", "Management software", "Mobile application", "Full ERP", "Cybersecurity", "IT maintenance", "Other / Custom project"]
+                      ).map((option) => <option key={option}>{option}</option>)}
                     </select>
                   </div>
 
                   <div>
-                    <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Budget estimé</label>
+                    <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">{c.formBudget}</label>
                     <select value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })}
                       className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] cursor-pointer transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }}>
-                      <option value="">Sélectionnez votre budget</option>
-                      <option>Moins de 200 000 FCFA</option>
-                      <option>200 000 - 500 000 FCFA</option>
-                      <option>500 000 - 1 000 000 FCFA</option>
-                      <option>1 000 000 - 3 000 000 FCFA</option>
-                      <option>Plus de 3 000 000 FCFA</option>
-                      <option>À définir ensemble</option>
+                      <option value="">{isFr ? "Sélectionnez votre budget" : "Select your budget"}</option>
+                      {(isFr
+                        ? ["Moins de 200 000 FCFA", "200 000 - 500 000 FCFA", "500 000 - 1 000 000 FCFA", "1 000 000 - 3 000 000 FCFA", "Plus de 3 000 000 FCFA", "À définir ensemble"]
+                        : ["Less than 200,000 FCFA", "200,000 - 500,000 FCFA", "500,000 - 1,000,000 FCFA", "1,000,000 - 3,000,000 FCFA", "More than 3,000,000 FCFA", "To define together"]
+                      ).map((option) => <option key={option}>{option}</option>)}
                     </select>
                   </div>
 
                   <div>
-                    <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">Décrivez votre projet *</label>
+                    <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">{c.formMessage}</label>
                     <textarea required rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      placeholder="Dites-nous tout sur votre projet, vos besoins, vos objectifs..."
+                      placeholder={isFr ? "Dites-nous tout sur votre projet, vos besoins, vos objectifs..." : "Tell us everything about your project, needs and goals..."}
                       className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] resize-none transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                   </div>
 
                   <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                     className="w-full bg-[#0066FF] hover:bg-[#0099FF] transition py-4 rounded-lg font-bold text-sm">
-                    Envoyer ma demande →
+                    {c.formBtn}
                   </motion.button>
 
                   <p className="text-[10px] text-[#8899BB] text-center flex items-center justify-center gap-1.5">
                     <Lock className="w-3 h-3" />
-                    Vos données sont 100% sécurisées et ne seront jamais partagées.
+                    {isFr ? "Vos données sont 100% sécurisées et ne seront jamais partagées." : "Your data is 100% secure and will never be shared."}
                   </p>
                 </form>
               )}
@@ -261,14 +255,14 @@ export default function ContactPage() {
                     <MapPin className="w-8 h-8 text-[#0099FF]" />
                   </div>
                   <div className="text-sm font-bold">SORA TECH COMPANY</div>
-                  <div className="text-xs text-[#8899BB]">Cocody - Angré 8ème Tranche</div>
+                  <div className="text-xs text-[#8899BB]">{isFr ? "Cocody - Angré 8ème Tranche" : "Cocody - Angré 8th district"}</div>
                   <div className="text-xs text-[#8899BB]">Abidjan, Côte d&apos;Ivoire</div>
                 </div>
               </div>
               <div className="p-5">
                 <motion.a href="https://www.google.com/maps/search/Cocody+Angré+Abidjan" target="_blank" rel="noopener" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} className="w-full bg-[#0066FF] hover:bg-[#0099FF] transition py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2">
                   <Navigation className="w-4 h-4" />
-                  Voir sur Google Maps
+                  {isFr ? "Voir sur Google Maps" : "View on Google Maps"}
                 </motion.a>
               </div>
             </div>
@@ -277,23 +271,23 @@ export default function ContactPage() {
             <div className="backdrop-blur rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
               <h3 className="text-base font-black mb-4 flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#0099FF]" />
-                Nos horaires
+                {isFr ? "Nos horaires" : "Opening hours"}
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between pb-2 border-b" style={{ borderColor: "var(--border)" }}>
-                  <span style={{ color: "var(--muted)" }}>Lundi - Vendredi</span>
+                  <span style={{ color: "var(--muted)" }}>{isFr ? "Lundi - Vendredi" : "Monday - Friday"}</span>
                   <span className="font-bold text-[#00C48C]">8h00 - 18h00</span>
                 </div>
                 <div className="flex justify-between pb-2 border-b" style={{ borderColor: "var(--border)" }}>
-                  <span style={{ color: "var(--muted)" }}>Samedi</span>
+                  <span style={{ color: "var(--muted)" }}>{isFr ? "Samedi" : "Saturday"}</span>
                   <span className="font-bold text-[#00C48C]">9h00 - 14h00</span>
                 </div>
                 <div className="flex justify-between pb-2 border-b" style={{ borderColor: "var(--border)" }}>
-                  <span className="text-[#8899BB]">Dimanche</span>
-                  <span className="font-bold text-[#FF4757]">Fermé</span>
+                  <span className="text-[#8899BB]">{isFr ? "Dimanche" : "Sunday"}</span>
+                  <span className="font-bold text-[#FF4757]">{isFr ? "Fermé" : "Closed"}</span>
                 </div>
                 <div className="flex justify-between pt-1">
-                  <span className="text-[#8899BB]">WhatsApp urgences</span>
+                  <span className="text-[#8899BB]">{isFr ? "WhatsApp urgences" : "Emergency WhatsApp"}</span>
                   <span className="font-bold text-[#25D366]">24/7</span>
                 </div>
               </div>
@@ -303,7 +297,7 @@ export default function ContactPage() {
             <div className="backdrop-blur rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
               <h3 className="text-base font-black mb-4 flex items-center gap-2">
                 <MessageCircle className="w-4 h-4 text-[#0099FF]" />
-                Suivez-nous
+                {isFr ? "Suivez-nous" : "Follow us"}
               </h3>
               <div className="grid grid-cols-2 gap-2">
                 <motion.a href="https://facebook.com/soratechci" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#1877F2]/20 hover:bg-[#1877F2] border border-[#1877F2] rounded-lg p-3 text-xs font-bold transition flex items-center gap-2 justify-center">
@@ -332,8 +326,8 @@ export default function ContactPage() {
       <section className="relative py-16 px-6 backdrop-blur z-10" style={{ background: "var(--bg2)" }}>
         <div className="max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-            <div className="text-xs tracking-[3px] text-[#9B93FF] mb-2">QUESTIONS FRÉQUENTES</div>
-            <h2 className="text-3xl md:text-4xl font-black">FAQ Contact</h2>
+            <div className="text-xs tracking-[3px] text-[#9B93FF] mb-2">{c.faqLabel}</div>
+            <h2 className="text-3xl md:text-4xl font-black">{c.faqTitle}</h2>
           </motion.div>
           <div className="space-y-3">
             {faqs.map((f, i) => (
@@ -367,9 +361,9 @@ export default function ContactPage() {
                 style={{ background: "rgba(0,102,255,0.2)", border: "1px solid rgba(0,102,255,0.5)" }}>
                 <Phone className="w-6 h-6 text-[#0099FF]" />
               </div>
-              <div className="text-lg font-black mb-1">Appelez maintenant</div>
+              <div className="text-lg font-black mb-1">{isFr ? "Appelez maintenant" : "Call now"}</div>
               <div className="text-sm text-[#0099FF] font-bold font-mono">+225 07 04 92 80 68</div>
-              <div className="text-xs text-[#8899BB] mt-2">Réponse immédiate pendant les heures d&apos;ouverture</div>
+              <div className="text-xs text-[#8899BB] mt-2">{isFr ? "Réponse immédiate pendant les heures d'ouverture" : "Immediate response during opening hours"}</div>
             </motion.div>
           </a>
           <a href="https://wa.me/2250704928068" target="_blank" rel="noopener" className="block">
@@ -379,9 +373,9 @@ export default function ContactPage() {
                 style={{ background: "rgba(37,211,102,0.2)", border: "1px solid rgba(37,211,102,0.5)" }}>
                 <MessageCircle className="w-6 h-6 text-[#25D366]" />
               </div>
-              <div className="text-lg font-black mb-1">Écrivez sur WhatsApp</div>
+              <div className="text-lg font-black mb-1">{isFr ? "Écrivez sur WhatsApp" : "Message us on WhatsApp"}</div>
               <div className="text-sm text-[#25D366] font-bold font-mono">+225 07 04 92 80 68</div>
-              <div className="text-xs text-[#8899BB] mt-2">Le canal préféré de nos clients, réponse rapide</div>
+              <div className="text-xs text-[#8899BB] mt-2">{isFr ? "Le canal préféré de nos clients, réponse rapide" : "Our clients' favorite channel, fast response"}</div>
             </motion.div>
           </a>
         </motion.div>

@@ -6,10 +6,11 @@ import { useState } from "react";
 import {
   Globe, Monitor, Smartphone, Settings, Shield, Wrench,
   CheckCircle, Mail, MessageCircle, Calendar, Clock, DollarSign,
-  MapPin, Phone, type LucideIcon,
+  type LucideIcon,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useApp } from "../i18n/AppContext";
 
 function ScanLine() {
   return (
@@ -45,6 +46,8 @@ type Service = {
 };
 
 export default function DevisPage() {
+  const { lang } = useApp();
+  const isFr = lang === "fr";
   const [step, setStep] = useState(1);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [complexity, setComplexity] = useState(1);
@@ -52,7 +55,7 @@ export default function DevisPage() {
   const [options, setOptions] = useState<{ [key: string]: boolean }>({});
   const [selectedDate, setSelectedDate] = useState(() => {
     const d = new Date();
-    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    return d.toLocaleDateString(lang === "fr" ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
   });
   const [selectedSlot, setSelectedSlot] = useState("09:00");
   const [clientInfo, setClientInfo] = useState({ name: "", email: "", phone: "", company: "", message: "" });
@@ -60,25 +63,25 @@ export default function DevisPage() {
   const [formError, setFormError] = useState("");
 
   const services: Service[] = [
-    { id: "web",   icon: Globe,      name: "Site web",         basePrice: 400000,  baseDays: 21, color: "#0099FF" },
-    { id: "soft",  icon: Monitor,    name: "Logiciel gestion", basePrice: 700000,  baseDays: 45, color: "#FF6B00" },
-    { id: "app",   icon: Smartphone, name: "App mobile",       basePrice: 1000000, baseDays: 60, color: "#00C48C" },
-    { id: "erp",   icon: Settings,   name: "ERP complet",      basePrice: 2000000, baseDays: 90, color: "#9B93FF" },
-    { id: "cyber", icon: Shield,     name: "Cybersécurité",    basePrice: 250000,  baseDays: 14, color: "#FF4757" },
-    { id: "maint", icon: Wrench,     name: "Maintenance",      basePrice: 150000,  baseDays: 7,  color: "#0066FF" },
+    { id: "web",   icon: Globe,      name: isFr ? "Site web" : "Website", basePrice: 400000,  baseDays: 21, color: "#0099FF" },
+    { id: "soft",  icon: Monitor,    name: isFr ? "Logiciel gestion" : "Management software", basePrice: 700000,  baseDays: 45, color: "#FF6B00" },
+    { id: "app",   icon: Smartphone, name: isFr ? "App mobile" : "Mobile app", basePrice: 1000000, baseDays: 60, color: "#00C48C" },
+    { id: "erp",   icon: Settings,   name: isFr ? "ERP complet" : "Full ERP", basePrice: 2000000, baseDays: 90, color: "#9B93FF" },
+    { id: "cyber", icon: Shield,     name: isFr ? "Cybersécurité" : "Cybersecurity", basePrice: 250000,  baseDays: 14, color: "#FF4757" },
+    { id: "maint", icon: Wrench,     name: isFr ? "Maintenance" : "Maintenance", basePrice: 150000,  baseDays: 7,  color: "#0066FF" },
   ];
 
   const availableOptions = [
-    { id: "mm",     name: "Paiement Mobile Money",   price: 100000 },
-    { id: "multi",  name: "Multilingue (FR/EN)",      price: 80000  },
-    { id: "client", name: "Espace client sécurisé",   price: 150000 },
-    { id: "seo",    name: "Optimisation SEO avancée", price: 60000  },
-    { id: "wa",     name: "Chat WhatsApp intégré",    price: 50000  },
-    { id: "form",   name: "Formation équipe (4h)",    price: 120000 },
+    { id: "mm",     name: isFr ? "Paiement Mobile Money" : "Mobile Money payment", price: 100000 },
+    { id: "multi",  name: isFr ? "Multilingue (FR/EN)" : "Multilingual (FR/EN)", price: 80000  },
+    { id: "client", name: isFr ? "Espace client sécurisé" : "Secure client area", price: 150000 },
+    { id: "seo",    name: isFr ? "Optimisation SEO avancée" : "Advanced SEO optimization", price: 60000  },
+    { id: "wa",     name: isFr ? "Chat WhatsApp intégré" : "Integrated WhatsApp chat", price: 50000  },
+    { id: "form",   name: isFr ? "Formation équipe (4h)" : "Team training (4h)", price: 120000 },
   ];
 
   const calendar = {
-    month: "Avril 2025",
+    month: isFr ? "Avril 2025" : "April 2025",
     days: [
       { num: 31, other: true }, { num: 1, full: true }, { num: 2 }, { num: 3, full: true }, { num: 4 }, { num: 5 }, { num: 6, other: true },
       { num: 7 }, { num: 8, full: true }, { num: 9 }, { num: 10 }, { num: 11, full: true }, { num: 12 }, { num: 13, other: true },
@@ -99,7 +102,7 @@ export default function DevisPage() {
     { time: "Visio" },
   ];
 
-  const formatPrice = (n: number) => n.toLocaleString("fr-FR").replace(/,/g, " ");
+  const formatPrice = (n: number) => n.toLocaleString(lang === "fr" ? "fr-FR" : "en-US").replace(/,/g, " ");
   const optsTotal = availableOptions.reduce((sum, o) => sum + (options[o.id] ? o.price : 0), 0);
   const totalPrice = selectedService
     ? Math.round((selectedService.basePrice * (1 + (complexity - 1) * 0.4) * (1 + (modules - 1) * 0.08) + optsTotal) / 1000) * 1000
@@ -124,7 +127,7 @@ export default function DevisPage() {
           budget: String(totalPrice),
         }),
       });
-    } catch (_) {}
+    } catch {}
     setSubmitted(true);
   };
 
@@ -145,23 +148,25 @@ export default function DevisPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 bg-[#0A1A3A] border border-[#0066FF] text-[#0099FF] text-xs tracking-[2px] px-4 py-1.5 rounded-full mb-6">
             <Calendar className="w-3 h-3" />
-            ESTIMATION + RENDEZ-VOUS
+            {isFr ? "ESTIMATION + RENDEZ-VOUS" : "ESTIMATE + MEETING"}
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
             className="text-4xl md:text-6xl font-black leading-tight mb-4 tracking-tight">
-            Obtenez votre devis{" "}
+            {isFr ? "Obtenez votre devis" : "Get your quote"}{" "}
             <motion.span
               animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
               transition={{ duration: 5, repeat: Infinity }}
               className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#FF6B00]"
               style={{ backgroundSize: "200% 200%" }}
             >
-              en 2 minutes
+              {isFr ? "en 2 minutes" : "in 2 minutes"}
             </motion.span>
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }}
             className="text-[#8899BB] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Configurez votre projet, voyez le prix instantanément et réservez un rendez-vous avec notre équipe — tout en une seule démarche.
+            {isFr
+              ? "Configurez votre projet, voyez le prix instantanément et réservez un rendez-vous avec notre équipe — tout en une seule démarche."
+              : "Configure your project, see the instant price and book a meeting with our team in one simple flow."}
           </motion.p>
         </div>
       </section>
@@ -171,10 +176,10 @@ export default function DevisPage() {
         <div className="max-w-5xl mx-auto">
           <div className="flex gap-1 border rounded-xl p-2" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
             {[
-              { n: 1, label: "Votre projet" },
-              { n: 2, label: "Configuration" },
-              { n: 3, label: "Rendez-vous" },
-              { n: 4, label: "Confirmation" },
+              { n: 1, label: isFr ? "Votre projet" : "Your project" },
+              { n: 2, label: isFr ? "Configuration" : "Configuration" },
+              { n: 3, label: isFr ? "Rendez-vous" : "Meeting" },
+              { n: 4, label: isFr ? "Confirmation" : "Confirmation" },
             ].map((s) => (
               <button
                 key={s.n}
@@ -203,8 +208,8 @@ export default function DevisPage() {
             {/* STEP 1 — SERVICE SELECTION */}
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
-                <h2 className="text-2xl font-black mb-2">Quel type de projet souhaitez-vous ?</h2>
-                <p className="text-sm text-[#8899BB] mb-8">Sélectionnez un service pour commencer — vous pourrez affiner à l&apos;étape suivante.</p>
+                <h2 className="text-2xl font-black mb-2">{isFr ? "Quel type de projet souhaitez-vous ?" : "What type of project do you need?"}</h2>
+                <p className="text-sm text-[#8899BB] mb-8">{isFr ? "Sélectionnez un service pour commencer — vous pourrez affiner à l'étape suivante." : "Select a service to start. You can refine it in the next step."}</p>
                 <div className="grid md:grid-cols-3 gap-4 mb-8">
                   {services.map((s) => (
                     <motion.button
@@ -225,7 +230,7 @@ export default function DevisPage() {
                       <div className="text-base font-bold mb-1" style={{ color: selectedService?.id === s.id ? s.color : "#fff" }}>
                         {s.name}
                       </div>
-                      <div className="text-xs text-[#8899BB]">Dès {formatPrice(s.basePrice / 2)} F</div>
+                      <div className="text-xs text-[#8899BB]">{isFr ? "Dès" : "From"} {formatPrice(s.basePrice / 2)} F</div>
                     </motion.button>
                   ))}
                 </div>
@@ -239,7 +244,7 @@ export default function DevisPage() {
                       selectedService ? "bg-[#0066FF] hover:bg-[#0099FF]" : "bg-[#1a2540] text-[#8899BB] cursor-not-allowed"
                     }`}
                   >
-                    Continuer →
+                    {isFr ? "Continuer →" : "Continue →"}
                   </motion.button>
                 </div>
               </motion.div>
@@ -248,33 +253,33 @@ export default function DevisPage() {
             {/* STEP 2 — CONFIGURATION */}
             {step === 2 && selectedService && (
               <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
-                <h2 className="text-2xl font-black mb-2">Configurez votre projet</h2>
-                <p className="text-sm text-[#8899BB] mb-8">Le prix et le délai se mettent à jour automatiquement.</p>
+                <h2 className="text-2xl font-black mb-2">{isFr ? "Configurez votre projet" : "Configure your project"}</h2>
+                <p className="text-sm text-[#8899BB] mb-8">{isFr ? "Le prix et le délai se mettent à jour automatiquement." : "Price and timeline update automatically."}</p>
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                   {/* CONFIG */}
                   <div className="rounded-2xl p-6 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                     <div className="mb-6">
-                      <label className="text-xs text-[#8899BB] uppercase tracking-wide font-bold mb-3 block">Complexité du projet</label>
+                      <label className="text-xs text-[#8899BB] uppercase tracking-wide font-bold mb-3 block">{isFr ? "Complexité du projet" : "Project complexity"}</label>
                       <div className="flex items-center gap-3">
                         <input type="range" min="1" max="3" step="1" value={complexity}
                           onChange={(e) => setComplexity(Number(e.target.value))} className="flex-1 accent-[#0066FF]" />
                         <span className="text-xs font-bold min-w-[80px] text-right text-[#0099FF] font-mono">
-                          {["Simple", "Moyen", "Complexe"][complexity - 1]}
+                          {(isFr ? ["Simple", "Moyen", "Complexe"] : ["Simple", "Medium", "Complex"])[complexity - 1]}
                         </span>
                       </div>
                     </div>
                     <div className="mb-6">
-                      <label className="text-xs text-[#8899BB] uppercase tracking-wide font-bold mb-3 block">Modules / Pages</label>
+                      <label className="text-xs text-[#8899BB] uppercase tracking-wide font-bold mb-3 block">{isFr ? "Modules / Pages" : "Modules / Pages"}</label>
                       <div className="flex items-center gap-3">
                         <input type="range" min="1" max="10" value={modules}
                           onChange={(e) => setModules(Number(e.target.value))} className="flex-1 accent-[#0066FF]" />
                         <span className="text-xs font-bold min-w-[80px] text-right text-[#0099FF] font-mono">
-                          {modules} module{modules > 1 ? "s" : ""}
+                          {modules} {isFr ? `module${modules > 1 ? "s" : ""}` : `module${modules > 1 ? "s" : ""}`}
                         </span>
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-[#8899BB] uppercase tracking-wide font-bold mb-3">Options supplémentaires</div>
+                      <div className="text-xs text-[#8899BB] uppercase tracking-wide font-bold mb-3">{isFr ? "Options supplémentaires" : "Additional options"}</div>
                       <div className="space-y-2">
                         {availableOptions.map((o) => (
                           <label key={o.id} className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${
@@ -294,33 +299,33 @@ export default function DevisPage() {
                     <div className="bg-gradient-to-br from-[#0066FF]/20 via-[#0099FF]/10 to-[#0066FF]/5 border border-[#0066FF] rounded-2xl p-6 mb-4 backdrop-blur">
                       <div className="flex items-center gap-2 mb-2">
                         <DollarSign className="w-3.5 h-3.5 text-[#8899BB]" />
-                        <span className="text-[10px] text-[#8899BB] uppercase tracking-[2px]">Prix estimé</span>
+                        <span className="text-[10px] text-[#8899BB] uppercase tracking-[2px]">{isFr ? "Prix estimé" : "Estimated price"}</span>
                       </div>
                       <div className="text-4xl font-black text-[#0099FF] font-mono mb-1">{formatPrice(totalPrice)} FCFA</div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-3.5 h-3.5 text-[#FF6B00]" />
-                        <span className="text-sm text-[#FF6B00] font-bold">Délai : {totalDays} jours ouvrés</span>
+                        <span className="text-sm text-[#FF6B00] font-bold">{isFr ? "Délai" : "Timeline"} : {totalDays} {isFr ? "jours ouvrés" : "business days"}</span>
                       </div>
-                      <div className="text-[10px] text-[#8899BB] mt-3">* Estimation automatique — Un RDV confirmera le devis définitif</div>
+                      <div className="text-[10px] text-[#8899BB] mt-3">{isFr ? "* Estimation automatique — Un RDV confirmera le devis définitif" : "* Automatic estimate — a meeting will confirm the final quote"}</div>
                     </div>
                     <div className="rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-                      <div className="text-xs font-bold mb-3 uppercase tracking-wide">Votre configuration</div>
+                      <div className="text-xs font-bold mb-3 uppercase tracking-wide">{isFr ? "Votre configuration" : "Your configuration"}</div>
                       <div className="space-y-2 text-xs">
-                        <div className="flex justify-between"><span className="text-[#8899BB]">Service</span><span className="font-bold">{selectedService.name}</span></div>
-                        <div className="flex justify-between"><span className="text-[#8899BB]">Complexité</span><span className="font-bold">{["Simple", "Moyen", "Complexe"][complexity - 1]}</span></div>
+                        <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Service" : "Service"}</span><span className="font-bold">{selectedService.name}</span></div>
+                        <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Complexité" : "Complexity"}</span><span className="font-bold">{(isFr ? ["Simple", "Moyen", "Complexe"] : ["Simple", "Medium", "Complex"])[complexity - 1]}</span></div>
                         <div className="flex justify-between"><span className="text-[#8899BB]">Modules</span><span className="font-bold font-mono">{modules}</span></div>
-                        <div className="flex justify-between"><span className="text-[#8899BB]">Options</span><span className="font-bold font-mono">{Object.values(options).filter(Boolean).length} ajoutée(s)</span></div>
+                        <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Options" : "Options"}</span><span className="font-bold font-mono">{Object.values(options).filter(Boolean).length} {isFr ? "ajoutée(s)" : "added"}</span></div>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="flex justify-between">
                   <motion.button onClick={() => setStep(1)} whileHover={{ scale: 1.03, x: -2 }} whileTap={{ scale: 0.97 }} className="px-6 py-3 rounded-lg font-bold text-sm border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">
-                    ← Retour
+                    {isFr ? "← Retour" : "← Back"}
                   </motion.button>
                   <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setStep(3)}
                     className="bg-[#0066FF] hover:bg-[#0099FF] transition px-8 py-3 rounded-lg font-bold text-sm">
-                    Réserver un RDV →
+                    {isFr ? "Réserver un RDV →" : "Book a meeting →"}
                   </motion.button>
                 </div>
               </motion.div>
@@ -329,8 +334,8 @@ export default function DevisPage() {
             {/* STEP 3 — RDV */}
             {step === 3 && selectedService && (
               <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
-                <h2 className="text-2xl font-black mb-2">Choisissez une date et un créneau</h2>
-                <p className="text-sm text-[#8899BB] mb-8">Prenez RDV avec notre équipe pour discuter de votre projet — gratuit et sans engagement.</p>
+                <h2 className="text-2xl font-black mb-2">{isFr ? "Choisissez une date et un créneau" : "Choose a date and time slot"}</h2>
+                <p className="text-sm text-[#8899BB] mb-8">{isFr ? "Prenez RDV avec notre équipe pour discuter de votre projet — gratuit et sans engagement." : "Book a meeting with our team to discuss your project, free and no obligation."}</p>
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                   {/* CALENDAR */}
                   <div className="rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
@@ -340,7 +345,7 @@ export default function DevisPage() {
                       <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">›</motion.button>
                     </div>
                     <div className="grid grid-cols-7 gap-0.5 text-center mb-2">
-                      {["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"].map((d) => (
+                      {(isFr ? ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"] : ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]).map((d) => (
                         <div key={d} className="text-[9px] text-[#8899BB] font-bold py-1">{d}</div>
                       ))}
                     </div>
@@ -349,11 +354,11 @@ export default function DevisPage() {
                         <button
                           key={i}
                           disabled={d.full || d.other}
-                          onClick={() => !d.full && !d.other && setSelectedDate(`${d.num} Avril 2025`)}
+                          onClick={() => !d.full && !d.other && setSelectedDate(`${d.num} ${isFr ? "Avril" : "April"} 2025`)}
                           className={`text-xs py-2.5 rounded-lg transition ${
                             d.other ? "opacity-20 cursor-not-allowed" :
                             d.full ? "bg-[#FF4757]/10 text-[#FF4757] line-through cursor-not-allowed" :
-                            d.selected || selectedDate === `${d.num} Avril 2025` ? "bg-[#0066FF] text-white font-bold" :
+                            d.selected || selectedDate === `${d.num} ${isFr ? "Avril" : "April"} 2025` ? "bg-[#0066FF] text-white font-bold" :
                             d.today ? "border border-[#FF6B00] text-[#FF6B00] font-bold" :
                             "hover:bg-[#0066FF]/10"
                           }`}
@@ -363,14 +368,14 @@ export default function DevisPage() {
                       ))}
                     </div>
                     <div className="flex gap-3 text-[10px] text-[#8899BB] mt-4 pt-3 border-t border-[#1a2540]">
-                      <div className="flex items-center gap-1"><div className="w-2 h-2 bg-[#FF4757]/30 rounded" />Complet</div>
-                      <div className="flex items-center gap-1"><div className="w-2 h-2 border border-[#FF6B00] rounded" />Aujourd&apos;hui</div>
-                      <div className="flex items-center gap-1"><div className="w-2 h-2 bg-[#0066FF] rounded" />Sélectionné</div>
+                      <div className="flex items-center gap-1"><div className="w-2 h-2 bg-[#FF4757]/30 rounded" />{isFr ? "Complet" : "Full"}</div>
+                      <div className="flex items-center gap-1"><div className="w-2 h-2 border border-[#FF6B00] rounded" />{isFr ? "Aujourd'hui" : "Today"}</div>
+                      <div className="flex items-center gap-1"><div className="w-2 h-2 bg-[#0066FF] rounded" />{isFr ? "Sélectionné" : "Selected"}</div>
                     </div>
                     <div className="mt-5 pt-4 border-t border-[#1a2540]">
                       <div className="flex items-center gap-2 text-xs font-bold text-[#0099FF] mb-3">
                         <Clock className="w-3.5 h-3.5" />
-                        Créneaux disponibles — {selectedDate}
+                        {isFr ? "Créneaux disponibles" : "Available slots"} — {selectedDate}
                       </div>
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                         {slots.map((s) => (
@@ -394,30 +399,30 @@ export default function DevisPage() {
                   {/* CLIENT INFO */}
                   <div className="space-y-4">
                     <div className="rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-                      <div className="text-xs font-bold mb-3 uppercase tracking-wide">Vos coordonnées</div>
+                      <div className="text-xs font-bold mb-3 uppercase tracking-wide">{isFr ? "Vos coordonnées" : "Your contact details"}</div>
                       <div className="space-y-3">
                         <input type="text" value={clientInfo.name} onChange={(e) => setClientInfo({ ...clientInfo, name: e.target.value })}
-                          placeholder="Nom complet *" className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
+                          placeholder={isFr ? "Nom complet *" : "Full name *"} className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                         <input type="tel" value={clientInfo.phone} onChange={(e) => setClientInfo({ ...clientInfo, phone: e.target.value })}
                           placeholder="+225 07 00 00 00 *" className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                         <input type="email" value={clientInfo.email} onChange={(e) => setClientInfo({ ...clientInfo, email: e.target.value })}
                           placeholder="Email *" className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                         <input type="text" value={clientInfo.company} onChange={(e) => setClientInfo({ ...clientInfo, company: e.target.value })}
-                          placeholder="Entreprise (facultatif)" className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
+                          placeholder={isFr ? "Entreprise (facultatif)" : "Company (optional)"} className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                         <textarea value={clientInfo.message} onChange={(e) => setClientInfo({ ...clientInfo, message: e.target.value })}
-                          placeholder="Décrivez brièvement votre projet..." rows={3}
+                          placeholder={isFr ? "Décrivez brièvement votre projet..." : "Briefly describe your project..."} rows={3}
                           className="w-full border rounded-lg px-3 py-2.5 text-xs outline-none focus:border-[#0066FF] transition resize-none" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                       </div>
                     </div>
                     <div className="rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-                      <div className="text-xs font-bold mb-3 uppercase tracking-wide">Récapitulatif du RDV</div>
+                      <div className="text-xs font-bold mb-3 uppercase tracking-wide">{isFr ? "Récapitulatif du RDV" : "Meeting summary"}</div>
                       <div className="space-y-2 text-xs">
-                        <div className="flex justify-between"><span className="text-[#8899BB]">Service</span><span className="font-bold">{selectedService.name}</span></div>
-                        <div className="flex justify-between"><span className="text-[#8899BB]">Date</span><span className="font-bold">{selectedDate}</span></div>
-                        <div className="flex justify-between"><span className="text-[#8899BB]">Heure</span><span className="font-bold font-mono">{selectedSlot}</span></div>
-                        <div className="flex justify-between"><span className="text-[#8899BB]">Durée</span><span className="font-bold">45 min</span></div>
+                        <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Service" : "Service"}</span><span className="font-bold">{selectedService.name}</span></div>
+                        <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Date" : "Date"}</span><span className="font-bold">{selectedDate}</span></div>
+                        <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Heure" : "Time"}</span><span className="font-bold font-mono">{selectedSlot}</span></div>
+                        <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Durée" : "Duration"}</span><span className="font-bold">45 min</span></div>
                         <div className="flex justify-between pt-2 border-t border-[#1a2540]">
-                          <span className="text-[#8899BB] text-xs uppercase tracking-wide">Devis estimé</span>
+                          <span className="text-[#8899BB] text-xs uppercase tracking-wide">{isFr ? "Devis estimé" : "Estimated quote"}</span>
                           <span className="text-xl font-black text-[#0099FF] font-mono">{formatPrice(totalPrice)} F</span>
                         </div>
                       </div>
@@ -426,7 +431,7 @@ export default function DevisPage() {
                 </div>
                 <div className="flex justify-between">
                   <motion.button onClick={() => setStep(2)} whileHover={{ scale: 1.03, x: -2 }} whileTap={{ scale: 0.97 }} className="px-6 py-3 rounded-lg font-bold text-sm border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">
-                    ← Retour
+                    {isFr ? "← Retour" : "← Back"}
                   </motion.button>
                   <div className="flex flex-col items-end gap-2">
                     {formError && <p className="text-red-400 text-xs">{formError}</p>}
@@ -434,7 +439,7 @@ export default function DevisPage() {
                       whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                       onClick={() => {
                         if (!clientInfo.name || !clientInfo.phone || !clientInfo.email) {
-                          setFormError("Veuillez remplir votre nom, téléphone et email.");
+                          setFormError(isFr ? "Veuillez remplir votre nom, téléphone et email." : "Please fill in your name, phone and email.");
                           return;
                         }
                         setFormError("");
@@ -444,7 +449,7 @@ export default function DevisPage() {
                       className="bg-[#00C48C] hover:bg-[#00E5A0] transition px-8 py-3 rounded-lg font-bold text-sm flex items-center gap-2"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      Confirmer le RDV & devis
+                      {isFr ? "Confirmer le RDV & devis" : "Confirm meeting & quote"}
                     </motion.button>
                   </div>
                 </div>
@@ -463,9 +468,9 @@ export default function DevisPage() {
                 >
                   <CheckCircle className="w-12 h-12 text-[#00C48C]" />
                 </motion.div>
-                <h2 className="text-3xl md:text-4xl font-black mb-3 text-[#00C48C]">Rendez-vous confirmé !</h2>
+                <h2 className="text-3xl md:text-4xl font-black mb-3 text-[#00C48C]">{isFr ? "Rendez-vous confirmé !" : "Meeting confirmed!"}</h2>
                 <p className="text-sm text-[#8899BB] max-w-xl mx-auto mb-10">
-                  Votre demande a été enregistrée. L&apos;équipe SORA TECH vous contactera avant le RDV.
+                  {isFr ? "Votre demande a été enregistrée. L'équipe SORA TECH vous contactera avant le RDV." : "Your request has been saved. The SORA TECH team will contact you before the meeting."}
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto mb-8">
@@ -475,16 +480,16 @@ export default function DevisPage() {
                         style={{ background: "rgba(0,102,255,0.15)", border: "1px solid rgba(0,102,255,0.4)" }}>
                         <Mail className="w-5 h-5 text-[#0099FF]" />
                       </div>
-                      <div className="text-sm font-bold text-[#0099FF]">Email envoyé</div>
+                      <div className="text-sm font-bold text-[#0099FF]">{isFr ? "Email envoyé" : "Email sent"}</div>
                     </div>
                     <div className="text-xs text-[#8899BB] leading-relaxed mb-3">
-                      Confirmation envoyée à <span className="text-white font-bold">{clientInfo.email}</span>
+                      {isFr ? "Confirmation envoyée à" : "Confirmation sent to"} <span className="text-white font-bold">{clientInfo.email}</span>
                     </div>
                     <ul className="space-y-1.5">
-                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />Détails du RDV : {selectedDate} à {selectedSlot}</li>
-                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />Devis préliminaire : {formatPrice(totalPrice)} FCFA</li>
-                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />Fiche de configuration</li>
-                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />Adresse + lien visio</li>
+                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Détails du RDV" : "Meeting details"} : {selectedDate} {isFr ? "à" : "at"} {selectedSlot}</li>
+                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Devis préliminaire" : "Preliminary quote"} : {formatPrice(totalPrice)} FCFA</li>
+                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Fiche de configuration" : "Configuration sheet"}</li>
+                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Adresse + lien visio" : "Address + video link"}</li>
                     </ul>
                   </div>
                   <div className="rounded-2xl p-5 text-left border border-[#25D366]" style={{ background: "var(--card)" }}>
@@ -493,16 +498,16 @@ export default function DevisPage() {
                         style={{ background: "rgba(37,211,102,0.15)", border: "1px solid rgba(37,211,102,0.4)" }}>
                         <MessageCircle className="w-5 h-5 text-[#25D366]" />
                       </div>
-                      <div className="text-sm font-bold text-[#25D366]">WhatsApp envoyé</div>
+                      <div className="text-sm font-bold text-[#25D366]">{isFr ? "WhatsApp envoyé" : "WhatsApp sent"}</div>
                     </div>
                     <div className="text-xs text-[#8899BB] leading-relaxed mb-3">
-                      Message envoyé à <span className="text-white font-bold">{clientInfo.phone}</span>
+                      {isFr ? "Message envoyé à" : "Message sent to"} <span className="text-white font-bold">{clientInfo.phone}</span>
                     </div>
                     <ul className="space-y-1.5">
-                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />Rappel du RDV</li>
-                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />Devis en PDF</li>
-                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />Lien de suivi</li>
-                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />Contact équipe direct</li>
+                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Rappel du RDV" : "Meeting reminder"}</li>
+                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Devis en PDF" : "PDF quote"}</li>
+                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Lien de suivi" : "Tracking link"}</li>
+                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Contact équipe direct" : "Direct team contact"}</li>
                     </ul>
                   </div>
                 </div>
@@ -513,12 +518,12 @@ export default function DevisPage() {
                     onClick={() => { setStep(1); setSubmitted(false); setSelectedService(null); setOptions({}); setClientInfo({ name: "", email: "", phone: "", company: "", message: "" }); }}
                     className="bg-[#0066FF] hover:bg-[#0099FF] transition px-6 py-3 rounded-lg font-bold text-xs"
                   >
-                    Nouvelle demande
+                    {isFr ? "Nouvelle demande" : "New request"}
                   </motion.button>
                   <Link href="/">
                     <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                       className="border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition px-6 py-3 rounded-lg font-bold text-xs">
-                      Retour accueil
+                      {isFr ? "Retour accueil" : "Back home"}
                     </motion.button>
                   </Link>
                 </div>

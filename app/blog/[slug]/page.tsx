@@ -7,6 +7,8 @@ import { ArrowLeft, BookOpen, Clock, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import { useApp } from "../../i18n/AppContext";
+import { blogLabel } from "@/lib/i18nLabels";
 import {
   BLOG_CATEGORY_META,
   BLOG_FALLBACK_META,
@@ -49,6 +51,8 @@ function renderContent(content: string) {
 }
 
 export default function BlogArticlePage() {
+  const { lang } = useApp();
+  const isFr = lang === "fr";
   const params = useParams<{ slug: string }>();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
 
@@ -63,7 +67,7 @@ export default function BlogArticlePage() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/articles/${slug}`)
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.message || "Article introuvable");
+        if (!response.ok) throw new Error(data.message || "Article not found");
         return data;
       })
       .then((response) => {
@@ -100,14 +104,14 @@ export default function BlogArticlePage() {
         <div className="max-w-4xl mx-auto">
           <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-[#8899BB] hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            Retour au blog
+            {isFr ? "Retour au blog" : "Back to blog"}
           </Link>
         </div>
       </section>
 
       {loading && !article ? (
         <section className="relative z-10 px-6 py-20">
-          <div className="max-w-4xl mx-auto text-center text-[#8899BB]">Chargement de l&apos;article...</div>
+          <div className="max-w-4xl mx-auto text-center text-[#8899BB]">{isFr ? "Chargement de l'article..." : "Loading article..."}</div>
         </section>
       ) : notFound || !article ? (
         <section className="relative z-10 px-6 py-20">
@@ -115,9 +119,9 @@ export default function BlogArticlePage() {
             <div className="w-16 h-16 mx-auto rounded-2xl bg-[#0A1525] border border-[#1a2540] flex items-center justify-center mb-4">
               <BookOpen className="w-8 h-8 text-[#0099FF]" />
             </div>
-            <h1 className="text-3xl font-black mb-3">Article introuvable</h1>
-            <p className="text-[#8899BB] mb-6">Cet article n&apos;est pas disponible ou n&apos;est pas encore publié.</p>
-            <Link href="/blog" className="inline-flex bg-[#0066FF] px-5 py-3 rounded-xl font-bold text-sm">Voir les autres articles</Link>
+            <h1 className="text-3xl font-black mb-3">{isFr ? "Article introuvable" : "Article not found"}</h1>
+            <p className="text-[#8899BB] mb-6">{isFr ? "Cet article n'est pas disponible ou n'est pas encore publié." : "This article is not available or has not been published yet."}</p>
+            <Link href="/blog" className="inline-flex bg-[#0066FF] px-5 py-3 rounded-xl font-bold text-sm">{isFr ? "Voir les autres articles" : "See other articles"}</Link>
           </div>
         </section>
       ) : (
@@ -127,7 +131,7 @@ export default function BlogArticlePage() {
               <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] tracking-[2px] font-bold mb-5" style={{ color: meta.color, backgroundColor: `${meta.color}15`, border: `1px solid ${meta.color}30` }}>
                   <Icon className="w-3.5 h-3.5" />
-                  {article.category}
+                  {blogLabel(article.category, lang)}
                 </div>
                 <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6">{article.title}</h1>
                 <p className="text-[#9FB0CC] text-lg md:text-xl leading-relaxed max-w-3xl">{article.excerpt}</p>
@@ -166,11 +170,11 @@ export default function BlogArticlePage() {
 
           <section className="relative z-10 px-6 pb-20">
             <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="max-w-3xl mx-auto bg-gradient-to-br from-[#0066FF]/20 via-[#0099FF]/10 to-[#FF6B00]/10 border border-[#0066FF]/50 rounded-3xl p-10 text-center backdrop-blur">
-              <h2 className="text-3xl md:text-4xl font-black mb-4">Besoin d&apos;un accompagnement ?</h2>
-              <p className="text-[#9FB0CC] mb-6">Notre équipe peut transformer ces idées en solution concrète pour ton entreprise.</p>
+              <h2 className="text-3xl md:text-4xl font-black mb-4">{isFr ? "Besoin d'un accompagnement ?" : "Need support?"}</h2>
+              <p className="text-[#9FB0CC] mb-6">{isFr ? "Notre équipe peut transformer ces idées en solution concrète pour ton entreprise." : "Our team can turn these ideas into a concrete solution for your business."}</p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Link href="/devis" className="bg-[#0066FF] px-6 py-3 rounded-xl font-bold text-sm">Demander un devis</Link>
-                <Link href="/contact" className="bg-[#0A1525] border border-[#1a2540] px-6 py-3 rounded-xl font-bold text-sm">Parler à l&apos;équipe</Link>
+                <Link href="/devis" className="bg-[#0066FF] px-6 py-3 rounded-xl font-bold text-sm">{isFr ? "Demander un devis" : "Request a quote"}</Link>
+                <Link href="/contact" className="bg-[#0A1525] border border-[#1a2540] px-6 py-3 rounded-xl font-bold text-sm">{isFr ? "Parler à l'équipe" : "Talk to the team"}</Link>
               </div>
             </motion.div>
           </section>

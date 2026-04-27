@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useApp } from "./i18n/AppContext";
 import { resolveMediaUrl } from "@/lib/media";
+import { blogLabel, productLabel, projectLabel } from "@/lib/i18nLabels";
 
 const BackgroundFX = dynamic(() => import("./components/BackgroundFX"), { ssr: false });
 import Footer from "./components/Footer";
@@ -212,7 +213,7 @@ export default function Home() {
       <section className="relative py-20 px-6 z-10">
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">// NOS_EXPERTISES</div>
+            <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">{lang === "fr" ? "// NOS_EXPERTISES" : "// OUR_EXPERTISES"}</div>
             <h2 className="text-3xl md:text-5xl font-black" style={{ color: "var(--text)" }}>{h.servicesTitle}</h2>
             <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>{h.servicesDesc}</p>
           </motion.div>
@@ -248,7 +249,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-                <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">// DERNIERS_ARTICLES</div>
+                <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">{lang === "fr" ? "// DERNIERS_ARTICLES" : "// LATEST_ARTICLES"}</div>
                 <h2 className="text-2xl md:text-4xl font-black" style={{ color: "var(--text)" }}>{h.blogTitle}</h2>
               </motion.div>
               <Link href="/blog" className="text-sm text-[#0099FF] hover:underline font-bold">{h.blogAll}</Link>
@@ -264,10 +265,10 @@ export default function Home() {
                       style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                       <div className="h-28 flex items-center justify-center text-2xl font-mono font-black"
                         style={{ background: `linear-gradient(135deg, ${color}25, ${color}05)`, color }}>
-                        [{a.category.toUpperCase()}]
+                        [{blogLabel(a.category, lang).toUpperCase()}]
                       </div>
                       <div className="p-5">
-                        <div className="text-[10px] tracking-widest font-mono mb-2" style={{ color }}>{a.category.toUpperCase()}</div>
+                        <div className="text-[10px] tracking-widest font-mono mb-2" style={{ color }}>{blogLabel(a.category, lang).toUpperCase()}</div>
                         <h3 className="text-sm font-bold mb-2 leading-snug" style={{ color: "var(--text)" }}>{a.title}</h3>
                         <p className="text-xs leading-relaxed line-clamp-2" style={{ color: "var(--muted)" }}>{a.excerpt}</p>
                         <div className="text-xs text-[#0099FF] mt-3 font-bold">{h.blogRead}</div>
@@ -287,7 +288,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-                <div className="text-[10px] tracking-[4px] text-[#FF6B00] mb-2 font-mono">// NOUVEAUX_PRODUITS</div>
+                <div className="text-[10px] tracking-[4px] text-[#FF6B00] mb-2 font-mono">{lang === "fr" ? "// NOUVEAUX_PRODUITS" : "// NEW_PRODUCTS"}</div>
                 <h2 className="text-2xl md:text-4xl font-black" style={{ color: "var(--text)" }}>{h.boutiqueTitle}</h2>
               </motion.div>
               <Link href="/boutique" className="text-sm text-[#0099FF] hover:underline font-bold">{h.boutiqueAll}</Link>
@@ -312,7 +313,7 @@ export default function Home() {
                         }
                       </div>
                       <div className="p-4">
-                        <div className="text-[10px] tracking-wider font-mono mb-1" style={{ color }}>{p.category.toUpperCase()}</div>
+                        <div className="text-[10px] tracking-wider font-mono mb-1" style={{ color }}>{productLabel(p.category, lang).toUpperCase()}</div>
                         <h3 className="text-sm font-bold mb-1 line-clamp-1" style={{ color: "var(--text)" }}>{p.title}</h3>
                         <p className="text-xs mb-3 line-clamp-2" style={{ color: "var(--muted)" }}>{p.description}</p>
                         <div className="text-lg font-black mb-3" style={{ color }}>{p.price.toLocaleString("fr-FR")} FCFA</div>
@@ -337,7 +338,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-end mb-8 flex-wrap gap-4">
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-                <div className="text-[10px] tracking-[4px] text-[#00C48C] mb-2 font-mono">// DERNIERS_PROJETS</div>
+                <div className="text-[10px] tracking-[4px] text-[#00C48C] mb-2 font-mono">{lang === "fr" ? "// DERNIERS_PROJETS" : "// LATEST_PROJECTS"}</div>
                 <h2 className="text-2xl md:text-4xl font-black" style={{ color: "var(--text)" }}>
                   {lang === "fr" ? "Nos derniers projets" : "Our latest projects"}
                 </h2>
@@ -364,7 +365,7 @@ export default function Home() {
                               <Icon className="w-8 h-8" style={{ color }} />
                             </div>
                         }
-                        <div className="absolute top-3 left-3 px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ background: "var(--card)", color }}>{p.category}</div>
+                        <div className="absolute top-3 left-3 px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ background: "var(--card)", color }}>{projectLabel(p.category, lang)}</div>
                       </div>
                       <div className="p-4">
                         <h3 className="text-sm font-bold mb-1 line-clamp-1 group-hover:text-[#0099FF] transition-colors" style={{ color: "var(--text)" }}>{p.title}</h3>
@@ -392,7 +393,7 @@ export default function Home() {
       <section className="relative py-20 px-6 z-10" style={{ background: "var(--bg2)" }}>
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">// POURQUOI_NOUS</div>
+            <div className="text-[10px] tracking-[4px] text-[#0099FF] mb-2 font-mono">{lang === "fr" ? "// POURQUOI_NOUS" : "// WHY_US"}</div>
             <h2 className="text-3xl md:text-5xl font-black" style={{ color: "var(--text)" }}>{h.whyTitle}</h2>
           </motion.div>
           <div className="grid md:grid-cols-4 gap-4">
@@ -419,7 +420,7 @@ export default function Home() {
       <section className="relative py-20 px-6 z-10">
         <div className="max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <div className="text-[10px] tracking-[4px] text-[#00C48C] mb-2 font-mono">// CLIENTS_SATISFAITS</div>
+            <div className="text-[10px] tracking-[4px] text-[#00C48C] mb-2 font-mono">{lang === "fr" ? "// CLIENTS_SATISFAITS" : "// HAPPY_CLIENTS"}</div>
             <h2 className="text-3xl md:text-5xl font-black" style={{ color: "var(--text)" }}>{h.testimTitle}</h2>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-5">

@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { BookOpen, Clock, User } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useApp } from "../i18n/AppContext";
+import { blogLabel } from "@/lib/i18nLabels";
 import {
   BLOG_CATEGORY_META,
   BLOG_FALLBACK_META,
@@ -50,6 +52,9 @@ function ArticleCover({ article, className }: { article: BlogArticle; className:
 }
 
 export default function BlogPage() {
+  const { lang, t } = useApp();
+  const b = t.blog;
+  const isFr = lang === "fr";
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [articles, setArticles] = useState<BlogArticle[]>([]);
 
@@ -82,16 +87,18 @@ export default function BlogPage() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 bg-[#0A1A3A] border border-[#0066FF] text-[#00C6FF] text-xs tracking-[2px] px-4 py-1.5 rounded-full mb-6" style={{ boxShadow: "0 0 20px rgba(0,153,255,0.15)" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-[#00C6FF] animate-pulse" />
-            BLOG SORA TECH
+            {b.badge}
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-4xl md:text-6xl font-black leading-tight mb-6 tracking-tight">
-            Conseils, analyses<br />
+            {isFr ? "Conseils, analyses" : "Tips, analysis"}<br />
             <motion.span animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }} transition={{ duration: 5, repeat: Infinity }} className="text-transparent bg-clip-text bg-gradient-to-r from-[#0099FF] via-[#00C6FF] to-[#9B93FF]" style={{ backgroundSize: "200% 200%" }}>
-              et guides concrets
+              {isFr ? "et guides concrets" : "and practical guides"}
             </motion.span>
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-[var(--muted)] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Nos articles sur la digitalisation, les logiciels de gestion, la cybersécurité et les solutions pratiques pour les entreprises.
+            {isFr
+              ? "Nos articles sur la digitalisation, les logiciels de gestion, la cybersécurité et les solutions pratiques pour les entreprises."
+              : "Our articles about digitalization, management software, cybersecurity and practical business solutions."}
           </motion.p>
         </div>
       </section>
@@ -105,8 +112,8 @@ export default function BlogPage() {
                   <ArticleCover article={featured} className="h-64 md:h-full w-full object-cover" />
                   <div className="p-8 md:p-10 flex flex-col justify-center">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="text-[10px] tracking-widest bg-[#FF6B00] text-white px-3 py-1 rounded-full font-bold">À LA UNE</div>
-                      <div className="text-[10px] tracking-widest text-[#0099FF] font-mono">{featured.category.toUpperCase()}</div>
+                      <div className="text-[10px] tracking-widest bg-[#FF6B00] text-white px-3 py-1 rounded-full font-bold">{isFr ? "À LA UNE" : "FEATURED"}</div>
+                      <div className="text-[10px] tracking-widest text-[#0099FF] font-mono">{blogLabel(featured.category, lang).toUpperCase()}</div>
                     </div>
                     <h2 className="text-2xl md:text-3xl font-black mb-4 leading-tight">{featured.title}</h2>
                     <p className="text-sm text-[var(--muted)] mb-5 leading-relaxed">{featured.excerpt}</p>
@@ -121,7 +128,7 @@ export default function BlogPage() {
                       <span>{featured.date}</span>
                     </div>
                     <motion.div whileHover={{ scale: 1.02, boxShadow: "0 8px 25px rgba(0,102,255,0.4)" }} whileTap={{ scale: 0.98 }} className="bg-[#0066FF] px-6 py-3 rounded-xl font-bold text-sm w-fit">
-                      Lire l&apos;article →
+                      {b.read}
                     </motion.div>
                   </div>
                 </div>
@@ -137,7 +144,7 @@ export default function BlogPage() {
             {categories.map((category) => (
               <motion.button key={category} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setActiveCategory(category)}
                 className={`px-5 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-200 ${activeCategory === category ? "bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.4)]" : "bg-[#0A1525] border border-[#1a2540] text-[var(--muted)] hover:border-[#0066FF] hover:text-white"}`}>
-                {category}
+                {blogLabel(category, lang)}
               </motion.button>
             ))}
           </div>
@@ -156,7 +163,7 @@ export default function BlogPage() {
                     <ArticleCover article={article} className="h-48 w-full object-cover" />
                     <div className="p-5">
                       <div className="flex items-center gap-2 mb-3">
-                        <div className="text-[10px] tracking-widest font-mono px-2 py-1 rounded" style={{ color: meta.color, backgroundColor: `${meta.color}15` }}>{article.category}</div>
+                        <div className="text-[10px] tracking-widest font-mono px-2 py-1 rounded" style={{ color: meta.color, backgroundColor: `${meta.color}15` }}>{blogLabel(article.category, lang)}</div>
                         <div className="text-[10px] text-[var(--muted)] flex items-center gap-1"><Clock className="w-3 h-3" />{article.readTime}</div>
                       </div>
                       <h3 className="text-base font-bold mb-3 leading-snug group-hover:text-[#0099FF] transition-colors duration-200">{article.title}</h3>
@@ -179,7 +186,7 @@ export default function BlogPage() {
 
           {filtered.length === 0 && (
             <div className="text-center py-12 text-[var(--muted)]">
-              <p>Aucun article dans cette catégorie pour le moment.</p>
+              <p>{isFr ? "Aucun article dans cette catégorie pour le moment." : "No article in this category yet."}</p>
             </div>
           )}
         </div>
@@ -192,13 +199,13 @@ export default function BlogPage() {
             <div className="w-16 h-16 mx-auto rounded-2xl bg-[#0066FF]/15 border border-[#0066FF]/40 flex items-center justify-center mb-4">
               <BookOpen className="w-8 h-8 text-[#0099FF]" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-black mb-3">Restez informés</h2>
-            <p className="text-[var(--muted)] mb-6">Recevez nos meilleurs articles directement dans votre boîte mail, chaque semaine</p>
+            <h2 className="text-3xl md:text-4xl font-black mb-3">{isFr ? "Restez informés" : "Stay informed"}</h2>
+            <p className="text-[var(--muted)] mb-6">{isFr ? "Recevez nos meilleurs articles directement dans votre boîte mail, chaque semaine" : "Receive our best articles directly in your inbox every week"}</p>
             <div className="flex gap-3 max-w-md mx-auto flex-col sm:flex-row">
               <input type="email" placeholder="votre@email.com" className="flex-1 bg-[#0A1525] border border-[#1a2540] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0066FF] transition-colors" />
-              <motion.button type="button" whileHover={{ scale: 1.05, boxShadow: "0 8px 25px rgba(0,102,255,0.4)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-6 py-3 rounded-xl font-bold text-sm whitespace-nowrap">S&apos;abonner</motion.button>
+              <motion.button type="button" whileHover={{ scale: 1.05, boxShadow: "0 8px 25px rgba(0,102,255,0.4)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-6 py-3 rounded-xl font-bold text-sm whitespace-nowrap">{isFr ? "S'abonner" : "Subscribe"}</motion.button>
             </div>
-            <p className="text-xs text-[var(--muted)] mt-4">🔒 Zéro spam. Désabonnement en un clic.</p>
+            <p className="text-xs text-[var(--muted)] mt-4">🔒 {isFr ? "Zéro spam. Désabonnement en un clic." : "No spam. Unsubscribe in one click."}</p>
           </div>
         </motion.div>
       </section>

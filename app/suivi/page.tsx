@@ -5,8 +5,11 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
+import { useApp } from '../i18n/AppContext';
 
 export default function SuiviSearchPage() {
+  const { t } = useApp();
+  const s = t.suivi;
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
@@ -14,9 +17,9 @@ export default function SuiviSearchPage() {
   const search = (e: React.FormEvent) => {
     e.preventDefault();
     const clean = code.trim().toUpperCase();
-    if (!clean) { setError('Entrez votre code de suivi.'); return; }
+    if (!clean) { setError(s.errEmpty); return; }
     if (!clean.startsWith('STC-') && !clean.startsWith('CMD-')) {
-      setError('Format invalide. Exemple : STC-2026-0001');
+      setError(s.errFormat);
       return;
     }
     router.push(`/suivi/${clean}`);
@@ -37,14 +40,14 @@ export default function SuiviSearchPage() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-8"
             style={{ background: '#0099FF15', border: '1px solid #0099FF40', color: '#0099FF' }}>
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            Suivi en temps réel
+            {s.badge}
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-black mb-4">Suivez votre<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0099FF] to-[#00C6FF]">commande</span>
+          <h1 className="text-4xl md:text-5xl font-black mb-4">{s.title}<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0099FF] to-[#00C6FF]">{s.gradient}</span>
           </h1>
           <p className="text-[#8899BB] mb-10 text-sm leading-relaxed">
-            Entrez votre code de suivi reçu par email ou WhatsApp après votre commande.
+            {s.desc}
           </p>
 
           {/* Formulaire */}
@@ -53,7 +56,7 @@ export default function SuiviSearchPage() {
               <input
                 value={code}
                 onChange={e => { setCode(e.target.value); setError(''); }}
-                placeholder="Ex : STC-2026-0001"
+                placeholder={s.placeholder}
                 className="w-full px-5 py-4 rounded-2xl text-white text-base outline-none font-mono text-center uppercase tracking-widest"
                 style={{ background: '#0B1628', border: '2px solid #1E2D4A', fontSize: 16 }}
                 autoFocus
@@ -67,16 +70,16 @@ export default function SuiviSearchPage() {
               whileTap={{ scale: 0.98 }}
               className="w-full py-4 rounded-2xl text-sm font-bold"
               style={{ background: '#0066FF', color: '#fff' }}>
-              Suivre ma commande →
+              {s.btn}
             </motion.button>
           </form>
 
           {/* Infos */}
           <div className="mt-10 grid grid-cols-3 gap-3 text-center">
             {[
-              { icon: '📥', label: 'Commande reçue' },
-              { icon: '🚚', label: 'En livraison' },
-              { icon: '🎉', label: 'Livrée' },
+              { icon: '📥', label: s.steps[0] },
+              { icon: '🚚', label: s.steps[1] },
+              { icon: '🎉', label: s.steps[2] },
             ].map((s, i) => (
               <div key={i} className="p-4 rounded-xl" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
                 <div className="text-2xl mb-1">{s.icon}</div>
@@ -87,18 +90,18 @@ export default function SuiviSearchPage() {
 
           {/* CTA si pas de code */}
           <div className="mt-10 p-5 rounded-2xl" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
-            <p className="text-xs text-gray-400 mb-3">Vous n&apos;avez pas encore commandé ?</p>
+            <p className="text-xs text-gray-400 mb-3">{s.noOrder}</p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Link href="/boutique"
                 className="px-5 py-2.5 rounded-xl text-xs font-bold"
                 style={{ background: '#FF6B0020', color: '#FF6B00', border: '1px solid #FF6B0040' }}>
-                Aller à la boutique
+                {s.goBoutique}
               </Link>
               <a href="https://wa.me/2250704928068?text=Bonjour%2C%20je%20voudrais%20connaître%20le%20statut%20de%20ma%20commande."
                 target="_blank" rel="noreferrer"
                 className="px-5 py-2.5 rounded-xl text-xs font-bold"
                 style={{ background: '#25D36620', color: '#25D366', border: '1px solid #25D36640' }}>
-                Contacter via WhatsApp
+                {s.goWa}
               </a>
             </div>
           </div>

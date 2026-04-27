@@ -5,10 +5,12 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import {
-  Globe, Monitor, Smartphone, Shield, ShoppingCart,
+  Globe, Monitor, Smartphone, Shield,
   GraduationCap, CheckCircle, type LucideIcon
 } from "lucide-react";
 import Footer from "../components/Footer";
+import { useApp } from "../i18n/AppContext";
+import { projectLabel } from "@/lib/i18nLabels";
 
 function ScanLine() {
   return (
@@ -21,21 +23,45 @@ function ScanLine() {
 const ICON_MAP: Record<string, LucideIcon> = { web: Globe, logiciel: Monitor, mobile: Smartphone, cybersecurite: Shield, erp: GraduationCap };
 const COLOR_MAP: Record<string, string> = { web: "#0099FF", logiciel: "#FF6B00", mobile: "#00C48C", cybersecurite: "#FF4757", erp: "#9B93FF", reseau: "#F59E0B" };
 
+type RawProject = {
+  _id: string;
+  category: string;
+  title: string;
+  client?: string;
+  description?: string;
+  results?: string[];
+  tech?: string[];
+  image?: string;
+  createdAt?: string;
+};
+
+type Project = RawProject & {
+  id: string;
+  year: string;
+  icon: LucideIcon;
+  color: string;
+  results: string[];
+  tech: string[];
+};
 
 export default function ProjetsPage() {
+  const { lang } = useApp();
+  const isFr = lang === "fr";
   const [activeCategory, setActiveCategory] = useState("Tous");
   const categories = ["Tous", "Site web", "Logiciel", "Application", "ERP", "Cybersécurité"];
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/projets`)
       .then(r => r.json())
       .then(r => {
-        setProjects((r.data || []).map((p: any) => ({
+        setProjects(((r.data || []) as RawProject[]).map((p) => ({
           ...p, id: p._id,
           icon: ICON_MAP[p.category] || Globe,
           color: COLOR_MAP[p.category] || "#0099FF",
           year: p.createdAt ? new Date(p.createdAt).getFullYear().toString() : "2025",
+          results: p.results || [],
+          tech: p.tech || [],
         })));
       })
       .catch(() => {});
@@ -60,15 +86,17 @@ export default function ProjetsPage() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 bg-[#0A1A3A] border border-[#0066FF] text-[#0099FF] text-xs tracking-[2px] px-4 py-1.5 rounded-full mb-6" style={{ boxShadow: "0 0 20px rgba(0,102,255,0.2)" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-[#00FF88] animate-pulse" />
-            NOTRE PORTFOLIO
+            {isFr ? "NOTRE PORTFOLIO" : "OUR PORTFOLIO"}
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-4xl md:text-6xl font-black leading-tight mb-6 tracking-tight">
-            Des projets{" "}
-            <motion.span animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }} transition={{ duration: 5, repeat: Infinity }} className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#00C48C]" style={{ backgroundSize: "200% 200%" }}>qui transforment</motion.span>
-            <br />des entreprises
+            {isFr ? "Des projets" : "Projects"}{" "}
+            <motion.span animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }} transition={{ duration: 5, repeat: Infinity }} className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#0099FF] to-[#00C48C]" style={{ backgroundSize: "200% 200%" }}>{isFr ? "qui transforment" : "that transform"}</motion.span>
+            <br />{isFr ? "des entreprises" : "businesses"}
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-[#8899BB] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Découvrez nos réalisations concrètes pour des clients satisfaits à Abidjan et partout en Côte d&apos;Ivoire.
+            {isFr
+              ? "Découvrez nos réalisations concrètes pour des clients satisfaits à Abidjan et partout en Côte d'Ivoire."
+              : "Discover concrete achievements delivered for happy clients in Abidjan and across Côte d'Ivoire."}
           </motion.p>
         </div>
       </section>
@@ -76,7 +104,12 @@ export default function ProjetsPage() {
       {/* STATS */}
       <section className="relative border-y border-[#1a2540] bg-[#080F20]/80 backdrop-blur py-10 px-6 z-10">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {[{ num: "50+", label: "PROJETS LIVRÉS", color: "#0099FF" },{ num: "30+", label: "CLIENTS SATISFAITS", color: "#FF6B00" },{ num: "6", label: "SECTEURS COUVERTS", color: "#00C48C" },{ num: "100%", label: "TAUX RÉUSSITE", color: "#9B93FF" }].map((s, i) => (
+          {[
+            { num: "50+", label: isFr ? "PROJETS LIVRÉS" : "PROJECTS DELIVERED", color: "#0099FF" },
+            { num: "30+", label: isFr ? "CLIENTS SATISFAITS" : "HAPPY CLIENTS", color: "#FF6B00" },
+            { num: "6", label: isFr ? "SECTEURS COUVERTS" : "SECTORS COVERED", color: "#00C48C" },
+            { num: "100%", label: isFr ? "TAUX RÉUSSITE" : "SUCCESS RATE", color: "#9B93FF" },
+          ].map((s, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
               <div className="text-4xl md:text-5xl font-black font-mono" style={{ color: s.color }}>{s.num}</div>
               <div className="text-[10px] text-[#8899BB] tracking-widest mt-1 font-mono">{s.label}</div>
@@ -91,7 +124,7 @@ export default function ProjetsPage() {
           {categories.map((cat) => (
             <motion.button key={cat} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setActiveCategory(cat)}
               className={`px-5 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-200 ${activeCategory === cat ? "bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.4)]" : "bg-[#0A1525] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] hover:text-white"}`}>
-              {cat}
+              {projectLabel(cat, lang)}
             </motion.button>
           ))}
         </div>
@@ -102,13 +135,13 @@ export default function ProjetsPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((project, i) => (
-              <Link href="/contact"><motion.div key={project.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${project.color}25` }} className="rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+              <Link href="/contact" key={project.id}><motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${project.color}25` }} className="rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <div className="relative h-44 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(135deg, ${project.color}30, ${project.color}08)` }}>
                   <div className="w-20 h-20 rounded-3xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110" style={{ backgroundColor: `${project.color}20`, border: `1px solid ${project.color}40`, boxShadow: `0 0 30px ${project.color}20` }}>
                     <project.icon className="w-10 h-10" style={{ color: project.color }} />
                   </div>
                   <div className="absolute top-3 right-3 backdrop-blur px-2 py-1 rounded font-mono text-[10px] font-bold" style={{ background: "var(--card)", color: project.color }}>{project.year}</div>
-                  <div className="absolute top-3 left-3 backdrop-blur px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ background: "var(--card)", color: "var(--text)" }}>{project.category}</div>
+                  <div className="absolute top-3 left-3 backdrop-blur px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ background: "var(--card)", color: "var(--text)" }}>{projectLabel(project.category, lang)}</div>
                 </div>
                 <div className="p-5">
                   <h3 className="text-lg font-black mb-1 group-hover:text-[#0099FF] transition-colors duration-200">{project.title}</h3>
@@ -131,7 +164,7 @@ export default function ProjetsPage() {
               </motion.div></Link>
             ))}
           </div>
-          {filtered.length === 0 && <div className="text-center py-12 text-[#8899BB]"><p>Aucun projet dans cette catégorie pour le moment.</p></div>}
+          {filtered.length === 0 && <div className="text-center py-12 text-[#8899BB]"><p>{isFr ? "Aucun projet dans cette catégorie pour le moment." : "No project in this category yet."}</p></div>}
         </div>
       </section>
 
@@ -140,12 +173,16 @@ export default function ProjetsPage() {
         <div className="max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-gradient-to-br from-[#0066FF]/20 via-[#0099FF]/10 to-[#00C48C]/10 border border-[#0066FF]/50 rounded-3xl p-8 md:p-12 backdrop-blur" style={{ boxShadow: "0 0 60px rgba(0,102,255,0.1)" }}>
             <div className="text-6xl text-[#0099FF] mb-4 font-mono">&ldquo;</div>
-            <p className="text-lg md:text-2xl text-white mb-6 leading-relaxed italic">SORA TECH a complètement transformé notre supermarché. En 3 mois seulement, nos ventes ont augmenté de 30% et nous gagnons un temps fou sur la gestion des stocks. Je recommande à 100% !</p>
+            <p className="text-lg md:text-2xl text-white mb-6 leading-relaxed italic">
+              {isFr
+                ? "SORA TECH a complètement transformé notre supermarché. En 3 mois seulement, nos ventes ont augmenté de 30% et nous gagnons un temps fou sur la gestion des stocks. Je recommande à 100% !"
+                : "SORA TECH completely transformed our supermarket. In only 3 months, sales increased by 30% and stock management saves us a huge amount of time. I recommend them 100%!"}
+            </p>
             <div className="flex items-center gap-4 pt-6 border-t border-[#1a2540]">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#FF6B00] to-[#0099FF] flex items-center justify-center text-lg font-black" style={{ boxShadow: "0 0 20px rgba(0,153,255,0.3)" }}>KK</div>
               <div>
                 <div className="text-base font-bold">Konan Kouassi</div>
-                <div className="text-xs">Directeur — Supermarché Abidjan</div>
+                <div className="text-xs">{isFr ? "Directeur — Supermarché Abidjan" : "Director — Abidjan Supermarket"}</div>
                 <div className="flex gap-0.5 mt-1">{[1,2,3,4,5].map(i => <span key={i} className="text-[#FFD700] text-xs">★</span>)}</div>
               </div>
             </div>
@@ -158,10 +195,10 @@ export default function ProjetsPage() {
         <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="max-w-3xl mx-auto bg-gradient-to-br from-[#0066FF]/20 via-[#0099FF]/10 to-[#FF6B00]/10 border border-[#0066FF]/50 rounded-3xl p-10 md:p-14 backdrop-blur relative overflow-hidden" style={{ boxShadow: "0 0 60px rgba(0,102,255,0.15)" }}>
           <ScanLine />
           <div className="relative z-10">
-            <h2 className="text-3xl md:text-5xl font-black mb-4">Votre projet sera le prochain</h2>
-            <p className="text-[#8899BB] mb-8">Rejoignez nos 30+ clients satisfaits. Devis gratuit et sans engagement.</p>
+            <h2 className="text-3xl md:text-5xl font-black mb-4">{isFr ? "Votre projet sera le prochain" : "Your project could be next"}</h2>
+            <p className="text-[#8899BB] mb-8">{isFr ? "Rejoignez nos 30+ clients satisfaits. Devis gratuit et sans engagement." : "Join 30+ happy clients. Free quote with no obligation."}</p>
             <div className="flex gap-4 justify-center flex-wrap">
-              <Link href="/devis"><motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">Démarrer mon projet</motion.button></Link>
+              <Link href="/devis"><motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">{isFr ? "Démarrer mon projet" : "Start my project"}</motion.button></Link>
               <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">💬 WhatsApp direct</motion.a>
             </div>
           </div>

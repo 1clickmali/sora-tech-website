@@ -9,6 +9,8 @@ import {
   CheckCircle, type LucideIcon
 } from "lucide-react";
 import Footer from "../components/Footer";
+import { useApp } from "../i18n/AppContext";
+import { productLabel } from "@/lib/i18nLabels";
 import { resolveMediaUrl } from "@/lib/media";
 import {
   PRODUCT_CATEGORIES,
@@ -57,12 +59,15 @@ function buildProduct(product: Omit<Product, "icon" | "color">): Product {
 }
 
 export default function BoutiquePage() {
+  const { lang, t } = useApp();
+  const b = t.boutique;
+  const isFr = lang === "fr";
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [activeSubcategory, setActiveSubcategory] = useState("Tous");
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<Product[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [sortBy, setSortBy] = useState("Populaire");
+  const [sortBy, setSortBy] = useState("popular");
   const [checkoutStep, setCheckoutStep] = useState(0);
   const [paymentMode, setPaymentMode] = useState<"online" | "cod" | null>(null);
   const [deliveryInfo, setDeliveryInfo] = useState({ name: "", phone: "", email: "", address: "", quartier: "" });
@@ -103,8 +108,8 @@ export default function BoutiquePage() {
   const filteredProducts = (activeCategory === "Tous" ? products : products.filter((p) => p.category === activeCategory))
     .filter((p) => activeSubcategory === "Tous" || p.subcategory === activeSubcategory);
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === "Prix croissant") return a.price - b.price;
-    if (sortBy === "Prix décroissant") return b.price - a.price;
+    if (sortBy === "price-asc") return a.price - b.price;
+    if (sortBy === "price-desc") return b.price - a.price;
     return 0;
   });
 
@@ -116,10 +121,10 @@ export default function BoutiquePage() {
   const cartSubtotal = cart.reduce((sum, item) => sum + item.price, 0);
   const deliveryFee = paymentMode === "cod" ? DELIVERY_FEE : 0;
   const cartTotal = cartSubtotal + deliveryFee;
-  const fmt = (n: number) => n.toLocaleString("fr-FR").replace(/,/g, " ");
+  const fmt = (n: number) => n.toLocaleString(lang === "fr" ? "fr-FR" : "en-US").replace(/,/g, " ");
 
   const getLocation = () => {
-    if (!navigator.geolocation) { setGeoError('Géolocalisation non supportée.'); return; }
+    if (!navigator.geolocation) { setGeoError(isFr ? 'Géolocalisation non supportée.' : 'Geolocation is not supported.'); return; }
     setGeoLoading(true);
     setGeoError('');
     navigator.geolocation.getCurrentPosition(
@@ -127,8 +132,8 @@ export default function BoutiquePage() {
         try {
           const { latitude, longitude } = pos.coords;
           const r = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=fr`,
-            { headers: { 'Accept-Language': 'fr' } }
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=${lang}`,
+            { headers: { 'Accept-Language': lang } }
           );
           const data = await r.json();
           const addr = data.address || {};
@@ -140,12 +145,12 @@ export default function BoutiquePage() {
             address: full || prev.address,
           }));
         } catch {
-          setGeoError('Impossible de déterminer votre adresse.');
+          setGeoError(isFr ? 'Impossible de déterminer votre adresse.' : 'Unable to determine your address.');
         } finally {
           setGeoLoading(false);
         }
       },
-      () => { setGeoError('Accès à la position refusé.'); setGeoLoading(false); },
+      () => { setGeoError(isFr ? 'Accès à la position refusé.' : 'Location access denied.'); setGeoLoading(false); },
       { timeout: 10000 }
     );
   };
@@ -202,7 +207,7 @@ export default function BoutiquePage() {
         className="fixed bottom-6 right-6 z-50 bg-[#0066FF] hover:bg-[#0099FF] transition px-5 py-3 rounded-2xl text-xs font-bold flex items-center gap-2"
         style={{ boxShadow: cart.length > 0 ? "0 0 30px rgba(0,102,255,0.6)" : "0 4px 20px rgba(0,0,0,0.4)" }}
       >
-        <ShoppingCart className="w-4 h-4" /> Panier
+        <ShoppingCart className="w-4 h-4" /> {isFr ? "Panier" : "Cart"}
         {cart.length > 0 && <span className="bg-[#FF6B00] text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-black">{cart.length}</span>}
       </motion.button>
 
@@ -213,16 +218,18 @@ export default function BoutiquePage() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 bg-[#0A1A3A] border border-[#FF6B00] text-[#FF6B00] text-xs tracking-[2px] px-4 py-1.5 rounded-full mb-6" style={{ boxShadow: "0 0 20px rgba(255,107,0,0.2)" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B00] animate-pulse" />
-            BOUTIQUE DIGITALE
+            {b.badge}
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-4xl md:text-6xl font-black leading-tight mb-6 tracking-tight">
-            Nos produits<br />
+            {isFr ? "Nos produits" : "Our products"}<br />
             <motion.span animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }} transition={{ duration: 5, repeat: Infinity }} className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#0099FF] to-[#00C48C]" style={{ backgroundSize: "200% 200%" }}>
-              prêts à l&apos;emploi
+              {isFr ? "prêts à l'emploi" : "ready to use"}
             </motion.span>
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-[#8899BB] text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Matériel et logiciels professionnels pour équiper, structurer et digitaliser votre entreprise plus vite.
+            {isFr
+              ? "Matériel et logiciels professionnels pour équiper, structurer et digitaliser votre entreprise plus vite."
+              : "Professional hardware and software to equip, structure and digitalize your business faster."}
           </motion.p>
         </div>
       </section>
@@ -230,7 +237,12 @@ export default function BoutiquePage() {
       {/* AVANTAGES */}
       <section className="relative border-y backdrop-blur py-8 px-6 z-10" style={{ background: "var(--bg2)", borderColor: "var(--border)" }}>
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          {[{ icon: Download, label: "Livraison instantanée", color: "#0099FF" },{ icon: ShoppingCart, label: "Mobile Money + Cash", color: "#FF6B00" },{ icon: Truck, label: "Livraison Abidjan 2500F", color: "#00C48C" },{ icon: Headphones, label: "Support 24/7", color: "#9B93FF" }].map((a, i) => (
+          {[
+            { icon: Download, label: isFr ? "Livraison instantanée" : "Instant delivery", color: "#0099FF" },
+            { icon: ShoppingCart, label: "Mobile Money + Cash", color: "#FF6B00" },
+            { icon: Truck, label: isFr ? "Livraison Abidjan 2500F" : "Abidjan delivery 2500F", color: "#00C48C" },
+            { icon: Headphones, label: "Support 24/7", color: "#9B93FF" },
+          ].map((a, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
               <div className="w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-2" style={{ backgroundColor: `${a.color}15`, border: `1px solid ${a.color}30` }}>
                 <a.icon className="w-5 h-5" style={{ color: a.color }} />
@@ -248,12 +260,14 @@ export default function BoutiquePage() {
             {categories.map((cat) => (
               <motion.button key={cat} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { setActiveCategory(cat); setActiveSubcategory("Tous"); }}
                 className={`px-5 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-200 ${activeCategory === cat ? "bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.4)]" : "bg-[#0A1525] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] hover:text-white"}`}>
-                {cat}
+                {productLabel(cat, lang)}
               </motion.button>
             ))}
           </div>
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="bg-[#0A1525] border border-[#1a2540] rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-[#0066FF] cursor-pointer transition-colors">
-            <option>Populaire</option><option>Prix croissant</option><option>Prix décroissant</option>
+            <option value="popular">{isFr ? "Populaire" : "Popular"}</option>
+            <option value="price-asc">{isFr ? "Prix croissant" : "Price: low to high"}</option>
+            <option value="price-desc">{isFr ? "Prix décroissant" : "Price: high to low"}</option>
           </select>
         </div>
         {subcategories.length > 0 && (
@@ -261,7 +275,7 @@ export default function BoutiquePage() {
             {["Tous", ...subcategories].map((subcategory) => (
               <motion.button key={subcategory} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={() => setActiveSubcategory(subcategory)}
                 className={`px-4 py-2 rounded-full text-[11px] font-bold tracking-wide transition-all duration-200 ${activeSubcategory === subcategory ? "bg-[#FF6B00] text-white shadow-[0_0_20px_rgba(255,107,0,0.35)]" : "bg-[#101B30] border border-[#1a2540] text-[#93A4C5] hover:border-[#FF6B00] hover:text-white"}`}>
-                {subcategory}
+                {productLabel(subcategory, lang)}
               </motion.button>
             ))}
           </div>
@@ -276,8 +290,10 @@ export default function BoutiquePage() {
               <div className="w-16 h-16 mx-auto rounded-2xl border flex items-center justify-center mb-4" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <ShoppingCart className="w-8 h-8 text-[#0099FF]" />
               </div>
-              <p className="font-bold mb-2" style={{ color: "var(--text)" }}>Aucun produit disponible</p>
-              <p className="text-sm" style={{ color: "var(--muted)" }}>Les produits seront affichés ici dès qu&apos;ils seront ajoutés.</p>
+              <p className="font-bold mb-2" style={{ color: "var(--text)" }}>{isFr ? "Aucun produit disponible" : "No products available"}</p>
+              <p className="text-sm" style={{ color: "var(--muted)" }}>
+                {isFr ? "Les produits seront affichés ici dès qu'ils seront ajoutés." : "Products will appear here as soon as they are added."}
+              </p>
             </div>
           )}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -292,9 +308,9 @@ export default function BoutiquePage() {
                     </div>
                   )}
                   {product.badge && <div className="absolute top-3 right-3 bg-[#FF6B00] text-white px-2 py-1 rounded text-[9px] font-black tracking-wider">{product.badge}</div>}
-                  <div className="absolute top-3 left-3 bg-[#060D1F]/80 backdrop-blur px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ color: product.color }}>{product.category}</div>
-                  <div className="absolute bottom-3 left-3 bg-[#060D1F]/80 backdrop-blur px-2 py-1 rounded text-[10px] font-medium border border-white/10">{product.subcategory}</div>
-                  {product.digital && <div className="absolute bottom-3 right-3 bg-[#00C48C]/20 border border-[#00C48C] text-[#00C48C] px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1"><Download className="w-2.5 h-2.5" /> DIGITAL</div>}
+                  <div className="absolute top-3 left-3 bg-[#060D1F]/80 backdrop-blur px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ color: product.color }}>{productLabel(product.category, lang)}</div>
+                  <div className="absolute bottom-3 left-3 bg-[#060D1F]/80 backdrop-blur px-2 py-1 rounded text-[10px] font-medium border border-white/10">{productLabel(product.subcategory, lang)}</div>
+                  {product.digital && <div className="absolute bottom-3 right-3 bg-[#00C48C]/20 border border-[#00C48C] text-[#00C48C] px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1"><Download className="w-2.5 h-2.5" /> {isFr ? "DIGITAL" : "DIGITAL"}</div>}
                 </div>
                 <div className="p-5">
                   <h3 className="text-base font-bold mb-2 group-hover:text-[#0099FF] transition-colors duration-200">{product.title}</h3>
@@ -308,11 +324,11 @@ export default function BoutiquePage() {
                   </div>
                   <div className="flex items-center justify-between pt-3 border-t border-[#1a2540]">
                     <div>
-                      <div className="text-[10px] text-[#8899BB]">À partir de</div>
+                      <div className="text-[10px] text-[#8899BB]">{isFr ? "À partir de" : "From"}</div>
                       <div className="text-xl font-black font-mono" style={{ color: product.color }}>{fmt(product.price)} F</div>
                     </div>
                     <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => addToCart(product)} className="px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5" style={{ backgroundColor: product.color, color: "#fff" }}>
-                      <ShoppingCart className="w-3 h-3" /> Panier
+                      <ShoppingCart className="w-3 h-3" /> {isFr ? "Panier" : "Cart"}
                     </motion.button>
                   </div>
                 </div>
@@ -330,9 +346,17 @@ export default function BoutiquePage() {
             <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25 }} className="fixed right-0 top-0 bottom-0 w-full sm:w-[480px] bg-[#060D1F] border-l border-[#1a2540] z-[101] flex flex-col" style={{ boxShadow: "-10px 0 50px rgba(0,0,0,0.5)" }}>
               <div className="flex items-center justify-between p-6 border-b border-[#1a2540]">
                 <div>
-                  {checkoutStep > 0 && !orderSuccess && (<motion.button onClick={() => setCheckoutStep(checkoutStep - 1)} whileHover={{ x: -3 }} whileTap={{ scale: 0.95 }} className="text-xs text-[#0099FF] mb-1 block">← Retour</motion.button>)}
+                  {checkoutStep > 0 && !orderSuccess && (<motion.button onClick={() => setCheckoutStep(checkoutStep - 1)} whileHover={{ x: -3 }} whileTap={{ scale: 0.95 }} className="text-xs text-[#0099FF] mb-1 block">{isFr ? "← Retour" : "← Back"}</motion.button>)}
                   <h3 className="text-lg font-black">
-                    {orderSuccess ? "✅ Commande confirmée !" : checkoutStep === 0 ? `🛒 Votre panier (${cart.length})` : checkoutStep === 1 ? "💳 Mode de paiement" : checkoutStep === 2 ? "📝 Vos informations" : "✓ Récapitulatif"}
+                    {orderSuccess
+                      ? (isFr ? "✅ Commande confirmée !" : "✅ Order confirmed!")
+                      : checkoutStep === 0
+                        ? `🛒 ${isFr ? "Votre panier" : "Your cart"} (${cart.length})`
+                        : checkoutStep === 1
+                          ? (isFr ? "💳 Mode de paiement" : "💳 Payment method")
+                          : checkoutStep === 2
+                            ? (isFr ? "📝 Vos informations" : "📝 Your information")
+                            : (isFr ? "✓ Récapitulatif" : "✓ Summary")}
                   </h3>
                 </div>
                 <motion.button onClick={() => { setCartOpen(false); resetCheckout(); }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="w-9 h-9 flex items-center justify-center bg-[#0A1525] border border-[#1a2540] rounded-xl hover:border-[#FF4757] transition">
@@ -344,10 +368,12 @@ export default function BoutiquePage() {
                 {orderSuccess && (
                   <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
                     <div className="text-7xl mb-4">🎉</div>
-                    <h4 className="text-xl font-black mb-3">Commande validée !</h4>
-                    <p className="text-sm text-[#8899BB] mb-4">Confirmation envoyée par email et WhatsApp à <span className="text-[#0099FF] font-bold">{deliveryInfo.phone}</span></p>
-                    <div className="bg-[#00C48C]/10 border border-[#00C48C] rounded-xl p-4 text-left mb-3"><div className="text-xs text-[#00C48C] font-bold mb-2">📧 Email envoyé</div><div className="text-xs text-[#8899BB]">📎 Facture PDF · 📎 Reçu de paiement</div></div>
-                    <div className="bg-[#25D366]/10 border border-[#25D366] rounded-xl p-4 text-left"><div className="text-xs text-[#25D366] font-bold mb-2">💬 WhatsApp envoyé</div><div className="text-xs text-[#8899BB]">Confirmation avec suivi de commande</div></div>
+                    <h4 className="text-xl font-black mb-3">{isFr ? "Commande validée !" : "Order placed!"}</h4>
+                    <p className="text-sm text-[#8899BB] mb-4">
+                      {isFr ? "Confirmation envoyée par email et WhatsApp à" : "Confirmation sent by email and WhatsApp to"} <span className="text-[#0099FF] font-bold">{deliveryInfo.phone}</span>
+                    </p>
+                    <div className="bg-[#00C48C]/10 border border-[#00C48C] rounded-xl p-4 text-left mb-3"><div className="text-xs text-[#00C48C] font-bold mb-2">📧 {isFr ? "Email envoyé" : "Email sent"}</div><div className="text-xs text-[#8899BB]">📎 {isFr ? "Facture PDF · Reçu de paiement" : "PDF invoice · Payment receipt"}</div></div>
+                    <div className="bg-[#25D366]/10 border border-[#25D366] rounded-xl p-4 text-left"><div className="text-xs text-[#25D366] font-bold mb-2">💬 {isFr ? "WhatsApp envoyé" : "WhatsApp sent"}</div><div className="text-xs text-[#8899BB]">{isFr ? "Confirmation avec suivi de commande" : "Confirmation with order tracking"}</div></div>
                   </motion.div>
                 )}
 
@@ -355,7 +381,7 @@ export default function BoutiquePage() {
                   cart.length === 0 ? (
                     <div className="text-center py-12">
                       <div className="w-20 h-20 mx-auto rounded-3xl bg-[#0A1525] border border-[#1a2540] flex items-center justify-center mb-4"><ShoppingCart className="w-10 h-10 text-[#8899BB]" /></div>
-                      <p className="text-[#8899BB]">Votre panier est vide</p>
+                      <p className="text-[#8899BB]">{b.cartEmpty}</p>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -367,7 +393,7 @@ export default function BoutiquePage() {
                           <div className="flex-1 min-w-0">
                             <div className="text-sm font-bold truncate">{item.title}</div>
                             <div className="text-xs font-bold font-mono" style={{ color: item.color }}>{fmt(item.price)} FCFA</div>
-                            {item.digital && <div className="text-[10px] text-[#00C48C] mt-0.5 flex items-center gap-1"><Download className="w-2.5 h-2.5" /> Produit digital</div>}
+                            {item.digital && <div className="text-[10px] text-[#00C48C] mt-0.5 flex items-center gap-1"><Download className="w-2.5 h-2.5" /> {isFr ? "Produit digital" : "Digital product"}</div>}
                           </div>
                           <button onClick={() => removeFromCart(item.id)} className="text-[#FF4757] hover:bg-[#FF4757]/10 w-8 h-8 rounded-lg flex items-center justify-center transition">
                             <Trash2 className="w-4 h-4" />
@@ -380,14 +406,14 @@ export default function BoutiquePage() {
 
                 {!orderSuccess && checkoutStep === 1 && (
                   <div className="space-y-3">
-                    <p className="text-xs text-[#8899BB] mb-4">Choisissez votre mode de paiement préféré :</p>
+                    <p className="text-xs text-[#8899BB] mb-4">{isFr ? "Choisissez votre mode de paiement préféré :" : "Choose your preferred payment method:"}</p>
                     <motion.div whileHover={{ scale: 1.02 }} onClick={() => setPaymentMode("online")} className={`border rounded-xl p-5 cursor-pointer transition-all ${paymentMode === "online" ? "border-[#0066FF] bg-[#0066FF]/10" : "border-[#1a2540] bg-[#0A1525]"}`}>
                       <div className="flex items-start gap-3">
                         <div className="text-3xl">💳</div>
                         <div className="flex-1">
-                          <div className="font-bold text-sm mb-1 flex items-center gap-2">Paiement en ligne <span className="text-[9px] bg-[#00C48C] text-white px-2 py-0.5 rounded-full font-black">RECOMMANDÉ</span></div>
-                          <div className="text-xs text-[#8899BB] mb-2">Wave, Orange Money, MTN Money, carte bancaire</div>
-                          <div className="text-xs text-[#00C48C] font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Livraison gratuite + Accès immédiat</div>
+                          <div className="font-bold text-sm mb-1 flex items-center gap-2">{isFr ? "Paiement en ligne" : "Online payment"} <span className="text-[9px] bg-[#00C48C] text-white px-2 py-0.5 rounded-full font-black">{isFr ? "RECOMMANDÉ" : "RECOMMENDED"}</span></div>
+                          <div className="text-xs text-[#8899BB] mb-2">Wave, Orange Money, MTN Money, {isFr ? "carte bancaire" : "bank card"}</div>
+                          <div className="text-xs text-[#00C48C] font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3" /> {isFr ? "Livraison gratuite + Accès immédiat" : "Free delivery + instant access"}</div>
                         </div>
                       </div>
                     </motion.div>
@@ -395,10 +421,10 @@ export default function BoutiquePage() {
                       <div className="flex items-start gap-3">
                         <Truck className="w-8 h-8 text-[#FF6B00] mt-1 flex-shrink-0" />
                         <div className="flex-1">
-                          <div className="font-bold text-sm mb-1">Paiement à la livraison</div>
-                          <div className="text-xs text-[#8899BB] mb-2">Cash ou Mobile Money au livreur</div>
-                          <div className="text-xs text-[#FF6B00] font-bold">+ 2 500 FCFA frais de livraison</div>
-                          <div className="text-[10px] text-[#8899BB] mt-1">📍 Uniquement à Abidjan · Livraison en 24-48h</div>
+                          <div className="font-bold text-sm mb-1">{isFr ? "Paiement à la livraison" : "Cash on delivery"}</div>
+                          <div className="text-xs text-[#8899BB] mb-2">{isFr ? "Cash ou Mobile Money au livreur" : "Cash or Mobile Money to the delivery agent"}</div>
+                          <div className="text-xs text-[#FF6B00] font-bold">+ 2 500 FCFA {isFr ? "frais de livraison" : "delivery fee"}</div>
+                          <div className="text-[10px] text-[#8899BB] mt-1">📍 {isFr ? "Uniquement à Abidjan · Livraison en 24-48h" : "Abidjan only · Delivery in 24-48h"}</div>
                         </div>
                       </div>
                     </motion.div>
@@ -408,9 +434,9 @@ export default function BoutiquePage() {
                 {!orderSuccess && checkoutStep === 2 && (
                   <div className="space-y-3">
                     {[
-                      { label: "Nom complet *", key: "name", type: "text", ph: "Kofi Mensah" },
-                      { label: "Téléphone WhatsApp *", key: "phone", type: "tel", ph: "+225 07 00 00 00" },
-                      { label: "Email (pour recevoir votre facture)", key: "email", type: "email", ph: "kofi@gmail.com" },
+                      { label: isFr ? "Nom complet *" : "Full name *", key: "name", type: "text", ph: "Kofi Mensah" },
+                      { label: isFr ? "Téléphone WhatsApp *" : "WhatsApp phone *", key: "phone", type: "tel", ph: "+225 07 00 00 00" },
+                      { label: isFr ? "Email (pour recevoir votre facture)" : "Email (to receive your invoice)", key: "email", type: "email", ph: "kofi@gmail.com" },
                     ].map(f => (
                       <div key={f.key}>
                         <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold">{f.label}</label>
@@ -425,21 +451,21 @@ export default function BoutiquePage() {
                             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition"
                             style={{ background: geoLoading ? '#1a2540' : '#0066FF20', color: geoLoading ? '#64748B' : '#0099FF', border: '1px solid #0066FF40' }}>
                             {geoLoading
-                              ? <><span className="w-3 h-3 border border-cyan-400 border-t-transparent rounded-full animate-spin inline-block" /> Localisation...</>
-                              : '📍 Utiliser ma position GPS'}
+                              ? <><span className="w-3 h-3 border border-cyan-400 border-t-transparent rounded-full animate-spin inline-block" /> {isFr ? "Localisation..." : "Locating..."}</>
+                              : (isFr ? '📍 Utiliser ma position GPS' : '📍 Use my GPS location')}
                           </button>
                           {geoError && <span className="text-xs text-red-400">{geoError}</span>}
                         </div>
                         <div>
-                          <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold">Quartier *</label>
+                          <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold">{isFr ? "Quartier *" : "District *"}</label>
                           <select value={deliveryInfo.quartier} onChange={(e) => setDeliveryInfo({...deliveryInfo, quartier: e.target.value})} className="w-full mt-1 bg-[#0A1525] border border-[#1a2540] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0066FF] cursor-pointer">
-                            <option value="">Sélectionnez...</option>
+                            <option value="">{isFr ? "Sélectionnez..." : "Select..."}</option>
                             {["Cocody","Plateau","Marcory","Treichville","Yopougon","Abobo","Adjamé","Riviera","Angré","Port-Bouët","Koumassi","Autre"].map(q => <option key={q}>{q}</option>)}
                           </select>
                         </div>
                         <div>
-                          <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold">Adresse précise *</label>
-                          <textarea value={deliveryInfo.address} onChange={(e) => setDeliveryInfo({...deliveryInfo, address: e.target.value})} placeholder="Ex: Rue des jardins, près de la pharmacie du coin..." rows={3} className="w-full mt-1 bg-[#0A1525] border border-[#1a2540] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0066FF] resize-none" />
+                          <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold">{isFr ? "Adresse précise *" : "Precise address *"}</label>
+                          <textarea value={deliveryInfo.address} onChange={(e) => setDeliveryInfo({...deliveryInfo, address: e.target.value})} placeholder={isFr ? "Ex: Rue des jardins, près de la pharmacie du coin..." : "Ex: Garden street, near the corner pharmacy..."} rows={3} className="w-full mt-1 bg-[#0A1525] border border-[#1a2540] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0066FF] resize-none" />
                         </div>
                       </>
                     )}
@@ -449,7 +475,7 @@ export default function BoutiquePage() {
                 {!orderSuccess && checkoutStep === 3 && (
                   <div className="space-y-4">
                     <div className="bg-[#0A1525] border border-[#1a2540] rounded-xl p-4">
-                      <div className="text-xs text-[#8899BB] font-bold mb-3 uppercase tracking-wider font-mono">Articles commandés</div>
+                      <div className="text-xs text-[#8899BB] font-bold mb-3 uppercase tracking-wider font-mono">{isFr ? "Articles commandés" : "Ordered items"}</div>
                       {cart.map((item, i) => (
                         <div key={i} className="flex justify-between items-center py-2 border-b border-[#1a2540] last:border-0">
                           <div className="flex items-center gap-2">
@@ -463,11 +489,11 @@ export default function BoutiquePage() {
                       ))}
                     </div>
                     <div className="bg-[#0A1525] border border-[#1a2540] rounded-xl p-4">
-                      <div className="text-xs text-[#8899BB] font-bold mb-2 uppercase tracking-wider font-mono">Paiement</div>
-                      <div className="text-sm">{paymentMode === "online" ? "💳 Paiement en ligne" : "🚚 Paiement à la livraison"}</div>
+                      <div className="text-xs text-[#8899BB] font-bold mb-2 uppercase tracking-wider font-mono">{isFr ? "Paiement" : "Payment"}</div>
+                      <div className="text-sm">{paymentMode === "online" ? (isFr ? "💳 Paiement en ligne" : "💳 Online payment") : (isFr ? "🚚 Paiement à la livraison" : "🚚 Cash on delivery")}</div>
                     </div>
                     <div className="bg-[#0A1525] border border-[#1a2540] rounded-xl p-4">
-                      <div className="text-xs text-[#8899BB] font-bold mb-2 uppercase tracking-wider font-mono">Client</div>
+                      <div className="text-xs text-[#8899BB] font-bold mb-2 uppercase tracking-wider font-mono">{isFr ? "Client" : "Customer"}</div>
                       <div className="text-sm">{deliveryInfo.name}</div>
                       <div className="text-xs text-[#8899BB]">{deliveryInfo.phone}</div>
                       {deliveryInfo.email && <div className="text-xs text-[#8899BB]">✉️ {deliveryInfo.email}</div>}
@@ -480,22 +506,22 @@ export default function BoutiquePage() {
               {cart.length > 0 && !orderSuccess && (
                 <div className="p-6 border-t border-[#1a2540] bg-[#060D1F]">
                   <div className="space-y-1 mb-4">
-                    <div className="flex justify-between text-xs text-[#8899BB]"><span>Sous-total</span><span className="font-mono">{fmt(cartSubtotal)} FCFA</span></div>
-                    {deliveryFee > 0 && <div className="flex justify-between text-xs text-[#FF6B00]"><span>🚚 Livraison Abidjan</span><span className="font-mono">+ {fmt(deliveryFee)} FCFA</span></div>}
+                    <div className="flex justify-between text-xs text-[#8899BB]"><span>{isFr ? "Sous-total" : "Subtotal"}</span><span className="font-mono">{fmt(cartSubtotal)} FCFA</span></div>
+                    {deliveryFee > 0 && <div className="flex justify-between text-xs text-[#FF6B00]"><span>🚚 {isFr ? "Livraison Abidjan" : "Abidjan delivery"}</span><span className="font-mono">+ {fmt(deliveryFee)} FCFA</span></div>}
                     <div className="flex justify-between items-center pt-2 border-t border-[#1a2540]">
-                      <span className="text-sm font-bold">Total</span>
+                      <span className="text-sm font-bold">{b.total}</span>
                       <span className="text-2xl font-black text-[#0099FF] font-mono">{fmt(cartTotal)} FCFA</span>
                     </div>
                   </div>
-                  {checkoutStep === 0 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setCheckoutStep(1)} className="w-full bg-[#0066FF] py-3.5 rounded-xl font-bold text-sm">Commander →</motion.button>}
-                  {checkoutStep === 1 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => paymentMode && setCheckoutStep(2)} disabled={!paymentMode} className={`w-full py-3.5 rounded-xl font-bold text-sm transition ${paymentMode ? "bg-[#0066FF]" : "bg-[#1a2540] text-[#8899BB] cursor-not-allowed"}`}>Continuer →</motion.button>}
-                  {checkoutStep === 2 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { if (deliveryInfo.name && deliveryInfo.phone && (paymentMode === "online" || (deliveryInfo.quartier && deliveryInfo.address))) setCheckoutStep(3); }} className="w-full bg-[#0066FF] py-3.5 rounded-xl font-bold text-sm">Vérifier la commande →</motion.button>}
+                  {checkoutStep === 0 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setCheckoutStep(1)} className="w-full bg-[#0066FF] py-3.5 rounded-xl font-bold text-sm">{isFr ? "Commander →" : "Order →"}</motion.button>}
+                  {checkoutStep === 1 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => paymentMode && setCheckoutStep(2)} disabled={!paymentMode} className={`w-full py-3.5 rounded-xl font-bold text-sm transition ${paymentMode ? "bg-[#0066FF]" : "bg-[#1a2540] text-[#8899BB] cursor-not-allowed"}`}>{isFr ? "Continuer →" : "Continue →"}</motion.button>}
+                  {checkoutStep === 2 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { if (deliveryInfo.name && deliveryInfo.phone && (paymentMode === "online" || (deliveryInfo.quartier && deliveryInfo.address))) setCheckoutStep(3); }} className="w-full bg-[#0066FF] py-3.5 rounded-xl font-bold text-sm">{isFr ? "Vérifier la commande →" : "Review order →"}</motion.button>}
                   {checkoutStep === 3 && (
                     <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                       onClick={confirmOrder}
                       disabled={orderLoading}
                       className={`w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition ${paymentMode === "online" ? "bg-[#0066FF]" : "bg-[#FF6B00]"} ${orderLoading ? "opacity-70 cursor-not-allowed" : ""}`}>
-                      {orderLoading ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Traitement...</> : paymentMode === "online" ? "💳 Payer maintenant" : "✓ Confirmer la commande"}
+                      {orderLoading ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{isFr ? "Traitement..." : "Processing..."}</> : paymentMode === "online" ? (isFr ? "💳 Payer maintenant" : "💳 Pay now") : (isFr ? "✓ Confirmer la commande" : "✓ Confirm order")}
                     </motion.button>
                   )}
                 </div>
@@ -508,7 +534,11 @@ export default function BoutiquePage() {
       {/* GARANTIE */}
       <section className="relative py-16 px-6 z-10">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-4">
-          {[{ icon: CheckCircle, title: "Garantie & support", desc: "Assistance incluse sur nos logiciels et équipements sélectionnés", color: "#00C48C" },{ icon: RotateCcw, title: "Satisfait ou remboursé", desc: "14 jours pour changer d'avis selon le produit commandé", color: "#0099FF" },{ icon: Truck, title: "Livraison Abidjan", desc: "24-48h pour les produits physiques · 2500 FCFA", color: "#FF6B00" }].map((g, i) => (
+          {[
+            { icon: CheckCircle, title: isFr ? "Garantie & support" : "Warranty & support", desc: isFr ? "Assistance incluse sur nos logiciels et équipements sélectionnés" : "Support included on selected software and equipment", color: "#00C48C" },
+            { icon: RotateCcw, title: isFr ? "Satisfait ou remboursé" : "Satisfied or refunded", desc: isFr ? "14 jours pour changer d'avis selon le produit commandé" : "14 days to change your mind depending on the ordered product", color: "#0099FF" },
+            { icon: Truck, title: isFr ? "Livraison Abidjan" : "Abidjan delivery", desc: isFr ? "24-48h pour les produits physiques · 2500 FCFA" : "24-48h for physical products · 2500 FCFA", color: "#FF6B00" },
+          ].map((g, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="rounded-2xl p-6 text-center border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
               <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: `${g.color}15`, border: `1px solid ${g.color}30` }}>
                 <g.icon className="w-6 h-6" style={{ color: g.color }} />
@@ -525,10 +555,10 @@ export default function BoutiquePage() {
         <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="max-w-3xl mx-auto bg-gradient-to-br from-[#FF6B00]/20 via-[#0099FF]/10 to-[#00C48C]/10 border border-[#FF6B00]/50 rounded-3xl p-10 md:p-14 backdrop-blur relative overflow-hidden">
           <ScanLine />
           <div className="relative z-10">
-            <h2 className="text-3xl md:text-5xl font-black mb-4">Besoin d&apos;une solution personnalisée ?</h2>
-            <p className="text-[#8899BB] mb-8">Pas trouvé ce que vous cherchez ? Nous créons des solutions sur mesure</p>
+            <h2 className="text-3xl md:text-5xl font-black mb-4">{isFr ? "Besoin d'une solution personnalisée ?" : "Need a custom solution?"}</h2>
+            <p className="text-[#8899BB] mb-8">{isFr ? "Pas trouvé ce que vous cherchez ? Nous créons des solutions sur mesure" : "Didn't find what you need? We build custom solutions"}</p>
             <div className="flex gap-4 justify-center flex-wrap">
-              <Link href="/devis"><motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">Demander un devis</motion.button></Link>
+              <Link href="/devis"><motion.button whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,102,255,0.5)" }} whileTap={{ scale: 0.95 }} className="bg-[#0066FF] px-8 py-3.5 rounded-xl font-bold text-sm">{isFr ? "Demander un devis" : "Request a quote"}</motion.button></Link>
               <motion.a href="https://wa.me/2250704928068" target="_blank" rel="noopener" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#25D366] px-8 py-3.5 rounded-xl font-bold text-sm">💬 WhatsApp direct</motion.a>
             </div>
           </div>
