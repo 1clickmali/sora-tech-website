@@ -68,6 +68,15 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // L'admin est toujours en dark mode — le thème public (light/dark) ne doit pas s'appliquer ici
+  useEffect(() => {
+    const prev = document.documentElement.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme', 'dark');
+    return () => {
+      if (prev) document.documentElement.setAttribute('data-theme', prev);
+    };
+  }, []);
+
   useEffect(() => {
     if (!loading && !user && pathname !== '/admin/login') {
       const hasToken = typeof window !== 'undefined' && localStorage.getItem('sora_token');
@@ -86,7 +95,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#060D1F', color: '#E2E8F0' }}>
+    <div className="admin-shell flex h-screen overflow-hidden" style={{ background: '#060D1F', color: '#E2E8F0' }}>
 
       {/* ── Desktop sidebar ── */}
       <aside className="hidden lg:flex w-56 flex-shrink-0 flex-col" style={{ background: '#0B1628', borderRight: '1px solid #1E2D4A' }}>

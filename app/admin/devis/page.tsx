@@ -4,11 +4,24 @@ import { api } from '@/lib/api';
 
 interface Devis {
   _id: string; reference: string; clientName: string; clientEmail: string;
-  clientPhone: string; serviceType: string; description: string;
-  budget: string; status: string; createdAt: string;
+  clientPhone: string; clientCompany?: string; serviceType: string;
+  message?: string; complexity?: number; modules?: number;
+  options?: Record<string, boolean>; estimatedPrice?: number;
+  estimatedDays?: number; rdvDate?: string; rdvSlot?: string;
+  status: string; createdAt: string;
 }
 
 const STATUTS = ['nouveau', 'contacte', 'accepte', 'refuse', 'complete'];
+const SERVICE_LABEL: Record<string, string> = {
+  web: 'Site web', soft: 'Logiciel gestion', app: 'App mobile',
+  erp: 'ERP complet', cyber: 'Cybersécurité', maint: 'Maintenance',
+};
+const OPTION_LABEL: Record<string, string> = {
+  mm: 'Paiement Mobile Money', multi: 'Multilingue (FR/EN)',
+  client: 'Espace client sécurisé', seo: 'SEO avancé',
+  wa: 'Chat WhatsApp', form: 'Formation équipe (4h)',
+};
+const fmtPrice = (n?: number) => n ? new Intl.NumberFormat('fr-FR').format(n) + ' FCFA' : '—';
 const STATUS_LABEL: Record<string, string> = {
   nouveau: 'Nouveau', contacte: 'Contacté', accepte: 'Accepté', refuse: 'Refusé', complete: 'Complété',
 };
@@ -125,8 +138,8 @@ export default function DevisPage() {
                     <div className="text-white font-medium">{d.clientName}</div>
                     <div className="text-xs text-gray-400">{d.clientEmail}</div>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-400 capitalize">{d.serviceType}</td>
-                  <td className="px-4 py-3 text-xs text-gray-300">{d.budget || '—'}</td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{SERVICE_LABEL[d.serviceType] || d.serviceType}</td>
+                  <td className="px-4 py-3 text-xs text-gray-300 font-mono">{fmtPrice(d.estimatedPrice)}</td>
                   <td className="px-4 py-3">
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold"
                       style={{ background: STATUS_COLOR[d.status] + '22', color: STATUS_COLOR[d.status] }}>
@@ -197,6 +210,7 @@ export default function DevisPage() {
             </div>
 
             <div className="p-6 space-y-5">
+              {/* Client */}
               <section>
                 <h3 className="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3">👤 Informations client</h3>
                 <div className="rounded-xl p-4" style={{ background: '#060D1F', border: '1px solid #1E2D4A' }}>
@@ -218,25 +232,88 @@ export default function DevisPage() {
                       <div className="text-[10px] text-gray-500 uppercase mb-0.5">Email</div>
                       <div className="text-sm text-white">{selected.clientEmail}</div>
                     </div>
-                    <div>
-                      <div className="text-[10px] text-gray-500 uppercase mb-0.5">Service</div>
-                      <div className="text-sm text-white capitalize">{selected.serviceType}</div>
-                    </div>
+                    {selected.clientCompany && (
+                      <div>
+                        <div className="text-[10px] text-gray-500 uppercase mb-0.5">Entreprise</div>
+                        <div className="text-sm text-white">{selected.clientCompany}</div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </section>
 
+              {/* RDV */}
+              {(selected.rdvDate || selected.rdvSlot) && (
+                <section>
+                  <h3 className="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3">📅 Rendez-vous</h3>
+                  <div className="rounded-xl p-4 flex items-center gap-6" style={{ background: '#060D1F', border: '1px solid #1E2D4A' }}>
+                    <div>
+                      <div className="text-[10px] text-gray-500 uppercase mb-0.5">Date</div>
+                      <div className="text-sm text-white font-semibold">{selected.rdvDate || '—'}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-gray-500 uppercase mb-0.5">Heure</div>
+                      <div className="text-sm text-cyan-400 font-mono font-bold">{selected.rdvSlot || '—'}</div>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* Devis details */}
               <section>
                 <h3 className="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3">📋 Détails du devis</h3>
-                <div className="rounded-xl p-4" style={{ background: '#060D1F', border: '1px solid #1E2D4A' }}>
-                  <div>
-                    <div className="text-[10px] text-gray-500 uppercase mb-1">Budget estimé</div>
-                    <div className="text-sm text-white font-semibold">{selected.budget || 'Non précisé'}</div>
+                <div className="rounded-xl p-4 space-y-3" style={{ background: '#060D1F', border: '1px solid #1E2D4A' }}>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-[10px] text-gray-500 uppercase mb-0.5">Service</div>
+                      <div className="text-sm text-white">{SERVICE_LABEL[selected.serviceType] || selected.serviceType}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-gray-500 uppercase mb-0.5">Prix estimé</div>
+                      <div className="text-sm text-cyan-400 font-bold font-mono">{fmtPrice(selected.estimatedPrice)}</div>
+                    </div>
+                    {selected.complexity && (
+                      <div>
+                        <div className="text-[10px] text-gray-500 uppercase mb-0.5">Complexité</div>
+                        <div className="text-sm text-white">{(['Simple', 'Moyen', 'Complexe'])[selected.complexity - 1] || selected.complexity}</div>
+                      </div>
+                    )}
+                    {selected.modules && (
+                      <div>
+                        <div className="text-[10px] text-gray-500 uppercase mb-0.5">Modules</div>
+                        <div className="text-sm text-white">{selected.modules} module{selected.modules > 1 ? 's' : ''}</div>
+                      </div>
+                    )}
+                    {selected.estimatedDays && (
+                      <div>
+                        <div className="text-[10px] text-gray-500 uppercase mb-0.5">Délai estimé</div>
+                        <div className="text-sm text-white">{selected.estimatedDays} jours</div>
+                      </div>
+                    )}
                   </div>
-                  <div className="mt-3 pt-3 border-t" style={{ borderColor: '#1E2D4A' }}>
-                    <div className="text-[10px] text-gray-500 uppercase mb-1">Description</div>
-                    <p className="text-sm text-gray-300 leading-relaxed">{selected.description}</p>
-                  </div>
+
+                  {/* Options choisies */}
+                  {selected.options && Object.entries(selected.options).some(([, v]) => v) && (
+                    <div className="pt-3 border-t" style={{ borderColor: '#1E2D4A' }}>
+                      <div className="text-[10px] text-gray-500 uppercase mb-2">Options sélectionnées</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {Object.entries(selected.options).filter(([, v]) => v).map(([k]) => (
+                          <span key={k} className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                            style={{ background: '#00E5FF18', color: '#00E5FF', border: '1px solid #00E5FF40' }}>
+                            {OPTION_LABEL[k] || k}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Message */}
+                  {selected.message && (
+                    <div className="pt-3 border-t" style={{ borderColor: '#1E2D4A' }}>
+                      <div className="text-[10px] text-gray-500 uppercase mb-1">Message du client</div>
+                      <p className="text-sm text-gray-300 leading-relaxed">{selected.message}</p>
+                    </div>
+                  )}
                 </div>
               </section>
 

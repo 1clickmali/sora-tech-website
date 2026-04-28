@@ -27,14 +27,15 @@ interface Specs {
 interface Produit {
   _id: string; title: string; description: string; price: number;
   category: string; subcategory: string; stock: number; active: boolean;
-  image?: string; badge?: string; digital: boolean; features: string[];
+  image?: string; images?: string[]; video?: string;
+  badge?: string; digital: boolean; features: string[];
   specs?: Partial<Specs>;
 }
 
 type ProduitForm = {
   title: string; description: string; price: number;
   category: string; subcategory: string; stock: number; active: boolean;
-  digital: boolean; badge: string; image: string; features: string[];
+  digital: boolean; badge: string; images: string[]; video: string; features: string[];
   specs: Specs;
 };
 
@@ -46,7 +47,7 @@ const EMPTY_SPECS: Specs = {
 const EMPTY: ProduitForm = {
   title: '', description: '', price: 0,
   category: 'Logiciel', subcategory: DEFAULT_SUBCATEGORY.Logiciel,
-  stock: -1, active: true, digital: true, badge: '', image: '',
+  stock: -1, active: true, digital: true, badge: '', images: [], video: '',
   features: [], specs: { ...EMPTY_SPECS },
 };
 
@@ -174,10 +175,12 @@ export default function ProduitsPage() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [filterCat, setFilterCat] = useState('Tous');
   const [filterSubcategory, setFilterSubcategory] = useState('Tous');
   const [search, setSearch] = useState('');
+  const [imageUrlInput, setImageUrlInput] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = () =>
@@ -191,12 +194,35 @@ export default function ProduitsPage() {
   const formSubcategories = getSubcategoriesForCategory(form.category);
   const specFields = SPEC_FIELDS[form.subcategory] || [];
 
-  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // ── Image upload ──
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setForm((prev) => ({ ...prev, image: (ev.target?.result as string) || '' }));
-    reader.readAsDataURL(file);
+    if (form.images.length >= 5) { setError('Maximum 5 photos par produit.'); return; }
+    setUploading(true); setError('');
+    try {
+      const fd = new FormData();
+      fd.append('image', file);
+      const result = await api.upload('/api/upload/image', fd);
+      setForm(prev => ({ ...prev, images: [...prev.images, result.url] }));
+    } catch (err: unknown) {
+      setError(getErrorMessage(err));
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
+  const addImageUrl = () => {
+    const url = imageUrlInput.trim();
+    if (!url) return;
+    if (form.images.length >= 5) { setError('Maximum 5 photos par produit.'); return; }
+    setForm(prev => ({ ...prev, images: [...prev.images, url] }));
+    setImageUrlInput('');
+  };
+
+  const removeImage = (idx: number) => {
+    setForm(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }));
   };
 
   const handleCategoryChange = (category: string) => {
@@ -224,19 +250,22 @@ export default function ProduitsPage() {
         ? form.features.filter(Boolean)
         : String(form.features || '').split('\n').map((l) => l.trim()).filter(Boolean);
 
+      const images = form.images.filter(Boolean);
       const payload = normalizeProductTaxonomy({
         ...form,
         title: form.title?.trim(),
         description: form.description?.trim(),
         badge: form.badge?.trim(),
-        image: form.image?.trim?.() || form.image || '',
+        image: images[0] || '',
+        images,
+        video: form.video?.trim() || '',
         features: [...autoFeatures, ...manualFeatures.filter(f => !autoFeatures.includes(f))],
       });
 
       if (editing) await api.patch(`/api/produits/${editing}`, payload);
       else await api.post('/api/produits', payload);
 
-      setShowForm(false); setEditing(null); setForm(EMPTY); load();
+      setShowForm(false); setEditing(null); setForm(EMPTY); setImageUrlInput(''); load();
     } catch (err: unknown) {
       setError(getErrorMessage(err));
     } finally {
@@ -250,11 +279,15 @@ export default function ProduitsPage() {
   };
 
   const startEdit = (p: Produit) => {
+    const existingImages = (p.images || []).filter(Boolean);
+    const images = existingImages.length > 0 ? existingImages : (p.image ? [p.image] : []);
     setForm({
       ...EMPTY, ...normalizeProductTaxonomy(p),
       specs: { ...EMPTY_SPECS, ...(p.specs || {}) },
+      images,
+      video: p.video || '',
     });
-    setEditing(p._id); setError(''); setShowForm(true);
+    setEditing(p._id); setError(''); setImageUrlInput(''); setShowForm(true);
   };
 
   const actifs = produits.filter((p) => p.active).length;
@@ -285,7 +318,7 @@ export default function ProduitsPage() {
         <div className="flex items-center gap-3 flex-wrap">
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher..."
             className="px-3 py-2 rounded-lg text-sm outline-none w-52" style={{ background: '#0B1628', border: '1px solid #1E2D4A', color: '#E2E8F0' }} />
-          <button onClick={() => { setForm(EMPTY); setEditing(null); setError(''); setShowForm(true); }}
+          <button onClick={() => { setForm(EMPTY); setEditing(null); setError(''); setImageUrlInput(''); setShowForm(true); }}
             className="px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap" style={{ background: '#00E5FF', color: '#060D1F' }}>
             + Ajouter un produit
           </button>
@@ -350,15 +383,27 @@ export default function ProduitsPage() {
           {filtered.map((p) => {
             const meta = getProductDisplayMeta(p.category, p.subcategory);
             const Icon = meta.icon;
+            const firstImage = (p.images?.find(Boolean)) || p.image;
+            const imgCount = (p.images?.filter(Boolean).length || 0) + (p.image && !p.images?.length ? 1 : 0);
             return (
               <div key={p._id} className="p-4 rounded-xl" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
-                <div className="w-full h-36 rounded-lg overflow-hidden mb-3" style={{ background: '#060D1F' }}>
-                  {p.image ? (
-                    <img src={resolveMediaUrl(p.image)} alt={p.title} className="w-full h-full object-cover" />
+                <div className="w-full h-36 rounded-lg overflow-hidden mb-3 relative" style={{ background: '#060D1F' }}>
+                  {firstImage ? (
+                    <img src={resolveMediaUrl(firstImage)} alt={p.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${meta.color}25, ${meta.color}08)` }}>
                       <Icon className="w-10 h-10" style={{ color: meta.color }} />
                     </div>
+                  )}
+                  {imgCount > 1 && (
+                    <span className="absolute bottom-2 right-2 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded font-mono">
+                      +{imgCount - 1} photo{imgCount > 2 ? 's' : ''}
+                    </span>
+                  )}
+                  {p.video && (
+                    <span className="absolute bottom-2 left-2 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
+                      ▶ vidéo
+                    </span>
                   )}
                 </div>
                 <div className="flex justify-between items-start mb-2">
@@ -582,25 +627,96 @@ export default function ProduitsPage() {
                 )}
               </div>
 
-              {/* ── 6. IMAGE ── */}
+              {/* ── 6. PHOTOS (max 5) ── */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <div className="h-px flex-1" style={{ background: '#1E2D4A' }} />
-                  <span className="text-xs text-gray-500 uppercase tracking-widest font-bold px-2">Photo</span>
+                  <span className="text-xs text-gray-500 uppercase tracking-widest font-bold px-2">
+                    Photos ({form.images.length}/5)
+                  </span>
                   <div className="h-px flex-1" style={{ background: '#1E2D4A' }} />
                 </div>
-                <div className="flex gap-2 items-center">
-                  <button type="button" onClick={() => fileRef.current?.click()}
-                    className="px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap" style={{ background: '#1E2D4A', color: '#94A3B8' }}>
-                    Choisir image
-                  </button>
-                  <input type="text" placeholder="ou coller une URL"
-                    value={form.image?.startsWith('data:') ? '' : (form.image || '')}
-                    onChange={(e) => setForm((prev) => ({ ...prev, image: e.target.value }))}
-                    className="flex-1 px-3 py-2 rounded-lg text-white text-xs outline-none" style={inpStyle} />
+
+                {/* Image grid */}
+                {form.images.length > 0 && (
+                  <div className="grid grid-cols-5 gap-2 mb-3">
+                    {form.images.map((img, i) => (
+                      <div key={i} className="relative aspect-square rounded-lg overflow-hidden"
+                        style={{ border: '1px solid #1E2D4A' }}>
+                        <img src={resolveMediaUrl(img)} alt={`photo ${i + 1}`} className="w-full h-full object-cover" />
+                        <button onClick={() => removeImage(i)}
+                          className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center font-bold hover:bg-red-600">
+                          ✕
+                        </button>
+                        {i === 0 && (
+                          <span className="absolute bottom-1 left-1 text-[8px] bg-cyan-500 text-white px-1 rounded font-bold">
+                            1ère
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                    {Array.from({ length: 5 - form.images.length }).map((_, i) => (
+                      <div key={`empty-${i}`} className="aspect-square rounded-lg flex items-center justify-center text-gray-700 text-xs"
+                        style={{ border: '1px dashed #1E2D4A', background: '#060D1F' }}>
+                        {form.images.length + i + 1}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Upload controls */}
+                {form.images.length < 5 && (
+                  <div className="space-y-2">
+                    <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+                      className="w-full py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition"
+                      style={{ background: uploading ? '#13233C' : '#1E2D4A', color: uploading ? '#64748B' : '#94A3B8', border: '1px dashed #2D4A6A' }}>
+                      {uploading ? (
+                        <><span className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" /> Upload en cours...</>
+                      ) : (
+                        <>📁 Choisir depuis l&apos;ordinateur</>
+                      )}
+                    </button>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="ou coller une URL d'image"
+                        value={imageUrlInput}
+                        onChange={(e) => setImageUrlInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { addImageUrl(); e.preventDefault(); } }}
+                        className="flex-1 px-3 py-2 rounded-lg text-white text-xs outline-none"
+                        style={inpStyle} />
+                      <button onClick={addImageUrl}
+                        className="px-3 py-2 rounded-lg text-xs font-medium"
+                        style={{ background: '#1E2D4A', color: '#94A3B8' }}>
+                        Ajouter
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+              </div>
+
+              {/* ── 7. VIDÉO ── */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="h-px flex-1" style={{ background: '#1E2D4A' }} />
+                  <span className="text-xs text-gray-500 uppercase tracking-widest font-bold px-2">Vidéo (URL)</span>
+                  <div className="h-px flex-1" style={{ background: '#1E2D4A' }} />
                 </div>
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
-                {form.image && <img src={resolveMediaUrl(form.image)} alt="preview" className="mt-2 h-24 rounded-lg object-cover w-full" />}
+                <input
+                  type="text"
+                  value={form.video}
+                  onChange={(e) => setForm((prev) => ({ ...prev, video: e.target.value }))}
+                  placeholder="Ex: https://youtube.com/watch?v=... ou lien direct .mp4"
+                  className={inp}
+                  style={inpStyle} />
+                {form.video && (
+                  <div className="mt-2 flex items-center gap-2 text-xs text-green-400">
+                    <span>▶</span>
+                    <a href={form.video} target="_blank" rel="noreferrer" className="hover:underline truncate">{form.video}</a>
+                    <button onClick={() => setForm(prev => ({ ...prev, video: '' }))} className="text-red-400 hover:text-red-300 ml-auto flex-shrink-0">✕</button>
+                  </div>
+                )}
               </div>
 
               {/* Save */}

@@ -30,7 +30,7 @@ function ScanLine() {
 type Product = {
   id: string | number; category: string; subcategory: string; title: string; description: string;
   price: number; icon: LucideIcon; color: string; badge?: string;
-  features: string[]; digital?: boolean; image?: string;
+  features: string[]; digital?: boolean; image?: string; images?: string[]; video?: string;
 };
 
 type ApiProduct = {
@@ -44,6 +44,8 @@ type ApiProduct = {
   features?: string[];
   digital?: boolean;
   image?: string;
+  images?: string[];
+  video?: string;
   active?: boolean;
 };
 
@@ -56,6 +58,58 @@ function buildProduct(product: Omit<Product, "icon" | "color">): Product {
     icon: meta.icon,
     color: meta.color,
   };
+}
+
+function ProductImageCarousel({ product }: { product: Product }) {
+  const allImages = [
+    ...(product.images || []),
+    ...(product.image && !(product.images || []).includes(product.image) ? [product.image] : []),
+  ].filter(Boolean) as string[];
+
+  const [idx, setIdx] = useState(0);
+
+  const prev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIdx(i => (i - 1 + allImages.length) % allImages.length);
+  };
+  const next = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIdx(i => (i + 1) % allImages.length);
+  };
+
+  if (allImages.length === 0) {
+    return (
+      <div className="w-20 h-20 rounded-3xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+        style={{ backgroundColor: `${product.color}20`, border: `1px solid ${product.color}40`, boxShadow: `0 0 25px ${product.color}15` }}>
+        <product.icon className="w-10 h-10" style={{ color: product.color }} />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <img src={resolveMediaUrl(allImages[idx])} alt={product.title} className="w-full h-full object-cover" />
+      {allImages.length > 1 && (
+        <>
+          <button onClick={prev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/60 backdrop-blur rounded-full text-white flex items-center justify-center text-base hover:bg-black/80 transition opacity-0 group-hover:opacity-100">
+            ‹
+          </button>
+          <button onClick={next}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/60 backdrop-blur rounded-full text-white flex items-center justify-center text-base hover:bg-black/80 transition opacity-0 group-hover:opacity-100">
+            ›
+          </button>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-1">
+            {allImages.map((_, i) => (
+              <button key={i} onClick={(e) => { e.stopPropagation(); setIdx(i); }}
+                className="rounded-full transition-all"
+                style={{ width: i === idx ? 12 : 6, height: 6, background: i === idx ? '#fff' : 'rgba(255,255,255,0.4)' }} />
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  );
 }
 
 export default function BoutiquePage() {
@@ -99,6 +153,8 @@ export default function BoutiquePage() {
           features: p.features || [],
           digital: typeof p.digital === "boolean" ? p.digital : p.category === "Logiciel",
           image: p.image || undefined,
+          images: p.images || [],
+          video: p.video || undefined,
         })));
       })
       .catch(() => clearTimeout(timer));
@@ -300,17 +356,19 @@ export default function BoutiquePage() {
             {sortedProducts.map((product, i) => (
               <motion.div key={product.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${product.color}25` }} className="backdrop-blur rounded-2xl overflow-hidden transition-all duration-300 group border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <div className="relative h-52 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(135deg, ${product.color}25, ${product.color}05)` }}>
-                  {product.image ? (
-                    <img src={resolveMediaUrl(product.image)} alt={product.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-20 h-20 rounded-3xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: `${product.color}20`, border: `1px solid ${product.color}40`, boxShadow: `0 0 25px ${product.color}15` }}>
-                      <product.icon className="w-10 h-10" style={{ color: product.color }} />
-                    </div>
-                  )}
+                  <ProductImageCarousel product={product} />
                   {product.badge && <div className="absolute top-3 right-3 bg-[#FF6B00] text-white px-2 py-1 rounded text-[9px] font-black tracking-wider">{product.badge}</div>}
                   <div className="absolute top-3 left-3 bg-[#060D1F]/80 backdrop-blur px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ color: product.color }}>{productLabel(product.category, lang)}</div>
                   <div className="absolute bottom-3 left-3 bg-[#060D1F]/80 backdrop-blur px-2 py-1 rounded text-[10px] font-medium border border-white/10">{productLabel(product.subcategory, lang)}</div>
-                  {product.digital && <div className="absolute bottom-3 right-3 bg-[#00C48C]/20 border border-[#00C48C] text-[#00C48C] px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1"><Download className="w-2.5 h-2.5" /> {isFr ? "DIGITAL" : "DIGITAL"}</div>}
+                  <div className="absolute bottom-3 right-3 flex items-center gap-1">
+                    {product.video && (
+                      <a href={product.video} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
+                        className="bg-[#FF4757]/20 border border-[#FF4757] text-[#FF4757] px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1">
+                        ▶ {isFr ? "Vidéo" : "Video"}
+                      </a>
+                    )}
+                    {product.digital && <div className="bg-[#00C48C]/20 border border-[#00C48C] text-[#00C48C] px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1"><Download className="w-2.5 h-2.5" /> DIGITAL</div>}
+                  </div>
                 </div>
                 <div className="p-5">
                   <h3 className="text-base font-bold mb-2 group-hover:text-[#0099FF] transition-colors duration-200">{product.title}</h3>

@@ -115,3 +115,14 @@ html {
 /* Fixed/absolute backgrounds that create visual boxes */
 [data-theme="light"] .backdrop-blur     { backdrop-filter: blur(16px); }
 [data-theme="light"] .font-mono         { color: var(--text); }
+
+/* ─── Admin panel: toujours dark — annule les overrides light-mode ─── */
+.admin-shell .text-white     { color: #ffffff !important; }
+.admin-shell .text-gray-300  { color: #d1d5db !important; }
+.admin-shell .text-gray-400  { color: #94A3B8 !important; }
+.admin-shell .text-gray-500  { color: #6B7280 !important; }
+.admin-shell .text-gray-600  { color: #4B5563 !important; }
+.admin-shell .font-mono      { color: inherit !important; }
+.admin-shell input,
+.admin-shell textarea,
+.admin-shell select          { color: #ffffff !important; background-color: unset; }

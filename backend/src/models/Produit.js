@@ -34,7 +34,9 @@ const produitSchema = new mongoose.Schema({
     condition: { type: String, default: 'Neuf' },
     warranty:  { type: String, default: '' },
   },
-  image: { type: String, default: '' },
+  image:  { type: String, default: '' },
+  images: { type: [String], default: [] },
+  video:  { type: String, default: '' },
   badge: { type: String },
   digital: { type: Boolean, default: true },
   stock: { type: Number, default: -1 }, // -1 = illimité
