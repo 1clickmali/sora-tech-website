@@ -61,6 +61,8 @@ export default function DevisPage() {
   const [clientInfo, setClientInfo] = useState({ name: "", email: "", phone: "", company: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState("");
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date().getMonth());
+  const [calendarYear, setCalendarYear] = useState(() => new Date().getFullYear());
 
   const services: Service[] = [
     { id: "web",   icon: Globe,      name: isFr ? "Site web" : "Website", basePrice: 400000,  baseDays: 21, color: "#0099FF" },
@@ -80,15 +82,70 @@ export default function DevisPage() {
     { id: "form",   name: isFr ? "Formation équipe (4h)" : "Team training (4h)", price: 120000 },
   ];
 
+  // Generate calendar days dynamically
+  const generateCalendarDays = () => {
+    const firstDay = new Date(calendarYear, calendarMonth, 1);
+    const lastDay = new Date(calendarYear, calendarMonth + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    const today = new Date();
+    const todayNum = today.getDate();
+    const todayMonth = today.getMonth();
+    const todayYear = today.getFullYear();
+    const days = [];
+
+    // Previous month days
+    const prevMonthLastDay = new Date(calendarYear, calendarMonth, 0).getDate();
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      days.push({ num: prevMonthLastDay - i, other: true });
+    }
+
+    // Current month days
+    for (let i = 1; i <= daysInMonth; i++) {
+      const isPast = calendarYear < todayYear || (calendarYear === todayYear && calendarMonth < todayMonth) || (calendarYear === todayYear && calendarMonth === todayMonth && i < todayNum);
+      days.push({
+        num: i,
+        today: calendarYear === todayYear && calendarMonth === todayMonth && i === todayNum,
+        past: isPast,
+      });
+    }
+
+    // Next month days
+    const remainingDays = 42 - days.length; // 6 rows * 7 days
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({ num: i, other: true });
+    }
+
+    return days;
+  };
+
+  const calendarDays = generateCalendarDays();
+
+  const monthNames = isFr
+    ? ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+    : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
   const calendar = {
-    month: isFr ? "Avril 2025" : "April 2025",
-    days: [
-      { num: 31, other: true }, { num: 1, full: true }, { num: 2 }, { num: 3, full: true }, { num: 4 }, { num: 5 }, { num: 6, other: true },
-      { num: 7 }, { num: 8, full: true }, { num: 9 }, { num: 10 }, { num: 11, full: true }, { num: 12 }, { num: 13, other: true },
-      { num: 14 }, { num: 15 }, { num: 16 }, { num: 17 }, { num: 18, today: true }, { num: 19 }, { num: 20, other: true },
-      { num: 21 }, { num: 22, selected: true }, { num: 23 }, { num: 24 }, { num: 25 }, { num: 26 }, { num: 27, other: true },
-      { num: 28 }, { num: 29 }, { num: 30 }, { num: 1, other: true }, { num: 2, other: true }, { num: 3, other: true }, { num: 4, other: true },
-    ],
+    month: `${monthNames[calendarMonth]} ${calendarYear}`,
+    days: calendarDays,
+  };
+
+  const handlePrevMonth = () => {
+    if (calendarMonth === 0) {
+      setCalendarMonth(11);
+      setCalendarYear(calendarYear - 1);
+    } else {
+      setCalendarMonth(calendarMonth - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (calendarMonth === 11) {
+      setCalendarMonth(0);
+      setCalendarYear(calendarYear + 1);
+    } else {
+      setCalendarMonth(calendarMonth + 1);
+    }
   };
 
   const slots = [
@@ -346,9 +403,9 @@ export default function DevisPage() {
                   {/* CALENDAR */}
                   <div className="rounded-2xl p-5 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                     <div className="flex justify-between items-center mb-4">
-                      <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">‹</motion.button>
+                      <motion.button onClick={handlePrevMonth} whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">‹</motion.button>
                       <div className="text-sm font-bold">{calendar.month}</div>
-                      <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">›</motion.button>
+                      <motion.button onClick={handleNextMonth} whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }} className="w-8 h-8 rounded-lg bg-[#060D1F] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] transition">›</motion.button>
                     </div>
                     <div className="grid grid-cols-7 gap-0.5 text-center mb-2">
                       {(isFr ? ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"] : ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]).map((d) => (
@@ -359,12 +416,12 @@ export default function DevisPage() {
                       {calendar.days.map((d, i) => (
                         <button
                           key={i}
-                          disabled={d.full || d.other}
-                          onClick={() => !d.full && !d.other && setSelectedDate(`${d.num} ${isFr ? "Avril" : "April"} 2025`)}
+                          disabled={d.past || d.other}
+                          onClick={() => !d.past && !d.other && setSelectedDate(`${d.num} ${monthNames[calendarMonth]} ${calendarYear}`)}
                           className={`text-xs py-2.5 rounded-lg transition ${
                             d.other ? "opacity-20 cursor-not-allowed" :
-                            d.full ? "bg-[#FF4757]/10 text-[#FF4757] line-through cursor-not-allowed" :
-                            d.selected || selectedDate === `${d.num} ${isFr ? "Avril" : "April"} 2025` ? "bg-[#0066FF] text-white font-bold" :
+                            d.past ? "opacity-40 cursor-not-allowed" :
+                            selectedDate === `${d.num} ${monthNames[calendarMonth]} ${calendarYear}` ? "bg-[#0066FF] text-white font-bold" :
                             d.today ? "border border-[#FF6B00] text-[#FF6B00] font-bold" :
                             "hover:bg-[#0066FF]/10"
                           }`}
@@ -374,7 +431,7 @@ export default function DevisPage() {
                       ))}
                     </div>
                     <div className="flex gap-3 text-[10px] text-[#8899BB] mt-4 pt-3 border-t border-[#1a2540]">
-                      <div className="flex items-center gap-1"><div className="w-2 h-2 bg-[#FF4757]/30 rounded" />{isFr ? "Complet" : "Full"}</div>
+                      <div className="flex items-center gap-1"><div className="w-2 h-2 opacity-40 rounded bg-white" />{isFr ? "Passé" : "Past"}</div>
                       <div className="flex items-center gap-1"><div className="w-2 h-2 border border-[#FF6B00] rounded" />{isFr ? "Aujourd'hui" : "Today"}</div>
                       <div className="flex items-center gap-1"><div className="w-2 h-2 bg-[#0066FF] rounded" />{isFr ? "Sélectionné" : "Selected"}</div>
                     </div>
