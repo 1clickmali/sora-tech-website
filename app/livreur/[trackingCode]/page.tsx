@@ -49,13 +49,12 @@ export default function LivreurPage() {
     setUpdating(true);
     const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('sora_token') : null;
       const r = await fetch(`${base}/api/commandes/${commande._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
+        credentials: 'include', // Send cookies
         body: JSON.stringify({ status }),
       });
       const data = await r.json();

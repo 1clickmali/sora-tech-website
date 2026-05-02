@@ -79,8 +79,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && !user && pathname !== '/admin/login') {
-      const hasToken = typeof window !== 'undefined' && localStorage.getItem('sora_token');
-      if (!hasToken) router.replace('/admin/login');
+      router.replace('/admin/login');
     }
   }, [user, loading, pathname, router]);
 

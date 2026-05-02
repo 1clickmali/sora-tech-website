@@ -74,9 +74,8 @@ export default function FacturesPage() {
 
   const downloadPDF = async (id: string, numero: string) => {
     try {
-      const token = localStorage.getItem('sora_token');
       const res = await fetch(`${API_BASE}/api/factures/${id}/pdf`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        credentials: 'include', // Send cookies with request
       });
       if (!res.ok) { alert('Erreur lors du téléchargement'); return; }
       const blob = await res.blob();

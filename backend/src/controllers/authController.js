@@ -27,9 +27,14 @@ const login = async (req, res) => {
     }
 
     const token = signToken(user._id);
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 24h
+    });
     res.json({
       success: true,
-      token,
       user: {
         id: user._id,
         name: user.name,
@@ -61,7 +66,13 @@ const register = async (req, res) => {
     const user = await User.create({ name, email, phone, password, role: role || 'commercial' });
     const token = signToken(user._id);
 
-    res.status(201).json({ success: true, token, user });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 24h
+    });
+    res.status(201).json({ success: true, user });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -70,6 +81,16 @@ const register = async (req, res) => {
 // GET /api/auth/me
 const getMe = async (req, res) => {
   res.json({ success: true, user: req.user });
+};
+
+// POST /api/auth/logout
+const logout = (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+  });
+  res.json({ success: true, message: 'Déconnecté avec succès' });
 };
 
 // POST /api/auth/seed-admin — crée le super admin si aucun utilisateur n'existe
@@ -114,4 +135,4 @@ const seedAdmin = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getMe, seedAdmin };
+module.exports = { login, register, getMe, logout, seedAdmin };

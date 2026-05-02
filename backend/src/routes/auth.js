@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-const { login, register, getMe, seedAdmin } = require('../controllers/authController');
+const { login, register, getMe, logout, seedAdmin } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { atLeast } = require('../middleware/role');
 
@@ -21,6 +21,7 @@ const handleValidationErrors = (req, res, next) => {
 
 router.post('/login', validateLogin, handleValidationErrors, login);
 router.post('/register', protect, atLeast('admin'), register);
+router.post('/logout', protect, logout);
 
 // SÉCURITÉ: seed-admin endpoint disabled en production
 if (process.env.NODE_ENV === 'development') {
