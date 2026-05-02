@@ -1,4 +1,4 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.soratech.ci';
+const BASE = process.env.NEXT_PUBLIC_API_URL || 'https://sora-tech-website-production.up.railway.app';
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {

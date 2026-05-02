@@ -43,11 +43,15 @@ const allowedOrigins = [
   'https://sora-tech-frontend-production.up.railway.app',
   'http://localhost:3000',
   'http://localhost:3001',
+  // Production deployments
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+  // Allow *.vercel.app for Vercel deployments
+  ...(process.env.NODE_ENV === 'production' ? ['https://sora-tech-website.vercel.app'] : []),
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin) || /vercel\.app$/.test(origin)) {
       callback(null, true);
     } else {
       callback(new Error('CORS policy violation'));
@@ -56,7 +60,7 @@ app.use(cors({
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   maxAge: 86400,
 }));
 
@@ -71,7 +75,7 @@ const generalLimiter = rateLimit({
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 20,
   message: 'Trop de tentatives de connexion, réessayez dans 15 minutes',
   skipSuccessfulRequests: true,
 });

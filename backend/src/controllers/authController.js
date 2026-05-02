@@ -1,12 +1,22 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Générer un JWT — expiration courte pour plus de sécurité
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '24h',
   });
 };
+
+// sameSite 'none' en production : soratech.ci (Vercel) → railway.app sont cross-site
+function cookieOptions() {
+  const isProd = process.env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000, // 24h
+  };
+}
 
 // POST /api/auth/login
 const login = async (req, res) => {
@@ -27,13 +37,7 @@ const login = async (req, res) => {
     }
 
     const token = signToken(user._id);
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      domain: '.up.railway.app',
-      maxAge: 24 * 60 * 60 * 1000, // 24h
-    });
+    res.cookie('token', token, cookieOptions());
     res.json({
       success: true,
       user: {
@@ -59,7 +63,6 @@ const register = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email déjà utilisé' });
     }
 
-    // Seul un super_admin peut créer un autre super_admin
     if (role === 'super_admin' && req.user?.role !== 'super_admin') {
       return res.status(403).json({ success: false, message: 'Seul un super_admin peut créer un super_admin' });
     }
@@ -67,13 +70,7 @@ const register = async (req, res) => {
     const user = await User.create({ name, email, phone, password, role: role || 'commercial' });
     const token = signToken(user._id);
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      domain: '.up.railway.app',
-      maxAge: 24 * 60 * 60 * 1000, // 24h
-    });
+    res.cookie('token', token, cookieOptions());
     res.status(201).json({ success: true, user });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -87,36 +84,31 @@ const getMe = async (req, res) => {
 
 // POST /api/auth/logout
 const logout = (req, res) => {
+  const isProd = process.env.NODE_ENV === 'production';
   res.clearCookie('token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    domain: '.up.railway.app',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
   });
   res.json({ success: true, message: 'Déconnecté avec succès' });
 };
 
 // POST /api/auth/seed-admin — crée le super admin si aucun utilisateur n'existe
-// SÉCURITÉ: DISABLED en production, utiliser les variables d'environnement
+// Disponible en développement OU quand ALLOW_SEED=true en production
 const seedAdmin = async (req, res) => {
   try {
-    if (process.env.NODE_ENV === 'production') {
-      return res.status(403).json({ success: false, message: 'Endpoint non disponible en production' });
-    }
-
     const count = await User.countDocuments();
     if (count > 0) {
-      return res.status(400).json({ success: false, message: 'Des utilisateurs existent déjà' });
+      return res.status(400).json({ success: false, message: 'Des utilisateurs existent déjà — utilisez /emergency-access pour réinitialiser' });
     }
 
-    // Utiliser les variables d'environnement pour l'admin initial
     const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@soratech.ci';
     const adminPassword = process.env.SEED_ADMIN_PASSWORD;
 
     if (!adminPassword) {
       return res.status(500).json({
         success: false,
-        message: 'SEED_ADMIN_PASSWORD not configured. Set it in environment variables.',
+        message: 'SEED_ADMIN_PASSWORD non configuré. Ajoutez-le dans les variables Railway.',
       });
     }
 
@@ -130,7 +122,7 @@ const seedAdmin = async (req, res) => {
 
     res.json({
       success: true,
-      message: `Admin created: ${adminEmail}`,
+      message: `Admin créé : ${adminEmail}`,
       user: { id: admin._id, email: admin.email, role: admin.role },
     });
   } catch (err) {
@@ -138,4 +130,42 @@ const seedAdmin = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getMe, logout, seedAdmin };
+// POST /api/auth/emergency-access — crée OU réinitialise le mot de passe admin
+// Uniquement disponible quand ALLOW_SEED=true (variable Railway à retirer après usage)
+const emergencyAccess = async (req, res) => {
+  try {
+    const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@soratech.ci';
+    const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+
+    if (!adminPassword) {
+      return res.status(500).json({
+        success: false,
+        message: 'SEED_ADMIN_PASSWORD non configuré dans Railway.',
+      });
+    }
+
+    let admin = await User.findOne({ email: adminEmail }).select('+password');
+
+    if (!admin) {
+      admin = await User.create({
+        name: 'Super Admin',
+        email: adminEmail,
+        password: adminPassword,
+        role: 'super_admin',
+        active: true,
+      });
+      return res.json({ success: true, action: 'created', message: `Admin créé : ${adminEmail}` });
+    }
+
+    admin.password = adminPassword;
+    admin.active = true;
+    admin.role = 'super_admin';
+    await admin.save();
+
+    return res.json({ success: true, action: 'reset', message: `Mot de passe réinitialisé : ${adminEmail}` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { login, register, getMe, logout, seedAdmin, emergencyAccess };
