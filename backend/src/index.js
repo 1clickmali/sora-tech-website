@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
@@ -77,6 +78,7 @@ const loginLimiter = rateLimit({
 app.use('/api/', generalLimiter);
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Cache-Control headers for public GET endpoints
 // Tells the browser (and Vercel CDN edge) to cache responses
