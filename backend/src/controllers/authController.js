@@ -7,13 +7,14 @@ const signToken = (id) => {
   });
 };
 
-// sameSite 'none' en production : soratech.ci (Vercel) → railway.app sont cross-site
+// Le proxy Next.js (soratech.ci/api → Railway) fait que le cookie est always same-origin
+// SameSite=Lax est suffisant et plus sécurisé que None
 function cookieOptions() {
   const isProd = process.env.NODE_ENV === 'production';
   return {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
+    sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000, // 24h
   };
 }
@@ -88,7 +89,7 @@ const logout = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
+    sameSite: 'lax',
   });
   res.json({ success: true, message: 'Déconnecté avec succès' });
 };

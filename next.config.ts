@@ -18,6 +18,18 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['framer-motion', 'lucide-react', 'recharts'],
   },
 
+  // Proxy all /api/* requests to Railway backend — keeps cookies same-origin (soratech.ci)
+  // This eliminates cross-site cookie issues between soratech.ci (Vercel) and railway.app
+  async rewrites() {
+    const backend = process.env.NEXT_PUBLIC_API_URL || 'https://sora-tech-website-production.up.railway.app';
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backend}/api/:path*`,
+      },
+    ];
+  },
+
   async headers() {
     return [
       // Security + performance headers on all routes

@@ -1,4 +1,6 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'https://sora-tech-website-production.up.railway.app';
+// Relative BASE = requests go to soratech.ci/api/* (same-origin)
+// Next.js rewrites proxy these to Railway — no cross-site cookie issues
+const BASE = '';
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
@@ -9,7 +11,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     ...options,
     headers,
-    credentials: 'include', // Automatically send/receive cookies
+    credentials: 'include',
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || 'Erreur API');
@@ -20,7 +22,7 @@ async function upload(path: string, formData: FormData): Promise<{ success: bool
   const res = await fetch(`${BASE}${path}`, {
     method: 'POST',
     body: formData,
-    credentials: 'include', // Include cookies
+    credentials: 'include',
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || 'Erreur upload');
