@@ -1,10 +1,10 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Générer un JWT
+// Générer un JWT — expiration courte pour plus de sécurité
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
   });
 };
 
@@ -73,14 +73,42 @@ const getMe = async (req, res) => {
 };
 
 // POST /api/auth/seed-admin — crée le super admin si aucun utilisateur n'existe
+// SÉCURITÉ: DISABLED en production, utiliser les variables d'environnement
 const seedAdmin = async (req, res) => {
   try {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({ success: false, message: 'Endpoint non disponible en production' });
+    }
+
     const count = await User.countDocuments();
     if (count > 0) {
       return res.status(400).json({ success: false, message: 'Des utilisateurs existent déjà' });
     }
-    await User.create({ name: 'Super Admin', email: 'admin@soratech.ci', password: 'admin123', role: 'super_admin', active: true });
-    res.json({ success: true, message: 'Admin créé : admin@soratech.ci / admin123' });
+
+    // Utiliser les variables d'environnement pour l'admin initial
+    const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@soratech.ci';
+    const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+
+    if (!adminPassword) {
+      return res.status(500).json({
+        success: false,
+        message: 'SEED_ADMIN_PASSWORD not configured. Set it in environment variables.',
+      });
+    }
+
+    const admin = await User.create({
+      name: 'Super Admin',
+      email: adminEmail,
+      password: adminPassword,
+      role: 'super_admin',
+      active: true,
+    });
+
+    res.json({
+      success: true,
+      message: `Admin created: ${adminEmail}`,
+      user: { id: admin._id, email: admin.email, role: admin.role },
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
