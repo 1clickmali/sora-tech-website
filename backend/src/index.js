@@ -40,6 +40,7 @@ app.use(compression());
 const allowedOrigins = [
   'https://soratech.ci',
   'https://www.soratech.ci',
+  'https://sora-tech-frontend-production.up.railway.app',
   'http://localhost:3000',
   'http://localhost:3001',
 ];
