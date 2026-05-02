@@ -31,6 +31,7 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      domain: '.up.railway.app',
       maxAge: 24 * 60 * 60 * 1000, // 24h
     });
     res.json({
@@ -70,6 +71,7 @@ const register = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      domain: '.up.railway.app',
       maxAge: 24 * 60 * 60 * 1000, // 24h
     });
     res.status(201).json({ success: true, user });
@@ -89,6 +91,7 @@ const logout = (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
+    domain: '.up.railway.app',
   });
   res.json({ success: true, message: 'Déconnecté avec succès' });
 };
