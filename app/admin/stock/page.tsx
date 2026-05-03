@@ -136,7 +136,7 @@ export default function StockPage() {
 
   const load = async () => {
     try {
-      const response = await api.get<{ data: StockOverview }>('/api/stock');
+      const response = await api.get<{ data: StockOverview }>(`/api/stock?t=${Date.now()}`);
       setOverview(response.data);
       setError('');
     } catch (err: unknown) {
@@ -149,7 +149,7 @@ export default function StockPage() {
   useEffect(() => {
     let active = true;
 
-    api.get<{ data: StockOverview }>('/api/stock')
+    api.get<{ data: StockOverview }>(`/api/stock?t=${Date.now()}`)
       .then((response) => {
         if (active) setOverview(response.data);
       })

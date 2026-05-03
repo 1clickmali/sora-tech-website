@@ -41,7 +41,7 @@ export default function ContactsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ limit: '200' });
+      const params = new URLSearchParams({ limit: '200', t: Date.now().toString() });
       if (filter !== 'tous') params.set('status', filter);
       if (search) params.set('search', search);
       const r = await api.get<{ data: Contact[]; total: number }>(`/api/contacts?${params}`);

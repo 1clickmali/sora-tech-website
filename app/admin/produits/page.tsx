@@ -184,7 +184,7 @@ export default function ProduitsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = () =>
-    api.get<{ data: Produit[] }>('/api/produits?limit=100')
+    api.get<{ data: Produit[] }>(`/api/produits?limit=100&t=${Date.now()}`)
       .then((r) => setProduits(r.data.map((p) => normalizeProductTaxonomy(p))))
       .finally(() => setLoading(false));
 

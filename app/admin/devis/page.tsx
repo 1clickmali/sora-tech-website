@@ -41,7 +41,7 @@ export default function DevisPage() {
   const [saving, setSaving] = useState(false);
 
   const load = () => {
-    api.get<{ data: Devis[] }>('/api/devis').then(r => setDevis(r.data)).finally(() => setLoading(false));
+    api.get<{ data: Devis[] }>(`/api/devis?t=${Date.now()}`).then(r => setDevis(r.data)).finally(() => setLoading(false));
   };
   useEffect(() => { load(); }, []);
 

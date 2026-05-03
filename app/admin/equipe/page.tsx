@@ -22,7 +22,7 @@ export default function EquipePage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  const load = () => api.get<{ data: User[] }>('/api/users').then(r => setUsers(r.data)).finally(() => setLoading(false));
+  const load = () => api.get<{ data: User[] }>(`/api/users?t=${Date.now()}`).then(r => setUsers(r.data)).finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
   const save = async () => {

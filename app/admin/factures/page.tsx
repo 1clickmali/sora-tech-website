@@ -51,7 +51,7 @@ export default function FacturesPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ limit: '100' });
+      const params = new URLSearchParams({ limit: '100', t: Date.now().toString() });
       if (filter !== 'tous') params.set('status', filter);
       if (search) params.set('search', search);
       const r = await api.get<{ data: Facture[]; total: number }>(`/api/factures?${params}`);

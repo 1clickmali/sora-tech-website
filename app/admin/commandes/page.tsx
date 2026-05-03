@@ -57,7 +57,7 @@ export default function CommandesPage() {
   const [saving, setSaving] = useState(false);
 
   const load = () => {
-    const params = new URLSearchParams({ limit: '100' });
+    const params = new URLSearchParams({ limit: '100', t: Date.now().toString() });
     if (filterStatus !== 'tous') params.set('status', filterStatus);
     if (search) params.set('search', search);
     api.get<{ data: Commande[] }>(`/api/commandes?${params}`)

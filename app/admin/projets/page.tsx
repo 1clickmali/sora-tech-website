@@ -25,7 +25,7 @@ export default function ProjetsPage() {
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const load = () => api.get<{ data: Projet[] }>('/api/projets').then(r => setProjets(r.data)).finally(() => setLoading(false));
+  const load = () => api.get<{ data: Projet[] }>(`/api/projets?t=${Date.now()}`).then(r => setProjets(r.data)).finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

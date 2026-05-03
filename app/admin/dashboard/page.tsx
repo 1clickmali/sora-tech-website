@@ -76,7 +76,7 @@ export default function Dashboard() {
   const load = useCallback(async () => {
     setRefreshing(true);
     try {
-      const r = await api.get<{ data: Stats }>('/api/stats');
+      const r = await api.get<{ data: Stats }>(`/api/stats?t=${Date.now()}`);
       setStats(r.data);
       setError('');
     } catch (e: unknown) {
@@ -90,7 +90,7 @@ export default function Dashboard() {
   useEffect(() => {
     let active = true;
 
-    api.get<{ data: Stats }>('/api/stats')
+    api.get<{ data: Stats }>(`/api/stats?t=${Date.now()}`)
       .then(r => {
         if (active) {
           setStats(r.data);

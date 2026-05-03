@@ -61,7 +61,7 @@ export default function ArticlesPage() {
 
   const load = () =>
     api
-      .get<{ data: Article[] }>('/api/articles?limit=100')
+      .get<{ data: Article[] }>(`/api/articles?limit=100&t=${Date.now()}`)
       .then((r) => setArticles(r.data))
       .finally(() => setLoading(false));
 
@@ -69,7 +69,7 @@ export default function ArticlesPage() {
     let active = true;
 
     api
-      .get<{ data: Article[] }>('/api/articles?limit=100')
+      .get<{ data: Article[] }>(`/api/articles?limit=100&t=${Date.now()}`)
       .then((r) => {
         if (active) setArticles(r.data);
       })
@@ -107,7 +107,7 @@ export default function ArticlesPage() {
   const startEdit = async (article: Article) => {
     setError('');
     try {
-      const res = await api.get<{ data: Article }>(`/api/articles/${article.slug || article._id}`);
+      const res = await api.get<{ data: Article }>(`/api/articles/${article.slug || article._id}?t=${Date.now()}`);
       setForm({ ...EMPTY, ...res.data });
       setEditing(article._id);
       setShowForm(true);
