@@ -51,6 +51,25 @@ const normalizeCommandeBody = (body = {}) => {
   return normalized;
 };
 
+const validateOnlinePaymentPrerequisites = (commandeBody) => {
+  if ((commandeBody.paymentMode || 'online') !== 'online') return null;
+
+  const amount = Math.round(Number(commandeBody.total || 0));
+  if (!amount || amount <= 0) {
+    const error = new Error('Montant de paiement invalide');
+    error.status = 400;
+    return error;
+  }
+
+  if (!isGeniusPayConfigured()) {
+    const error = new Error('Paiement GeniusPay non configuré sur le serveur');
+    error.status = 503;
+    return error;
+  }
+
+  return null;
+};
+
 const paymentTimelineLabel = (status) => {
   switch (status) {
     case 'pending':
@@ -626,6 +645,9 @@ const createCommande = async (req, res) => {
       body.idempotencyFingerprint = fingerprint;
     }
 
+    const paymentPrerequisiteError = validateOnlinePaymentPrerequisites(body);
+    if (paymentPrerequisiteError) throw paymentPrerequisiteError;
+
     body.paymentProvider = body.paymentMode === 'online' ? 'geniuspay' : '';
     body.paymentStatus = body.paymentMode === 'online' ? 'pending' : 'unpaid';
     if (body.paymentMode === 'online' && !body.paymentReturnToken) {
@@ -648,7 +670,18 @@ const createCommande = async (req, res) => {
     let persisted = await Commande.findById(commande._id);
 
     if (persisted.paymentMode === 'online') {
-      persisted = await ensureOnlineCheckout(persisted);
+      try {
+        persisted = await ensureOnlineCheckout(persisted);
+      } catch (paymentError) {
+        const latest = await Commande.findById(commande._id);
+        if (latest) {
+          if (latest.stockReservedAt && !latest.stockReleasedAt) {
+            await releaseCommandeStock(latest);
+          }
+          await Commande.findByIdAndDelete(latest._id);
+        }
+        throw paymentError;
+      }
     }
 
     res.status(201).json(buildCommandeResponse(persisted));
