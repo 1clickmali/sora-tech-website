@@ -28,8 +28,6 @@ const PAYMENT_LABEL: Record<string, string> = {
 };
 
 const fmt = (n: number) => new Intl.NumberFormat('fr-FR').format(n) + ' FCFA';
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
 const EMPTY_FORM = {
   clientName: '', clientEmail: '', clientPhone: '', clientAddress: '', clientQuartier: '',
   items: [{ description: '', quantity: 1, unitPrice: 0, total: 0 }],
@@ -74,9 +72,7 @@ export default function FacturesPage() {
 
   const downloadPDF = async (id: string, numero: string) => {
     try {
-      const res = await fetch(`${API_BASE}/api/factures/${id}/pdf`, {
-        credentials: 'include', // Send cookies with request
-      });
+      const res = await fetch(`/api/factures/${id}/pdf`, { credentials: 'include' });
       if (!res.ok) { alert('Erreur lors du téléchargement'); return; }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);

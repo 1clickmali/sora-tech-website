@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { fetchPublicApi } from '@/lib/public-api';
 
 interface Item { title: string; price: number; quantity: number; digital?: boolean; }
 interface Commande {
@@ -29,13 +30,11 @@ export default function LivreurPage() {
 
   useEffect(() => {
     if (!trackingCode) return;
-    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    fetch(`${base}/api/commandes/tracking/${trackingCode}`)
-      .then(r => r.json())
-      .then(r => {
-        if (r.success) {
-          setCommande(r.data);
-          if (r.data.status === 'livre') setDone(true);
+    fetchPublicApi<{ success: boolean; data: Commande }>(`/api/commandes/tracking/${trackingCode}`)
+      .then((response) => {
+        if (response.success) {
+          setCommande(response.data);
+          if (response.data.status === 'livre') setDone(true);
         } else {
           setError('Commande introuvable pour ce code.');
         }
@@ -47,17 +46,11 @@ export default function LivreurPage() {
   const updateStatus = async (status: string) => {
     if (!commande) return;
     setUpdating(true);
-    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     try {
-      const r = await fetch(`${base}/api/commandes/${commande._id}`, {
+      const data = await fetchPublicApi<{ success: boolean; data: Commande }>(`/api/commandes/${commande._id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Send cookies
         body: JSON.stringify({ status }),
       });
-      const data = await r.json();
       if (data.success) {
         setCommande(data.data);
         if (status === 'livre') setDone(true);

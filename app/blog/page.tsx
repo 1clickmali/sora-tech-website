@@ -17,6 +17,7 @@ import {
   type BlogArticle,
 } from "@/lib/blog";
 import { resolveMediaUrl } from "@/lib/media";
+import { fetchPublicApi } from "@/lib/public-api";
 
 function ScanLine() {
   return (
@@ -59,8 +60,7 @@ export default function BlogPage() {
   const [articles, setArticles] = useState<BlogArticle[]>([]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/articles`)
-      .then((response) => response.json())
+    fetchPublicApi<{ data: BlogArticle[] }>('/api/articles')
       .then((response) => {
         setArticles((response.data || []).map(normalizeArticle));
       })

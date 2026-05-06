@@ -108,7 +108,7 @@ const sendCommandeConfirmation = async (commande, invoiceBuffer = null, publicTo
       <div class="tracking-code">${commande.trackingCode || commande.reference}</div>
       <div style="font-size:12px;color:#8899BB">Suivez votre commande en temps réel</div>
       ${commande.trackingUrl ? `<a href="${commande.trackingUrl}" class="btn" style="margin-top:12px;padding:10px 24px;font-size:12px">Suivre ma commande</a>` : ''}
-      ${publicToken ? `<br><a href="${process.env.BACKEND_URL || 'https://sora-tech-website-production.up.railway.app'}/api/factures/public/${publicToken}" style="display:inline-block;margin-top:8px;padding:8px 20px;background:#1E2D4A;color:#00E5FF;border-radius:8px;text-decoration:none;font-size:11px;font-weight:700;">Telecharger ma facture PDF</a>` : ''}
+      ${publicToken ? `<br><a href="${process.env.FRONTEND_URL || 'https://soratech.ci'}/api/factures/public/${publicToken}" style="display:inline-block;margin-top:8px;padding:8px 20px;background:#1E2D4A;color:#00E5FF;border-radius:8px;text-decoration:none;font-size:11px;font-weight:700;">Telecharger ma facture PDF</a>` : ''}
     </div>
 
     <div class="info-card">

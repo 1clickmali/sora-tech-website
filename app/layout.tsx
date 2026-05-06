@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "./i18n/AppContext";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://soratech.ci";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -24,6 +26,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "SORA TECH — Solutions IT à Abidjan, Côte d'Ivoire",
     template: "%s | SORA TECH",
@@ -38,12 +41,12 @@ export const metadata: Metadata = {
     "ERP entreprise abidjan",
     "sora tech",
   ],
-  authors: [{ name: "SORA TECH", url: "https://soratech.ci" }],
+  authors: [{ name: "SORA TECH", url: siteUrl }],
   creator: "SORA TECH",
   openGraph: {
     type: "website",
     locale: "fr_CI",
-    url: "https://soratech.ci",
+    url: siteUrl,
     siteName: "SORA TECH",
     title: "SORA TECH — Solutions IT à Abidjan",
     description:
@@ -56,7 +59,7 @@ export const metadata: Metadata = {
     description: "Sites web, logiciels, apps mobiles et ERP pour entreprises en Côte d'Ivoire.",
   },
   robots: { index: true, follow: true },
-  alternates: { canonical: "https://soratech.ci" },
+  alternates: { canonical: siteUrl },
 };
 
 export default function RootLayout({

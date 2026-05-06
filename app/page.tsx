@@ -13,6 +13,7 @@ import {
 import { useApp } from "./i18n/AppContext";
 import { resolveMediaUrl } from "@/lib/media";
 import { blogLabel, productLabel, projectLabel } from "@/lib/i18nLabels";
+import { fetchPublicApi } from "@/lib/public-api";
 
 const BackgroundFX = dynamic(() => import("./components/BackgroundFX"), { ssr: false });
 import Footer from "./components/Footer";
@@ -85,15 +86,14 @@ export default function Home() {
   const [apiProjects, setApiProjects] = useState<HomeProject[]>([]);
 
   useEffect(() => {
-    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    fetch(`${base}/api/produits?limit=8`)
-      .then(r => r.json()).then(r => setApiProducts((r.data || []).filter((p: HomeProduct) => p.active !== false)))
+    fetchPublicApi<{ data: HomeProduct[] }>('/api/produits?limit=8')
+      .then((response) => setApiProducts((response.data || []).filter((product) => product.active !== false)))
       .catch(() => {});
-    fetch(`${base}/api/articles?limit=6`)
-      .then(r => r.json()).then(r => setApiArticles(r.data || []))
+    fetchPublicApi<{ data: HomeArticle[] }>('/api/articles?limit=6')
+      .then((response) => setApiArticles(response.data || []))
       .catch(() => {});
-    fetch(`${base}/api/projets?limit=6`)
-      .then(r => r.json()).then(r => setApiProjects(r.data || []))
+    fetchPublicApi<{ data: HomeProject[] }>('/api/projets?limit=6')
+      .then((response) => setApiProjects(response.data || []))
       .catch(() => {});
   }, []);
 

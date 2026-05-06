@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['framer-motion', 'lucide-react', 'recharts'],
   },
 
+  turbopack: {
+    root: process.cwd(),
+  },
+
   // Proxy all /api/* requests to Railway backend — keeps cookies same-origin (soratech.ci)
   // This eliminates cross-site cookie issues between soratech.ci (Vercel) and railway.app
   async rewrites() {
@@ -26,6 +30,10 @@ const nextConfig: NextConfig = {
       {
         source: '/api/:path*',
         destination: `${backend}/api/:path*`,
+      },
+      {
+        source: '/uploads/:path*',
+        destination: `${backend}/uploads/:path*`,
       },
     ];
   },
@@ -44,7 +52,7 @@ const nextConfig: NextConfig = {
           { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://sora-tech-website-production.up.railway.app; frame-ancestors 'none';"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://sora-tech-website-production.up.railway.app https://nominatim.openstreetmap.org; frame-ancestors 'none';"
           },
         ],
       },

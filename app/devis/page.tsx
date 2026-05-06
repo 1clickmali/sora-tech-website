@@ -11,6 +11,7 @@ import {
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useApp } from "../i18n/AppContext";
+import { postPublicApi } from "@/lib/public-api";
 
 function ScanLine() {
   return (
@@ -61,6 +62,7 @@ export default function DevisPage() {
   const [clientInfo, setClientInfo] = useState({ name: "", email: "", phone: "", company: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(() => new Date().getFullYear());
 
@@ -171,10 +173,8 @@ export default function DevisPage() {
   const toggleOption = (id: string) => setOptions({ ...options, [id]: !options[id] });
   const submitDevis = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/devis`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      setSubmitting(true);
+      await postPublicApi('/api/devis', {
           clientName: clientInfo.name,
           clientEmail: clientInfo.email,
           clientPhone: clientInfo.phone,
@@ -188,10 +188,15 @@ export default function DevisPage() {
           estimatedDays: totalDays,
           rdvDate: selectedDate,
           rdvSlot: selectedSlot,
-        }),
       });
-    } catch {}
-    setSubmitted(true);
+      setSubmitted(true);
+      return true;
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : (isFr ? "Impossible d'envoyer votre demande." : "Unable to send your request."));
+      return false;
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -500,19 +505,20 @@ export default function DevisPage() {
                     {formError && <p className="text-red-400 text-xs">{formError}</p>}
                     <motion.button
                       whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                      onClick={() => {
+                      onClick={async () => {
                         if (!clientInfo.name || !clientInfo.phone || !clientInfo.email) {
                           setFormError(isFr ? "Veuillez remplir votre nom, téléphone et email." : "Please fill in your name, phone and email.");
                           return;
                         }
                         setFormError("");
-                        setStep(4);
-                        submitDevis();
+                        const ok = await submitDevis();
+                        if (ok) setStep(4);
                       }}
+                      disabled={submitting}
                       className="bg-[#00C48C] hover:bg-[#00E5A0] transition px-8 py-3 rounded-lg font-bold text-sm flex items-center gap-2"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      {isFr ? "Confirmer le RDV & devis" : "Confirm meeting & quote"}
+                      {submitting ? (isFr ? "Envoi..." : "Sending...") : isFr ? "Confirmer le RDV & devis" : "Confirm meeting & quote"}
                     </motion.button>
                   </div>
                 </div>

@@ -54,6 +54,7 @@ export default function ArticlesPage() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [filterCat, setFilterCat] = useState('tous');
   const [search, setSearch] = useState('');
@@ -96,12 +97,22 @@ export default function ArticlesPage() {
     setShowForm(true);
   };
 
-  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setForm((prev) => ({ ...prev, image: (ev.target?.result as string) || '' }));
-    reader.readAsDataURL(file);
+    try {
+      setUploading(true);
+      setError('');
+      const formData = new FormData();
+      formData.append('image', file);
+      const result = await api.upload('/api/upload/image', formData);
+      setForm((prev) => ({ ...prev, image: result.url }));
+    } catch (err: unknown) {
+      setError(getErrorMessage(err));
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
   };
 
   const startEdit = async (article: Article) => {
@@ -376,10 +387,11 @@ export default function ArticlesPage() {
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
+                    disabled={uploading}
                     className="px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap"
                     style={{ background: '#1E2D4A', color: '#94A3B8' }}
                   >
-                    Choisir image
+                    {uploading ? 'Upload...' : 'Choisir image'}
                   </button>
                   <input
                     type="text"

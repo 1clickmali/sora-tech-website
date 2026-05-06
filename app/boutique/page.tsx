@@ -12,6 +12,7 @@ import Footer from "../components/Footer";
 import { useApp } from "../i18n/AppContext";
 import { productLabel } from "@/lib/i18nLabels";
 import { resolveMediaUrl } from "@/lib/media";
+import { fetchPublicApi, postPublicApi } from "@/lib/public-api";
 import {
   PRODUCT_CATEGORIES,
   getProductDisplayMeta,
@@ -127,6 +128,7 @@ export default function BoutiquePage() {
   const [deliveryInfo, setDeliveryInfo] = useState({ name: "", phone: "", email: "", address: "", quartier: "" });
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderLoading, setOrderLoading] = useState(false);
+  const [orderError, setOrderError] = useState('');
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoError, setGeoError] = useState('');
 
@@ -137,11 +139,10 @@ export default function BoutiquePage() {
   useEffect(() => {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 5000); // 5s timeout
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/produits?limit=100`, { signal: ctrl.signal })
-      .then(r => r.json())
-      .then(r => {
+    fetchPublicApi<{ data: ApiProduct[] }>('/api/produits?limit=100', { signal: ctrl.signal })
+      .then((response) => {
         clearTimeout(timer);
-        const items = (r.data || []).filter((p: ApiProduct) => p.active !== false);
+        const items = (response.data || []).filter((p: ApiProduct) => p.active !== false);
         setProducts(items.map((p: ApiProduct) => buildProduct({
           id: p._id,
           category: p.category,
@@ -215,15 +216,14 @@ export default function BoutiquePage() {
     setCheckoutStep(0); setPaymentMode(null);
     setDeliveryInfo({ name: "", phone: "", email: "", address: "", quartier: "" });
     setOrderSuccess(false);
+    setOrderError('');
   };
   const confirmOrder = async () => {
     if (orderLoading) return;
+    setOrderError('');
     setOrderLoading(true);
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/commandes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await postPublicApi('/api/commandes', {
           clientName: deliveryInfo.name || 'Client',
           clientPhone: deliveryInfo.phone || '0000000000',
           clientEmail: deliveryInfo.email || '',
@@ -238,12 +238,14 @@ export default function BoutiquePage() {
           deliveryFee: deliveryFee,
           total: cartTotal,
           paymentMode: paymentMode || 'online',
-        }),
       });
-    } catch {}
-    setOrderLoading(false);
-    setOrderSuccess(true);
-    setTimeout(() => { setCart([]); setCartOpen(false); resetCheckout(); }, 4000);
+      setOrderSuccess(true);
+      setTimeout(() => { setCart([]); setCartOpen(false); resetCheckout(); }, 4000);
+    } catch (error) {
+      setOrderError(error instanceof Error ? error.message : (isFr ? 'Impossible de valider la commande.' : 'Unable to place the order.'));
+    } finally {
+      setOrderLoading(false);
+    }
   };
 
   return (
@@ -571,6 +573,7 @@ export default function BoutiquePage() {
                       <span className="text-2xl font-black text-[#0099FF] font-mono">{fmt(cartTotal)} FCFA</span>
                     </div>
                   </div>
+                  {orderError && <p className="mb-3 text-xs text-red-400">{orderError}</p>}
                   {checkoutStep === 0 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setCheckoutStep(1)} className="w-full bg-[#0066FF] py-3.5 rounded-xl font-bold text-sm">{isFr ? "Commander →" : "Order →"}</motion.button>}
                   {checkoutStep === 1 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => paymentMode && setCheckoutStep(2)} disabled={!paymentMode} className={`w-full py-3.5 rounded-xl font-bold text-sm transition ${paymentMode ? "bg-[#0066FF]" : "bg-[#1a2540] text-[#8899BB] cursor-not-allowed"}`}>{isFr ? "Continuer →" : "Continue →"}</motion.button>}
                   {checkoutStep === 2 && <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { if (deliveryInfo.name && deliveryInfo.phone && (paymentMode === "online" || (deliveryInfo.quartier && deliveryInfo.address))) setCheckoutStep(3); }} className="w-full bg-[#0066FF] py-3.5 rounded-xl font-bold text-sm">{isFr ? "Vérifier la commande →" : "Review order →"}</motion.button>}

@@ -432,7 +432,7 @@ export default function CommandesPage() {
                     </a>
                   )}
                   {selected.facturePublicToken && (
-                    <a href={`${process.env.NEXT_PUBLIC_API_URL || 'https://sora-tech-website-production.up.railway.app'}/api/factures/public/${selected.facturePublicToken}`}
+                    <a href={`/api/factures/public/${selected.facturePublicToken}`}
                       target="_blank" rel="noreferrer"
                       className="px-3 py-2 rounded-lg text-xs font-medium transition"
                       style={{ background: '#EF444420', color: '#EF4444', border: '1px solid #EF444440' }}>

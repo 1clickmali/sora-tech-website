@@ -18,8 +18,8 @@ export default function AdminLogin() {
     try {
       await login(email, password);
       router.push('/admin/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Identifiants incorrects');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Identifiants incorrects');
     } finally {
       setLoading(false);
     }
@@ -30,7 +30,7 @@ export default function AdminLogin() {
       <div className="w-full max-w-md p-8 rounded-2xl" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
         <div className="text-center mb-8">
           <div className="text-3xl font-black mb-1" style={{ color: '#00E5FF' }}>SORA TECH</div>
-          <div className="text-gray-400 text-sm">Panneau d'administration</div>
+          <div className="text-gray-400 text-sm">Panneau d&apos;administration</div>
         </div>
 
         {error && (

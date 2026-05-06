@@ -16,6 +16,7 @@ import {
   type BlogArticle,
 } from "@/lib/blog";
 import { resolveMediaUrl } from "@/lib/media";
+import { fetchPublicApi } from "@/lib/public-api";
 
 function renderContent(content: string) {
   return content
@@ -64,12 +65,7 @@ export default function BlogArticlePage() {
     if (!slug) return;
     let active = true;
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/articles/${slug}`)
-      .then(async (response) => {
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.message || "Article not found");
-        return data;
-      })
+    fetchPublicApi<{ data: BlogArticle }>(`/api/articles/${slug}`)
       .then((response) => {
         if (active && response.data) {
           setArticle(normalizeArticle(response.data));

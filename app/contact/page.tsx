@@ -9,6 +9,7 @@ import {
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useApp } from "../i18n/AppContext";
+import { postPublicApi } from "@/lib/public-api";
 
 function ScanLine() {
   return (
@@ -41,27 +42,31 @@ export default function ContactPage() {
     name: "", email: "", phone: "", company: "", service: "", budget: "", message: "",
   });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/contacts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      setSending(true);
+      setFormError("");
+      await postPublicApi('/api/contacts', {
           name: form.name,
           email: form.email,
           phone: form.phone,
           subject: form.service || (isFr ? 'Contact général' : 'General contact'),
           message: form.message,
-        }),
       });
-    } catch {}
-    setSent(true);
-    setTimeout(() => {
-      setSent(false);
-      setForm({ name: "", email: "", phone: "", company: "", service: "", budget: "", message: "" });
-    }, 4000);
+      setSent(true);
+      setTimeout(() => {
+        setSent(false);
+        setForm({ name: "", email: "", phone: "", company: "", service: "", budget: "", message: "" });
+      }, 4000);
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : (isFr ? "Impossible d'envoyer le message." : "Unable to send the message."));
+    } finally {
+      setSending(false);
+    }
   };
 
   const contactMethods: ContactMethod[] = [
@@ -171,6 +176,7 @@ export default function ContactPage() {
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {formError && <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{formError}</div>}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-xs text-[#8899BB] tracking-wide uppercase font-bold block mb-1.5">{c.formName}</label>
@@ -228,9 +234,9 @@ export default function ContactPage() {
                       className="w-full border rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0066FF] resize-none transition" style={{ background: "var(--input-bg)", borderColor: "var(--border)", color: "var(--text)" }} />
                   </div>
 
-                  <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                  <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} disabled={sending}
                     className="w-full bg-[#0066FF] hover:bg-[#0099FF] transition py-4 rounded-lg font-bold text-sm">
-                    {c.formBtn}
+                    {sending ? (isFr ? "Envoi..." : "Sending...") : c.formBtn}
                   </motion.button>
 
                   <p className="text-[10px] text-[#8899BB] text-center flex items-center justify-center gap-1.5">

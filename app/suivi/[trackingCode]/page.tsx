@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useApp } from '../../i18n/AppContext';
+import { fetchPublicApi } from '@/lib/public-api';
 
 interface Item { title: string; price: number; quantity: number; digital?: boolean; }
 interface TimelineEvent { event: string; by: string; date: string; }
@@ -30,11 +31,9 @@ export default function SuiviPage() {
 
   useEffect(() => {
     if (!trackingCode) return;
-    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    fetch(`${base}/api/commandes/tracking/${trackingCode}`)
-      .then(r => r.json())
-      .then(r => {
-        if (r.success) setCommande(r.data);
+    fetchPublicApi<{ success: boolean; data: Commande }>(`/api/commandes/tracking/${trackingCode}`)
+      .then((response) => {
+        if (response.success) setCommande(response.data);
         else setError(isFr ? 'Code de suivi introuvable.' : 'Tracking code not found.');
       })
       .catch(() => setError(isFr ? 'Impossible de contacter le serveur.' : 'Unable to contact the server.'))

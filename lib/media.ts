@@ -16,6 +16,14 @@ export function resolveMediaUrl(src?: string | null) {
     return `https:${src}`;
   }
 
+  if (src.startsWith("/uploads/")) {
+    return src;
+  }
+
+  if (src.startsWith("uploads/")) {
+    return `/${src}`;
+  }
+
   if (src.startsWith("/")) {
     return `${API_BASE}${src}`;
   }

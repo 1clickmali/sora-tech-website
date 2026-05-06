@@ -11,6 +11,7 @@ import {
 import Footer from "../components/Footer";
 import { useApp } from "../i18n/AppContext";
 import { projectLabel } from "@/lib/i18nLabels";
+import { fetchPublicApi } from "@/lib/public-api";
 
 function ScanLine() {
   return (
@@ -52,10 +53,9 @@ export default function ProjetsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/projets`)
-      .then(r => r.json())
-      .then(r => {
-        setProjects(((r.data || []) as RawProject[]).map((p) => ({
+    fetchPublicApi<{ data: RawProject[] }>('/api/projets')
+      .then((response) => {
+        setProjects(((response.data || []) as RawProject[]).map((p) => ({
           ...p, id: p._id,
           icon: ICON_MAP[p.category] || Globe,
           color: COLOR_MAP[p.category] || "#0099FF",
