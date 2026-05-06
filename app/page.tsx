@@ -6,13 +6,13 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Navbar from "./components/Navbar";
 import {
-  Globe, Monitor, Smartphone, Layers, Shield, Wrench,
+  Brain, Globe, Monitor, Network, Smartphone, Layers, Shield, Wrench,
   Zap, Award, MapPin, Lock, ShoppingCart, CheckCircle,
   type LucideIcon
 } from "lucide-react";
 import { useApp } from "./i18n/AppContext";
 import { resolveMediaUrl } from "@/lib/media";
-import { blogLabel, productLabel, projectLabel } from "@/lib/i18nLabels";
+import { blogLabel, normalizeProjectCategory, productLabel, projectLabel } from "@/lib/i18nLabels";
 import { fetchPublicApi } from "@/lib/public-api";
 
 const BackgroundFX = dynamic(() => import("./components/BackgroundFX"), { ssr: false });
@@ -70,11 +70,13 @@ const CAT_COLORS: Record<string, string> = {
   Logiciel: "#0099FF", Matériel: "#FF6B00", Service: "#00C48C", Formation: "#9B93FF",
   "Site web": "#0099FF", Application: "#00C48C", ERP: "#9B93FF", Cybersécurité: "#FF4757",
   Digitalisation: "#0099FF", Web: "#0066FF", Mobile: "#00C48C", Business: "#FF6B00",
+  web: "#0099FF", logiciel: "#FF6B00", mobile: "#00C48C", erp: "#9B93FF", cybersecurite: "#FF4757", ia: "#8B5CF6", reseau: "#F59E0B",
 };
 
 const CAT_ICONS: Record<string, LucideIcon> = {
   Logiciel: Monitor, Matériel: Wrench, Service: Globe, Formation: Layers,
   "Site web": Globe, Application: Smartphone, ERP: Layers, Cybersécurité: Shield,
+  web: Globe, logiciel: Monitor, mobile: Smartphone, erp: Layers, cybersecurite: Shield, ia: Brain, reseau: Network,
 };
 
 export default function Home() {
@@ -349,8 +351,9 @@ export default function Home() {
             </div>
             <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
               {apiProjects.map((p, i) => {
-                const color = CAT_COLORS[p.category] || "#0099FF";
-                const Icon = CAT_ICONS[p.category] || Globe;
+                const categoryKey = normalizeProjectCategory(p.category);
+                const color = CAT_COLORS[categoryKey] || CAT_COLORS[p.category] || "#0099FF";
+                const Icon = CAT_ICONS[categoryKey] || CAT_ICONS[p.category] || Globe;
                 return (
                   <Link href="/projets" key={p._id} className="flex-shrink-0">
                     <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
@@ -365,7 +368,7 @@ export default function Home() {
                               <Icon className="w-8 h-8" style={{ color }} />
                             </div>
                         }
-                        <div className="absolute top-3 left-3 px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ background: "var(--card)", color }}>{projectLabel(p.category, lang)}</div>
+                        <div className="absolute top-3 left-3 px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ background: "var(--card)", color }}>{projectLabel(categoryKey, lang)}</div>
                       </div>
                       <div className="p-4">
                         <h3 className="text-sm font-bold mb-1 line-clamp-1 group-hover:text-[#0099FF] transition-colors" style={{ color: "var(--text)" }}>{p.title}</h3>

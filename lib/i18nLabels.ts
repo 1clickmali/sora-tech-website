@@ -22,11 +22,13 @@ const productLabels: Record<string, Record<Lang, string>> = {
 
 const projectLabels: Record<string, Record<Lang, string>> = {
   Tous: { fr: "Tous", en: "All" },
-  "Site web": { fr: "Site web", en: "Website" },
-  Logiciel: { fr: "Logiciel", en: "Software" },
-  Application: { fr: "Application", en: "Application" },
-  ERP: { fr: "ERP", en: "ERP" },
-  "Cybersécurité": { fr: "Cybersécurité", en: "Cybersecurity" },
+  web: { fr: "Site web", en: "Website" },
+  logiciel: { fr: "Logiciel", en: "Software" },
+  mobile: { fr: "Application", en: "Application" },
+  erp: { fr: "ERP", en: "ERP" },
+  cybersecurite: { fr: "Cybersécurité", en: "Cybersecurity" },
+  ia: { fr: "IA", en: "AI" },
+  reseau: { fr: "Réseau", en: "Network" },
 };
 
 const blogLabels: Record<string, Record<Lang, string>> = {
@@ -43,8 +45,48 @@ export function productLabel(value: string, lang: Lang) {
   return productLabels[value]?.[lang] || value;
 }
 
+export function normalizeProjectCategory(value: string) {
+  const normalized = value
+    ?.trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+
+  switch (normalized) {
+    case "tous":
+    case "all":
+      return "Tous";
+    case "site web":
+    case "website":
+    case "web":
+      return "web";
+    case "logiciel":
+    case "software":
+      return "logiciel";
+    case "application":
+    case "applications":
+    case "app":
+    case "mobile":
+      return "mobile";
+    case "erp":
+      return "erp";
+    case "cybersecurite":
+    case "cybersecurity":
+      return "cybersecurite";
+    case "ia":
+    case "ai":
+      return "ia";
+    case "reseau":
+    case "network":
+      return "reseau";
+    default:
+      return value;
+  }
+}
+
 export function projectLabel(value: string, lang: Lang) {
-  return projectLabels[value]?.[lang] || value;
+  return projectLabels[normalizeProjectCategory(value)]?.[lang] || value;
 }
 
 export function blogLabel(value: string, lang: Lang) {

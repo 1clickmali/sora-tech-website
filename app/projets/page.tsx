@@ -5,12 +5,13 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import {
-  Globe, Monitor, Smartphone, Shield,
+  Brain, Globe, Monitor, Network, Smartphone, Shield,
   GraduationCap, CheckCircle, type LucideIcon
 } from "lucide-react";
 import Footer from "../components/Footer";
 import { useApp } from "../i18n/AppContext";
-import { projectLabel } from "@/lib/i18nLabels";
+import { normalizeProjectCategory, projectLabel } from "@/lib/i18nLabels";
+import { resolveMediaUrl } from "@/lib/media";
 import { fetchPublicApi } from "@/lib/public-api";
 
 function ScanLine() {
@@ -21,8 +22,25 @@ function ScanLine() {
   );
 }
 
-const ICON_MAP: Record<string, LucideIcon> = { web: Globe, logiciel: Monitor, mobile: Smartphone, cybersecurite: Shield, erp: GraduationCap };
-const COLOR_MAP: Record<string, string> = { web: "#0099FF", logiciel: "#FF6B00", mobile: "#00C48C", cybersecurite: "#FF4757", erp: "#9B93FF", reseau: "#F59E0B" };
+const ICON_MAP: Record<string, LucideIcon> = {
+  web: Globe,
+  logiciel: Monitor,
+  mobile: Smartphone,
+  cybersecurite: Shield,
+  erp: GraduationCap,
+  ia: Brain,
+  reseau: Network,
+};
+const COLOR_MAP: Record<string, string> = {
+  web: "#0099FF",
+  logiciel: "#FF6B00",
+  mobile: "#00C48C",
+  cybersecurite: "#FF4757",
+  erp: "#9B93FF",
+  ia: "#8B5CF6",
+  reseau: "#F59E0B",
+};
+const CATEGORY_FILTERS = ["Tous", "web", "logiciel", "mobile", "erp", "cybersecurite", "ia", "reseau"];
 
 type RawProject = {
   _id: string;
@@ -33,11 +51,13 @@ type RawProject = {
   results?: string[];
   tech?: string[];
   image?: string;
+  year?: string;
   createdAt?: string;
 };
 
 type Project = RawProject & {
   id: string;
+  categoryKey: string;
   year: string;
   icon: LucideIcon;
   color: string;
@@ -49,17 +69,18 @@ export default function ProjetsPage() {
   const { lang } = useApp();
   const isFr = lang === "fr";
   const [activeCategory, setActiveCategory] = useState("Tous");
-  const categories = ["Tous", "Site web", "Logiciel", "Application", "ERP", "Cybersécurité"];
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
     fetchPublicApi<{ data: RawProject[] }>('/api/projets')
       .then((response) => {
         setProjects(((response.data || []) as RawProject[]).map((p) => ({
-          ...p, id: p._id,
-          icon: ICON_MAP[p.category] || Globe,
-          color: COLOR_MAP[p.category] || "#0099FF",
-          year: p.createdAt ? new Date(p.createdAt).getFullYear().toString() : "2025",
+          ...p,
+          id: p._id,
+          categoryKey: normalizeProjectCategory(p.category),
+          icon: ICON_MAP[normalizeProjectCategory(p.category)] || Globe,
+          color: COLOR_MAP[normalizeProjectCategory(p.category)] || "#0099FF",
+          year: p.year || (p.createdAt ? new Date(p.createdAt).getFullYear().toString() : "2025"),
           results: p.results || [],
           tech: p.tech || [],
         })));
@@ -67,7 +88,9 @@ export default function ProjetsPage() {
       .catch(() => {});
   }, []);
 
-  const filtered = activeCategory === "Tous" ? projects : projects.filter(p => p.category === activeCategory);
+  const filtered = activeCategory === "Tous"
+    ? projects
+    : projects.filter((project) => project.categoryKey === activeCategory);
 
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: "var(--bg)", color: "var(--text)" }}>
@@ -121,7 +144,7 @@ export default function ProjetsPage() {
       {/* FILTRES */}
       <section className="relative py-10 px-6 z-10">
         <div className="max-w-6xl mx-auto flex gap-2 flex-wrap justify-center">
-          {categories.map((cat) => (
+          {CATEGORY_FILTERS.map((cat) => (
             <motion.button key={cat} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setActiveCategory(cat)}
               className={`px-5 py-2 rounded-full text-xs font-bold tracking-wide transition-all duration-200 ${activeCategory === cat ? "bg-[#0066FF] text-white shadow-[0_0_20px_rgba(0,102,255,0.4)]" : "bg-[#0A1525] border border-[#1a2540] text-[#8899BB] hover:border-[#0066FF] hover:text-white"}`}>
               {projectLabel(cat, lang)}
@@ -137,11 +160,18 @@ export default function ProjetsPage() {
             {filtered.map((project, i) => (
               <Link href="/contact" key={project.id}><motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${project.color}25` }} className="rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300 border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <div className="relative h-44 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(135deg, ${project.color}30, ${project.color}08)` }}>
-                  <div className="w-20 h-20 rounded-3xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110" style={{ backgroundColor: `${project.color}20`, border: `1px solid ${project.color}40`, boxShadow: `0 0 30px ${project.color}20` }}>
-                    <project.icon className="w-10 h-10" style={{ color: project.color }} />
-                  </div>
+                  {project.image ? (
+                    <>
+                      <img src={resolveMediaUrl(project.image)} alt={project.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#060D1F]/85 via-[#060D1F]/20 to-transparent" />
+                    </>
+                  ) : (
+                    <div className="w-20 h-20 rounded-3xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110" style={{ backgroundColor: `${project.color}20`, border: `1px solid ${project.color}40`, boxShadow: `0 0 30px ${project.color}20` }}>
+                      <project.icon className="w-10 h-10" style={{ color: project.color }} />
+                    </div>
+                  )}
                   <div className="absolute top-3 right-3 backdrop-blur px-2 py-1 rounded font-mono text-[10px] font-bold" style={{ background: "var(--card)", color: project.color }}>{project.year}</div>
-                  <div className="absolute top-3 left-3 backdrop-blur px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ background: "var(--card)", color: "var(--text)" }}>{projectLabel(project.category, lang)}</div>
+                  <div className="absolute top-3 left-3 backdrop-blur px-2 py-1 rounded text-[10px] tracking-widest font-mono" style={{ background: "var(--card)", color: "var(--text)" }}>{projectLabel(project.categoryKey, lang)}</div>
                 </div>
                 <div className="p-5">
                   <h3 className="text-lg font-black mb-1 group-hover:text-[#0099FF] transition-colors duration-200">{project.title}</h3>
