@@ -26,6 +26,7 @@ interface Commande {
   status: string;
   paymentMode: string;
   paymentProvider?: string;
+  paymentStatus?: string;
   createdAt: string;
   items: Item[];
   timeline?: TimelineEvent[];
@@ -42,6 +43,26 @@ const STATUS_LABEL: Record<string, string> = {
 const STATUS_COLOR: Record<string, string> = {
   nouveau: '#00E5FF', confirme: '#A855F7', en_cours: '#F59E0B',
   en_livraison: '#FF6B00', livre: '#10B981', annule: '#EF4444',
+};
+const PAYMENT_STATUS_LABEL: Record<string, string> = {
+  unpaid: 'Impayée',
+  pending: 'En attente',
+  processing: 'En cours',
+  paid: 'Payée',
+  failed: 'Échouée',
+  cancelled: 'Annulée',
+  expired: 'Expirée',
+  refunded: 'Remboursée',
+};
+const PAYMENT_STATUS_COLOR: Record<string, string> = {
+  unpaid: '#F59E0B',
+  pending: '#00E5FF',
+  processing: '#A855F7',
+  paid: '#10B981',
+  failed: '#EF4444',
+  cancelled: '#F97316',
+  expired: '#94A3B8',
+  refunded: '#38BDF8',
 };
 
 const fmt = (n: number) => new Intl.NumberFormat('fr-FR').format(n) + ' FCFA';
@@ -167,9 +188,12 @@ export default function CommandesPage() {
                   <td className="px-4 py-3 font-mono font-bold text-cyan-400 whitespace-nowrap">{fmt(cmd.total)}</td>
                   <td className="px-4 py-3 text-xs text-gray-400">{quartier(cmd) || '—'}</td>
                   <td className="px-4 py-3">
-                    <span className="text-xs" style={{ color: cmd.paymentMode === 'online' ? '#00E5FF' : '#FF6B00' }}>
+                    <div className="text-xs" style={{ color: cmd.paymentMode === 'online' ? '#00E5FF' : '#FF6B00' }}>
                       {cmd.paymentMode === 'online' ? '💳 En ligne' : '🚚 Livraison'}
-                    </span>
+                    </div>
+                    <div className="text-[10px] mt-1" style={{ color: PAYMENT_STATUS_COLOR[cmd.paymentStatus || 'unpaid'] || '#94A3B8' }}>
+                      {PAYMENT_STATUS_LABEL[cmd.paymentStatus || 'unpaid'] || cmd.paymentStatus || '—'}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold"
@@ -325,6 +349,12 @@ export default function CommandesPage() {
                     <span>Mode de paiement</span>
                     <span style={{ color: selected.paymentMode === 'online' ? '#00E5FF' : '#FF6B00' }}>
                       {selected.paymentMode === 'online' ? '💳 En ligne' : '🚚 À la livraison'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-400">
+                    <span>Statut paiement</span>
+                    <span style={{ color: PAYMENT_STATUS_COLOR[selected.paymentStatus || 'unpaid'] || '#94A3B8' }}>
+                      {PAYMENT_STATUS_LABEL[selected.paymentStatus || 'unpaid'] || selected.paymentStatus || '—'}
                     </span>
                   </div>
                   <div className="pt-2 border-t flex justify-between" style={{ borderColor: '#1E2D4A' }}>

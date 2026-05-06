@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import {
   ShoppingCart, Trash2, X, Download, Truck, Headphones, RotateCcw,
@@ -12,7 +12,7 @@ import Footer from "../components/Footer";
 import { useApp } from "../i18n/AppContext";
 import { productLabel } from "@/lib/i18nLabels";
 import { resolveMediaUrl } from "@/lib/media";
-import { fetchPublicApi, postPublicApi } from "@/lib/public-api";
+import { fetchPublicApi } from "@/lib/public-api";
 import {
   PRODUCT_CATEGORIES,
   getProductDisplayMeta,
@@ -48,6 +48,23 @@ type ApiProduct = {
   images?: string[];
   video?: string;
   active?: boolean;
+};
+
+type CheckoutResponse = {
+  success: boolean;
+  data: {
+    _id: string;
+    reference: string;
+    trackingCode?: string;
+  };
+  redirectUrl?: string;
+  payment?: {
+    provider: string;
+    status: string;
+    reference?: string;
+    checkoutUrl?: string;
+    returnToken?: string;
+  };
 };
 
 function buildProduct(product: Omit<Product, "icon" | "color">): Product {
@@ -131,6 +148,7 @@ export default function BoutiquePage() {
   const [orderError, setOrderError] = useState('');
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoError, setGeoError] = useState('');
+  const checkoutAttemptRef = useRef<{ key: string; fingerprint: string } | null>(null);
 
   const DELIVERY_FEE = 2500;
   const categories = ["Tous", ...PRODUCT_CATEGORIES];
@@ -217,28 +235,58 @@ export default function BoutiquePage() {
     setDeliveryInfo({ name: "", phone: "", email: "", address: "", quartier: "" });
     setOrderSuccess(false);
     setOrderError('');
+    checkoutAttemptRef.current = null;
   };
   const confirmOrder = async () => {
     if (orderLoading) return;
     setOrderError('');
     setOrderLoading(true);
     try {
-      await postPublicApi('/api/commandes', {
-          clientName: deliveryInfo.name || 'Client',
-          clientPhone: deliveryInfo.phone || '0000000000',
-          clientEmail: deliveryInfo.email || '',
-          clientAddress: deliveryInfo.address,
-          clientQuartier: deliveryInfo.quartier,
-          items: cart.map(p => ({
-            productId: typeof p.id === 'string' ? p.id : undefined,
-            title: p.title, price: p.price, quantity: 1,
-            digital: p.digital || false, image: p.image || '',
-          })),
-          subtotal: cartSubtotal,
-          deliveryFee: deliveryFee,
-          total: cartTotal,
-          paymentMode: paymentMode || 'online',
+      const payload = {
+        clientName: deliveryInfo.name || 'Client',
+        clientPhone: deliveryInfo.phone || '0000000000',
+        clientEmail: deliveryInfo.email || '',
+        clientAddress: deliveryInfo.address,
+        clientQuartier: deliveryInfo.quartier,
+        items: cart.map((product) => ({
+          productId: typeof product.id === 'string' ? product.id : undefined,
+          title: product.title,
+          price: product.price,
+          quantity: 1,
+          digital: product.digital || false,
+          image: product.image || '',
+        })),
+        subtotal: cartSubtotal,
+        deliveryFee,
+        total: cartTotal,
+        paymentMode: paymentMode || 'online',
+      };
+
+      const fingerprint = JSON.stringify(payload);
+      if (checkoutAttemptRef.current?.fingerprint !== fingerprint) {
+        checkoutAttemptRef.current = {
+          key: crypto.randomUUID(),
+          fingerprint,
+        };
+      }
+
+      const response = await fetchPublicApi<CheckoutResponse>('/api/commandes', {
+        method: 'POST',
+        headers: {
+          'Idempotency-Key': checkoutAttemptRef.current.key,
+        },
+        body: JSON.stringify(payload),
       });
+
+      if ((paymentMode || 'online') === 'online') {
+        const redirectUrl = response.redirectUrl || response.payment?.checkoutUrl;
+        if (!redirectUrl) {
+          throw new Error(isFr ? 'Le lien de paiement n’a pas été généré.' : 'Payment link was not generated.');
+        }
+        globalThis.location.assign(redirectUrl);
+        return;
+      }
+
       setOrderSuccess(true);
       setTimeout(() => { setCart([]); setCartOpen(false); resetCheckout(); }, 4000);
     } catch (error) {

@@ -37,6 +37,27 @@ const commandeSchema = new mongoose.Schema({
 
   paymentMode: { type: String, enum: ['online', 'cod'], required: true },
   paymentProvider: { type: String, default: '' },
+  paymentMethod: { type: String, default: '' },
+  paymentStatus: {
+    type: String,
+    enum: ['unpaid', 'pending', 'processing', 'paid', 'failed', 'cancelled', 'expired', 'refunded'],
+    default: 'unpaid',
+  },
+  paymentReference: { type: String, unique: true, sparse: true },
+  paymentCheckoutUrl: { type: String, default: '' },
+  paymentEnvironment: { type: String, default: '' },
+  paymentReturnToken: { type: String, unique: true, sparse: true },
+  paymentCompletedAt: { type: Date },
+  paymentSyncedAt: { type: Date },
+  paymentLastEventId: { type: String, default: '' },
+  paymentLastWebhookDelivery: { type: String, default: '' },
+  paymentErrorMessage: { type: String, default: '' },
+  clientRequestId: { type: String, unique: true, sparse: true },
+  idempotencyFingerprint: { type: String, default: '' },
+  stockReservedAt: { type: Date },
+  stockReleasedAt: { type: Date },
+  postProcessingDone: { type: Boolean, default: false },
+  postProcessingDoneAt: { type: Date },
 
   status: {
     type: String,

@@ -60,7 +60,7 @@ app.use(cors({
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'Idempotency-Key'],
   maxAge: 86400,
 }));
 
@@ -81,7 +81,14 @@ const loginLimiter = rateLimit({
 });
 
 app.use('/api/', generalLimiter);
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({
+  limit: '5mb',
+  verify: (req, res, buf) => {
+    if (req.originalUrl === '/api/commandes/webhooks/geniuspay') {
+      req.rawBody = buf.toString('utf8');
+    }
+  },
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
