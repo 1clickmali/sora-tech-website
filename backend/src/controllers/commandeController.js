@@ -503,8 +503,8 @@ const geniusPayWebhook = async (req, res) => {
       return res.status(503).json({ success: false, message: 'GENIUSPAY_WEBHOOK_SECRET non configuré' });
     }
 
-    const timestamp = req.get('X-Genius-Timestamp') || '';
-    const signature = req.get('X-Genius-Signature') || '';
+    const timestamp = req.get('X-Webhook-Timestamp') || req.get('X-Genius-Timestamp') || '';
+    const signature = req.get('X-Webhook-Signature') || req.get('X-Genius-Signature') || '';
     const deliveryId = req.get('X-Webhook-Delivery') || '';
     const eventName = req.get('X-Webhook-Event') || req.body?.type || req.body?.event || '';
     const rawBody = req.rawBody || '';
