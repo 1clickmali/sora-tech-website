@@ -13,6 +13,9 @@ const { verifyEmailConfig } = require('./utils/email');
 
 const app = express();
 
+// Trust Railway/Vercel reverse proxy — required for express-rate-limit behind load balancers
+app.set('trust proxy', 1);
+
 // Connect to MongoDB
 connectDB();
 
@@ -71,6 +74,7 @@ const generalLimiter = rateLimit({
   message: 'Trop de requêtes, réessayez plus tard',
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
 });
 
 const loginLimiter = rateLimit({
@@ -78,6 +82,7 @@ const loginLimiter = rateLimit({
   max: 20,
   message: 'Trop de tentatives de connexion, réessayez dans 15 minutes',
   skipSuccessfulRequests: true,
+  validate: { xForwardedForHeader: false },
 });
 
 app.use('/api/', generalLimiter);
