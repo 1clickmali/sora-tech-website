@@ -68,7 +68,7 @@ export default function ProjetsPage() {
     await api.delete(`/api/projets/${id}`); load();
   };
 
-  const startEdit = (p: Projet) => { setForm(p); setEditing(p._id); setTechInput(''); setError(''); setShowForm(true); };
+  const startEdit = (p: Projet) => { setForm({ ...EMPTY, ...p, client: p.client ?? '' }); setEditing(p._id); setTechInput(''); setError(''); setShowForm(true); };
 
   const filtered = projets.filter(p => {
     if (filterCat !== 'tous' && p.category !== filterCat) return false;
@@ -184,7 +184,7 @@ export default function ProjetsPage() {
               ].map(f => (
                 <div key={f.key}>
                   <label className="block text-xs text-gray-500 uppercase tracking-widest mb-1">{f.label}</label>
-                  <input value={form[f.key] || ''} onChange={e => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
+                  <input value={(form[f.key as keyof ProjetForm] as string) || ''} onChange={e => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
                     className="w-full px-3 py-2 rounded-lg text-white text-sm outline-none"
                     style={{ background: '#060D1F', border: '1px solid #1E2D4A' }} />
                 </div>
