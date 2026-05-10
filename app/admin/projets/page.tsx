@@ -9,12 +9,18 @@ interface Projet {
   featured: boolean; order: number; image?: string; link?: string;
 }
 
+type ProjetForm = {
+  title: string; description: string; category: string;
+  client: string; tech: string[]; results: string[];
+  featured: boolean; order: number; image: string; link: string;
+};
+
 const CATEGORIES = ['web', 'mobile', 'erp', 'cybersecurite', 'ia', 'reseau'];
-const EMPTY = { title: '', description: '', category: 'web', client: '', tech: [], results: [], featured: false, order: 0, image: '', link: '' };
+const EMPTY: ProjetForm = { title: '', description: '', category: 'web', client: '', tech: [], results: [], featured: false, order: 0, image: '', link: '' };
 
 export default function ProjetsPage() {
   const [projets, setProjets] = useState<Projet[]>([]);
-  const [form, setForm] = useState<any>(EMPTY);
+  const [form, setForm] = useState<ProjetForm>(EMPTY);
   const [editing, setEditing] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [techInput, setTechInput] = useState('');
@@ -37,9 +43,9 @@ export default function ProjetsPage() {
       const fd = new FormData();
       fd.append('image', file);
       const result = await api.upload('/api/upload/image', fd);
-      setForm((p: any) => ({ ...p, image: result.url }));
-    } catch (err: any) {
-      setError(err.message || 'Erreur upload');
+      setForm((p) => ({ ...p, image: result.url }));
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Erreur upload');
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -52,8 +58,8 @@ export default function ProjetsPage() {
       if (editing) await api.patch(`/api/projets/${editing}`, form);
       else await api.post('/api/projets', form);
       setShowForm(false); setEditing(null); setForm(EMPTY); load();
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de la sauvegarde');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde');
     }
   };
 
@@ -178,7 +184,7 @@ export default function ProjetsPage() {
               ].map(f => (
                 <div key={f.key}>
                   <label className="block text-xs text-gray-500 uppercase tracking-widest mb-1">{f.label}</label>
-                  <input value={form[f.key] || ''} onChange={e => setForm((p: any) => ({ ...p, [f.key]: e.target.value }))}
+                  <input value={form[f.key] || ''} onChange={e => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
                     className="w-full px-3 py-2 rounded-lg text-white text-sm outline-none"
                     style={{ background: '#060D1F', border: '1px solid #1E2D4A' }} />
                 </div>
@@ -186,7 +192,7 @@ export default function ProjetsPage() {
 
               <div>
                 <label className="block text-xs text-gray-500 uppercase tracking-widest mb-1">Catégorie</label>
-                <select value={form.category} onChange={e => setForm((p: any) => ({ ...p, category: e.target.value }))}
+                <select value={form.category} onChange={e => setForm((p) => ({ ...p, category: e.target.value }))}
                   className="w-full px-3 py-2 rounded-lg text-white text-sm"
                   style={{ background: '#060D1F', border: '1px solid #1E2D4A' }}>
                   {CATEGORIES.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
@@ -195,7 +201,7 @@ export default function ProjetsPage() {
 
               <div>
                 <label className="block text-xs text-gray-500 uppercase tracking-widest mb-1">Description *</label>
-                <textarea value={form.description || ''} onChange={e => setForm((p: any) => ({ ...p, description: e.target.value }))}
+                <textarea value={form.description || ''} onChange={e => setForm((p) => ({ ...p, description: e.target.value }))}
                   rows={3} className="w-full px-3 py-2 rounded-lg text-white text-sm outline-none resize-none"
                   style={{ background: '#060D1F', border: '1px solid #1E2D4A' }} />
               </div>
@@ -206,7 +212,7 @@ export default function ProjetsPage() {
                   {(form.tech || []).map((t: string) => (
                     <span key={t} className="px-2 py-0.5 rounded text-xs cursor-pointer"
                       style={{ background: '#00E5FF22', color: '#00E5FF' }}
-                      onClick={() => setForm((p: any) => ({ ...p, tech: p.tech.filter((x: string) => x !== t) }))}>
+                      onClick={() => setForm((p) => ({ ...p, tech: p.tech.filter((x: string) => x !== t) }))}>
                       {t} ✕
                     </span>
                   ))}
@@ -214,7 +220,7 @@ export default function ProjetsPage() {
                 <input value={techInput} onChange={e => setTechInput(e.target.value)}
                   onKeyDown={e => {
                     if (e.key === 'Enter' && techInput.trim()) {
-                      setForm((p: any) => ({ ...p, tech: [...(p.tech || []), techInput.trim()] }));
+                      setForm((p) => ({ ...p, tech: [...(p.tech || []), techInput.trim()] }));
                       setTechInput(''); e.preventDefault();
                     }
                   }}
@@ -240,7 +246,7 @@ export default function ProjetsPage() {
                     type="text"
                     placeholder="ou coller une URL"
                     value={form.image?.startsWith('/uploads') || form.image?.startsWith('http') ? form.image : ''}
-                    onChange={e => setForm((p: any) => ({ ...p, image: e.target.value }))}
+                    onChange={e => setForm((p) => ({ ...p, image: e.target.value }))}
                     className="flex-1 px-3 py-2 rounded-lg text-white text-xs outline-none"
                     style={{ background: '#060D1F', border: '1px solid #1E2D4A' }} />
                 </div>
@@ -248,7 +254,7 @@ export default function ProjetsPage() {
                 {form.image && (
                   <div className="mt-2 relative">
                     <img src={resolveMediaUrl(form.image)} alt="preview" className="h-32 rounded-lg object-cover w-full" />
-                    <button onClick={() => setForm((p: any) => ({ ...p, image: '' }))}
+                    <button onClick={() => setForm((p) => ({ ...p, image: '' }))}
                       className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
                       ✕
                     </button>
@@ -258,12 +264,12 @@ export default function ProjetsPage() {
 
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={form.featured} onChange={e => setForm((p: any) => ({ ...p, featured: e.target.checked }))} />
+                  <input type="checkbox" checked={form.featured} onChange={e => setForm((p) => ({ ...p, featured: e.target.checked }))} />
                   <span className="text-sm text-gray-300">À la une</span>
                 </label>
                 <div className="flex items-center gap-2">
                   <label className="text-xs text-gray-400">Ordre</label>
-                  <input type="number" value={form.order || 0} onChange={e => setForm((p: any) => ({ ...p, order: Number(e.target.value) }))}
+                  <input type="number" value={form.order || 0} onChange={e => setForm((p) => ({ ...p, order: Number(e.target.value) }))}
                     className="w-16 px-2 py-1 rounded text-white text-sm outline-none"
                     style={{ background: '#060D1F', border: '1px solid #1E2D4A' }} />
                 </div>

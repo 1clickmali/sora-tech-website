@@ -41,12 +41,12 @@ const allowedOrigins = [
   'https://soratech.ci',
   'https://www.soratech.ci',
   'https://sora-tech-frontend-production.up.railway.app',
-  'http://localhost:3000',
-  'http://localhost:3001',
   // Production deployments
   ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
   // Allow *.vercel.app for Vercel deployments
   ...(process.env.NODE_ENV === 'production' ? ['https://sora-tech-website.vercel.app'] : []),
+  // Development only
+  ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:3000', 'http://localhost:3001'] : []),
 ];
 
 app.use(cors({

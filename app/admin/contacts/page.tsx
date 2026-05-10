@@ -47,8 +47,8 @@ export default function ContactsPage() {
       const r = await api.get<{ data: Contact[]; total: number }>(`/api/contacts?${params}`);
       setContacts(r.data);
       setTotal(r.total);
-    } catch (e: any) {
-      console.error(e.message);
+    } catch (e: unknown) {
+      console.error(e instanceof Error ? e.message : e);
     } finally {
       setLoading(false);
     }

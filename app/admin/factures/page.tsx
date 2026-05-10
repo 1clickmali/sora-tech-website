@@ -55,8 +55,8 @@ export default function FacturesPage() {
       const r = await api.get<{ data: Facture[]; total: number }>(`/api/factures?${params}`);
       setFactures(r.data);
       setTotal(r.total);
-    } catch (e: any) {
-      console.error(e.message);
+    } catch (e: unknown) {
+      console.error(e instanceof Error ? e.message : e);
     } finally {
       setLoading(false);
     }
@@ -101,8 +101,8 @@ export default function FacturesPage() {
       setShowForm(false);
       setForm(EMPTY_FORM);
       load();
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Erreur lors de la création');
     } finally {
       setSaving(false);
     }
