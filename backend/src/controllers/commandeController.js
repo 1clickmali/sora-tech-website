@@ -353,7 +353,7 @@ const ensureOnlineCheckout = async (commande) => {
   const checkoutUrl = payment.checkout_url || payment.checkoutUrl || payment.url || '';
 
   if (!payment.reference || !checkoutUrl) {
-    const error = new Error('GeniusPay n’a pas retourné de lien de paiement valide');
+    const error = new Error("GeniusPay n'a pas retourné de lien de paiement valide");
     error.status = 502;
     throw error;
   }
@@ -637,7 +637,7 @@ const recalculateOrderTotal = async (items = [], deliveryFee = 0) => {
   let serverSubtotal = 0;
   for (const item of items) {
     if (item.productId && mongoose.isValidObjectId(item.productId)) {
-      const product = await Produit.findById(item.productId).select(‘price’);
+      const product = await Produit.findById(item.productId).select('price');
       if (product) {
         item.price = product.price; // Override client-supplied price with DB price
       }
@@ -663,11 +663,11 @@ const createCommande = async (req, res) => {
   });
 
   if (!body.clientName || !body.clientPhone) {
-    return res.status(400).json({ success: false, message: ‘Nom et téléphone requis’ });
+    return res.status(400).json({ success: false, message: 'Nom et téléphone requis' });
   }
 
-  if (![‘online’, ‘cod’].includes(body.paymentMode)) {
-    return res.status(400).json({ success: false, message: ‘Mode de paiement invalide’ });
+  if (!['online', 'cod'].includes(body.paymentMode)) {
+    return res.status(400).json({ success: false, message: 'Mode de paiement invalide' });
   }
 
   // Server-side price recalculation — client cannot manipulate total
@@ -679,18 +679,18 @@ const createCommande = async (req, res) => {
     return res.status(400).json({ success: false, message: priceErr.message });
   }
 
-  const idempotencyKey = (req.get(‘Idempotency-Key’) || body.clientRequestId || ‘’).trim();
+  const idempotencyKey = (req.get('Idempotency-Key') || body.clientRequestId || '').trim();
   const fingerprint = buildFingerprint({
-    clientName: body.clientName || ‘’,
-    clientPhone: body.clientPhone || ‘’,
-    clientEmail: body.clientEmail || ‘’,
-    clientAddress: body.clientAddress || ‘’,
-    clientQuartier: body.clientQuartier || ‘’,
+    clientName: body.clientName || '',
+    clientPhone: body.clientPhone || '',
+    clientEmail: body.clientEmail || '',
+    clientAddress: body.clientAddress || '',
+    clientQuartier: body.clientQuartier || '',
     items: body.items || [],
     subtotal: body.subtotal || 0,
     deliveryFee: body.deliveryFee || 0,
     total: body.total || 0,
-    paymentMode: body.paymentMode || ‘online’,
+    paymentMode: body.paymentMode || 'online',
   });
 
   try {
@@ -700,7 +700,7 @@ const createCommande = async (req, res) => {
         if (existing.idempotencyFingerprint && existing.idempotencyFingerprint !== fingerprint) {
           return res.status(409).json({
             success: false,
-            message: ‘Cette clé d’idempotence a déjà été utilisée pour une autre commande.’,
+            message: "Cette clé d'idempotence a déjà été utilisée pour une autre commande.",
           });
         }
 
@@ -715,9 +715,9 @@ const createCommande = async (req, res) => {
     const paymentPrerequisiteError = validateOnlinePaymentPrerequisites(body);
     if (paymentPrerequisiteError) throw paymentPrerequisiteError;
 
-    body.paymentProvider = body.paymentMode === ‘online’ ? ‘geniuspay’ : ‘’;
-    body.paymentStatus = body.paymentMode === ‘online’ ? ‘pending’ : ‘unpaid’;
-    if (body.paymentMode === ‘online’ && !body.paymentReturnToken) {
+    body.paymentProvider = body.paymentMode === 'online' ? 'geniuspay' : '';
+    body.paymentStatus = body.paymentMode === 'online' ? 'pending' : 'unpaid';
+    if (body.paymentMode === 'online' && !body.paymentReturnToken) {
       body.paymentReturnToken = crypto.randomUUID();
     }
 
