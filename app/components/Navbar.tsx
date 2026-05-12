@@ -6,7 +6,7 @@ import { Sun, Moon } from "lucide-react";
 import { useApp } from "../i18n/AppContext";
 import MobileMenu from "./MobileMenu";
 
-type NavId = "home" | "services" | "about" | "blog" | "projets" | "boutique" | "devis" | "contact" | "suivi";
+type NavId = "home" | "services" | "about" | "blog" | "projets" | "boutique" | "devis" | "contact" | "suivi" | (string & {});
 
 export default function Navbar({ active }: { active: NavId }) {
   const { t, lang, theme, toggleLang, toggleTheme } = useApp();

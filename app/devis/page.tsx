@@ -296,7 +296,7 @@ export default function DevisPage() {
                       }}
                     >
                       <IconBox icon={s.icon} color={s.color} />
-                      <div className="text-base font-bold mb-1" style={{ color: selectedService?.id === s.id ? s.color : "#fff" }}>
+                      <div className="text-base font-bold mb-1" style={{ color: selectedService?.id === s.id ? s.color : "var(--text)" }}>
                         {s.name}
                       </div>
                       <div className="text-xs text-[#8899BB]">{isFr ? "Dès" : "From"} {formatPrice(s.basePrice)} F</div>

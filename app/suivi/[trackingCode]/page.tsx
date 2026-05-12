@@ -53,13 +53,13 @@ export default function SuiviPage() {
   const isCancelled = commande?.status === 'annule';
 
   return (
-    <div className="min-h-screen" style={{ background: '#060D1F', color: '#E2E8F0' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
       {/* Grid BG */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.04]"
         style={{ backgroundImage: 'linear-gradient(#0099FF 1px, transparent 1px), linear-gradient(90deg, #0099FF 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
       {/* Nav */}
-      <nav className="relative border-b px-6 py-4 flex items-center justify-between" style={{ borderColor: '#1E2D4A', background: '#060D1F/95' }}>
+      <nav className="relative border-b px-6 py-4 flex items-center justify-between" style={{ borderColor: 'var(--border2)', background: 'var(--nav-bg)' }}>
         <Link href="/" className="text-xl font-black tracking-widest">SORA<span className="text-[#0099FF]">TECH</span></Link>
         <div className="text-xs text-gray-500 uppercase tracking-widest">{isFr ? 'Suivi de commande' : 'Order tracking'}</div>
       </nav>
@@ -101,10 +101,10 @@ export default function SuiviPage() {
 
             {/* Barre de progression */}
             {!isCancelled ? (
-              <div className="rounded-2xl p-6" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'var(--card)', border: '1px solid var(--border2)' }}>
                 <div className="relative">
                   {/* Ligne de fond */}
-                  <div className="absolute top-5 left-6 right-6 h-0.5" style={{ background: '#1E2D4A' }} />
+                  <div className="absolute top-5 left-6 right-6 h-0.5" style={{ background: 'var(--border2)' }} />
                   {/* Ligne remplie */}
                   <div className="absolute top-5 left-6 h-0.5 transition-all duration-700"
                     style={{ background: '#0099FF', width: `${(stepIndex / (steps.length - 1)) * 88}%` }} />
@@ -117,14 +117,14 @@ export default function SuiviPage() {
                         <div key={step.key} className="flex flex-col items-center gap-2 flex-1">
                           <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg z-10 transition-all duration-500"
                             style={{
-                              background: done ? '#0099FF' : '#1E2D4A',
-                              border: `2px solid ${done ? '#0099FF' : '#1E2D4A'}`,
+                              background: done ? '#0099FF' : 'var(--border2)',
+                              border: `2px solid ${done ? '#0099FF' : 'var(--border2)'}`,
                               boxShadow: active ? '0 0 20px rgba(0,153,255,0.5)' : 'none',
                             }}>
                             {done ? step.icon : <span className="text-gray-500 text-xs font-bold">{i + 1}</span>}
                           </div>
                           <div className="text-center">
-                            <div className="text-xs font-bold" style={{ color: done ? '#E2E8F0' : '#4B5563' }}>
+                            <div className="text-xs font-bold" style={{ color: done ? 'var(--text)' : 'var(--muted)' }}>
                               {step.label}
                             </div>
                           </div>
@@ -135,7 +135,7 @@ export default function SuiviPage() {
                 </div>
 
                 {/* Message statut actuel */}
-                <div className="mt-6 p-4 rounded-xl text-center" style={{ background: '#060D1F', border: '1px solid #0099FF30' }}>
+                <div className="mt-6 p-4 rounded-xl text-center" style={{ background: 'var(--bg)', border: '1px solid #0099FF30' }}>
                   <div className="text-2xl mb-1">{steps[stepIndex]?.icon}</div>
                   <div className="text-white font-bold">{steps[stepIndex]?.label}</div>
                   <div className="text-sm text-gray-400 mt-1">{steps[stepIndex]?.desc}</div>
@@ -153,7 +153,7 @@ export default function SuiviPage() {
             )}
 
             {/* Infos client */}
-            <div className="rounded-2xl p-5" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
+            <div className="rounded-2xl p-5" style={{ background: 'var(--card)', border: '1px solid var(--border2)' }}>
               <h3 className="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-4">👤 {isFr ? 'Vos informations' : 'Your information'}</h3>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
@@ -180,13 +180,13 @@ export default function SuiviPage() {
             </div>
 
             {/* Articles */}
-            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #1E2D4A' }}>
-              <div className="px-5 py-3 border-b" style={{ background: '#0B1628', borderColor: '#1E2D4A' }}>
+            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border2)' }}>
+              <div className="px-5 py-3 border-b" style={{ background: 'var(--card)', borderColor: 'var(--border2)' }}>
                 <h3 className="text-xs text-gray-500 uppercase tracking-widest font-semibold">📦 {isFr ? 'Articles commandés' : 'Ordered items'}</h3>
               </div>
               {commande.items.map((item, i) => (
                 <div key={i} className="flex justify-between items-center px-5 py-3 border-b last:border-0 text-sm"
-                  style={{ background: i % 2 === 0 ? '#060D1F' : '#080F20', borderColor: '#1E2D4A' }}>
+                  style={{ background: i % 2 === 0 ? 'var(--bg)' : 'var(--bg2)', borderColor: 'var(--border2)' }}>
                   <div>
                     <div className="text-white">{item.title}</div>
                     {item.digital && <div className="text-[10px] text-green-400">⚡ {isFr ? 'Livraison instantanée' : 'Instant delivery'}</div>}
@@ -197,7 +197,7 @@ export default function SuiviPage() {
                   </div>
                 </div>
               ))}
-              <div className="px-5 py-3" style={{ background: '#0B1628' }}>
+              <div className="px-5 py-3" style={{ background: 'var(--card)' }}>
                 {commande.deliveryFee > 0 && (
                   <div className="flex justify-between text-sm text-gray-400 mb-1">
                     <span>{isFr ? 'Frais de livraison' : 'Delivery fee'}</span>
@@ -213,14 +213,14 @@ export default function SuiviPage() {
 
             {/* Timeline */}
             {commande.timeline && commande.timeline.length > 0 && (
-              <div className="rounded-2xl p-5" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
+              <div className="rounded-2xl p-5" style={{ background: 'var(--card)', border: '1px solid var(--border2)' }}>
                 <h3 className="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-4">📅 {isFr ? 'Historique' : 'History'}</h3>
                 <div className="space-y-3">
                   {[...commande.timeline].reverse().map((ev, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className="flex flex-col items-center mt-1">
-                        <div className="w-2 h-2 rounded-full" style={{ background: i === 0 ? '#00E5FF' : '#1E2D4A' }} />
-                        {i < commande.timeline!.length - 1 && <div className="w-0.5 h-4 mt-1" style={{ background: '#1E2D4A' }} />}
+                        <div className="w-2 h-2 rounded-full" style={{ background: i === 0 ? '#00E5FF' : 'var(--border2)' }} />
+                        {i < commande.timeline!.length - 1 && <div className="w-0.5 h-4 mt-1" style={{ background: 'var(--border2)' }} />}
                       </div>
                       <div>
                         <div className="text-sm text-gray-300">{ev.event}</div>
@@ -235,7 +235,7 @@ export default function SuiviPage() {
             )}
 
             {/* CTA contact */}
-            <div className="rounded-2xl p-5 text-center" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
+            <div className="rounded-2xl p-5 text-center" style={{ background: 'var(--card)', border: '1px solid var(--border2)' }}>
               <p className="text-sm text-gray-400 mb-4">{isFr ? 'Une question sur votre commande ?' : 'Question about your order?'}</p>
               <div className="flex gap-3 justify-center flex-wrap">
                 <a href={`https://wa.me/2250704928068?text=Bonjour,%20j%27ai%20une%20question%20sur%20ma%20commande%20${commande.reference}`}
@@ -256,7 +256,7 @@ export default function SuiviPage() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t py-6 px-6 text-center" style={{ borderColor: '#1E2D4A' }}>
+      <footer className="border-t py-6 px-6 text-center" style={{ borderColor: 'var(--border2)' }}>
         <p className="text-xs text-gray-500">© 2025 SORA TECH COMPANY — Cocody, Angré 8ème, Abidjan, Côte d&apos;Ivoire</p>
       </footer>
     </div>

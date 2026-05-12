@@ -58,7 +58,7 @@ export default function SuiviSearchPage() {
                 onChange={e => { setCode(e.target.value); setError(''); }}
                 placeholder={s.placeholder}
                 className="w-full px-5 py-4 rounded-2xl text-white text-base outline-none font-mono text-center uppercase tracking-widest"
-                style={{ background: '#0B1628', border: '2px solid #1E2D4A', fontSize: 16 }}
+                style={{ background: 'var(--card)', border: '2px solid var(--border2)', fontSize: 16, color: 'var(--text)' }}
                 autoFocus
               />
             </div>
@@ -81,7 +81,7 @@ export default function SuiviSearchPage() {
               { icon: '🚚', label: s.steps[1] },
               { icon: '🎉', label: s.steps[2] },
             ].map((s, i) => (
-              <div key={i} className="p-4 rounded-xl" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
+              <div key={i} className="p-4 rounded-xl" style={{ background: 'var(--card)', border: '1px solid var(--border2)' }}>
                 <div className="text-2xl mb-1">{s.icon}</div>
                 <div className="text-xs text-gray-500">{s.label}</div>
               </div>
@@ -89,7 +89,7 @@ export default function SuiviSearchPage() {
           </div>
 
           {/* CTA si pas de code */}
-          <div className="mt-10 p-5 rounded-2xl" style={{ background: '#0B1628', border: '1px solid #1E2D4A' }}>
+          <div className="mt-10 p-5 rounded-2xl" style={{ background: 'var(--card)', border: '1px solid var(--border2)' }}>
             <p className="text-xs text-gray-400 mb-3">{s.noOrder}</p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Link href="/boutique"

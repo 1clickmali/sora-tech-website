@@ -116,6 +116,13 @@ html {
 [data-theme="light"] .backdrop-blur     { backdrop-filter: blur(16px); }
 [data-theme="light"] .font-mono         { color: var(--text); }
 
+/* Hardcoded inline bg-[#1a2540] / bg-[#1E2D4A] on non-card elements */
+[data-theme="light"] .bg-\[\#1a2540\]  { background: var(--border)  !important; }
+[data-theme="light"] .bg-\[\#1E2D4A\]  { background: var(--border2) !important; }
+
+/* Stepper circle inactive background */
+[data-theme="light"] [class*="bg-\[#1a2540\]"] { background: var(--border) !important; }
+
 /* ─── Admin panel: toujours dark — annule les overrides light-mode ─── */
 .admin-shell .text-white     { color: #ffffff !important; }
 .admin-shell .text-gray-300  { color: #d1d5db !important; }
