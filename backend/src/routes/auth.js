@@ -41,6 +41,35 @@ if (seedEnabled) {
   router.post('/seed-admin', seedAdmin);
   // emergency-access : crée OU réinitialise le mot de passe admin sans supprimer les données
   router.post('/emergency-access', emergencyAccess);
+
+  // seed-catalog : insère 25 produits + 6 articles de blog (super_admin requis)
+  router.post('/seed-catalog', protect, atLeast('super_admin'), async (req, res) => {
+    try {
+      const Produit = require('../models/Produit');
+      const Article = require('../models/Article');
+      const { PRODUITS, ARTICLES } = require('../scripts/seedCatalog');
+
+      await Produit.deleteMany({});
+      const produits = await Produit.insertMany(PRODUITS);
+
+      let artInserted = 0;
+      for (const art of ARTICLES) {
+        const existing = await Article.findOne({ title: art.title });
+        if (!existing) {
+          const a = new Article(art);
+          await a.save();
+          artInserted++;
+        }
+      }
+
+      res.json({
+        success: true,
+        message: `${produits.length} produits et ${artInserted} articles insérés.`,
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
 }
 
 module.exports = router;
