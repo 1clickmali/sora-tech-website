@@ -1,7 +1,7 @@
 /**
  * Seed script — 25 produits + 6 articles de blog
  * Usage local : node src/scripts/seedCatalog.js
- * Usage Railway : POST /api/admin/seed-catalog (admin auth requis + ALLOW_SEED=true)
+ * Usage Railway : appelé automatiquement au démarrage si catalog vide
  */
 
 require('dotenv').config();
@@ -710,13 +710,37 @@ async function seedCatalog() {
   process.exit(0);
 }
 
-// Export pour usage via API endpoint
-module.exports = { PRODUITS, ARTICLES };
+// Auto-seed : appelé au démarrage du serveur si aucun produit en base
+async function autoSeedIfEmpty() {
+  try {
+    const count = await Produit.countDocuments();
+    if (count > 0) {
+      console.log(`[Seed] ${count} produits déjà en base — seed ignoré.`);
+      return;
+    }
+    console.log('[Seed] Aucun produit trouvé — insertion du catalogue initial...');
+    const produits = await Produit.insertMany(PRODUITS);
+    console.log(`[Seed] ${produits.length} produits insérés.`);
+
+    let artCount = 0;
+    for (const art of ARTICLES) {
+      const existing = await Article.findOne({ title: art.title });
+      if (!existing) { const a = new Article(art); await a.save(); artCount++; }
+    }
+    console.log(`[Seed] ${artCount} articles insérés.`);
+    console.log('[Seed] Catalogue initial chargé avec succes.');
+  } catch (err) {
+    console.error('[Seed] Erreur auto-seed :', err.message);
+  }
+}
+
+// Export pour usage via index.js et API endpoint
+module.exports = { PRODUITS, ARTICLES, autoSeedIfEmpty };
 
 // Exécution directe uniquement si appelé comme script principal
 if (require.main === module) {
   seedCatalog().catch((err) => {
-    console.error('❌ Erreur seed :', err.message);
+    console.error('Erreur seed :', err.message);
     process.exit(1);
   });
 }

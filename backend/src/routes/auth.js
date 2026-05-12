@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const { login, register, clientRegister, getMe, logout, seedAdmin, emergencyAccess } = require('../controllers/authController');
+const { sendTestEmail } = require('../utils/email');
 const { protect } = require('../middleware/auth');
 const { atLeast } = require('../middleware/role');
 
@@ -41,6 +42,18 @@ if (seedEnabled) {
   router.post('/seed-admin', seedAdmin);
   // emergency-access : crée OU réinitialise le mot de passe admin sans supprimer les données
   router.post('/emergency-access', emergencyAccess);
+
+  // test-email : envoie un email de test pour vérifier la config SMTP
+  router.post('/test-email', protect, atLeast('admin'), async (req, res) => {
+    const to = req.body.to || process.env.ADMIN_EMAIL || req.user.email;
+    if (!to) return res.status(400).json({ success: false, message: 'Destinataire manquant (to ou ADMIN_EMAIL)' });
+    try {
+      await sendTestEmail(to);
+      res.json({ success: true, message: `Email de test envoyé à ${to}` });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message, hint: 'Vérifiez EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS dans Railway' });
+    }
+  });
 
   // seed-catalog : insère 25 produits + 6 articles de blog (super_admin requis)
   router.post('/seed-catalog', protect, atLeast('super_admin'), async (req, res) => {

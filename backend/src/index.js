@@ -10,6 +10,7 @@ require('dotenv').config();
 
 const connectDB = require('./config/database');
 const { verifyEmailConfig } = require('./utils/email');
+const { autoSeedIfEmpty } = require('./scripts/seedCatalog');
 
 const app = express();
 
@@ -172,4 +173,6 @@ app.listen(PORT, () => {
   console.log(`\n🚀 SORA TECH API démarré sur http://localhost:${PORT}`);
   console.log(`   Environnement : ${process.env.NODE_ENV || 'development'}\n`);
   verifyEmailConfig();
+  // Insère le catalogue initial si la base est vide (1er déploiement)
+  autoSeedIfEmpty();
 });

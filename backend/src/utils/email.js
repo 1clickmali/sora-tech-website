@@ -1,14 +1,19 @@
 const nodemailer = require('nodemailer');
 
-const createTransporter = () => nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.hostinger.com',
-  port: parseInt(process.env.EMAIL_PORT || '465'),
-  secure: process.env.EMAIL_SECURE !== 'false', // true pour le port 465
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const createTransporter = () => {
+  const port = parseInt(process.env.EMAIL_PORT || '465');
+  const secure = process.env.EMAIL_SECURE === 'false' ? false : port !== 587;
+  return nodemailer.createTransport({
+    host: process.env.EMAIL_HOST || 'smtp.hostinger.com',
+    port,
+    secure, // true pour 465 (SSL), false pour 587 (STARTTLS)
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    tls: { rejectUnauthorized: false }, // accepte les certificats auto-signés Hostinger
+  });
+};
 
 // ── Template HTML premium ────────────────────────────────────────────────────
 
@@ -351,16 +356,43 @@ const notifyAdminNewContact = async (contact) => {
   );
 };
 
-// Vérification de la config email au démarrage du serveur
+// Vérification de la config email au démarrage — log détaillé pour Railway
 const verifyEmailConfig = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
+  const host = process.env.EMAIL_HOST || 'smtp.hostinger.com';
+  const port = process.env.EMAIL_PORT || '465';
+  const adminEmail = process.env.ADMIN_EMAIL;
+
+  console.log('[Email] Config SMTP :');
+  console.log(`   HOST  : ${host}:${port}`);
+  console.log(`   USER  : ${user || 'MANQUANT ⚠'}`);
+  console.log(`   PASS  : ${pass ? '****** (défini)' : 'MANQUANT ⚠'}`);
+  console.log(`   ADMIN : ${adminEmail || 'ADMIN_EMAIL manquant ⚠'}`);
+
+  if (!user || !pass) {
     console.warn('[Email] EMAIL_USER ou EMAIL_PASS manquant — les emails ne seront PAS envoyés');
     return;
   }
   const t = createTransporter();
   t.verify((err) => {
-    if (err) console.error('[Email] Erreur de configuration SMTP:', err.message);
-    else console.log('[Email] Configuration SMTP OK — emails prets a etre envoyes');
+    if (err) {
+      console.error('[Email] Connexion SMTP ECHOUEE :', err.message);
+      console.error('[Email] Verifiez EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS dans Railway');
+    } else {
+      console.log('[Email] Connexion SMTP OK — emails prets');
+    }
+  });
+};
+
+// Test email — appelable via POST /api/auth/test-email (admin + ALLOW_SEED)
+const sendTestEmail = async (to) => {
+  const transporter = createTransporter();
+  await transporter.sendMail({
+    from: `"SORA TECH Test" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: 'Test email SORA TECH - Configuration OK',
+    html: '<h2>Email de test SORA TECH</h2><p>Si vous recevez cet email, la configuration SMTP fonctionne correctement.</p>',
   });
 };
 
@@ -372,6 +404,7 @@ module.exports = {
   notifyAdminNewCommande,
   notifyAdminNewDevis,
   notifyAdminNewContact,
+  sendTestEmail,
   notifyAdmin,
   verifyEmailConfig,
 };
