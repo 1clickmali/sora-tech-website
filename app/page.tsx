@@ -66,6 +66,19 @@ type HomeProduct = { _id: string; category: string; title: string; description: 
 type HomeArticle = { _id: string; slug?: string; category: string; title: string; excerpt: string; image?: string };
 type HomeProject = { _id: string; category: string; title: string; client?: string; results?: string[]; tech?: string[]; image?: string; createdAt?: string };
 
+function ArticleThumb({ image, title, color, category, lang }: { image?: string; title: string; color: string; category: string; lang: "fr" | "en" }) {
+  const [err, setErr] = useState(false);
+  if (image && !err) {
+    return <img src={resolveMediaUrl(image)} alt={title} className="w-full h-28 object-cover" onError={() => setErr(true)} />;
+  }
+  return (
+    <div className="h-28 flex items-center justify-center text-2xl font-mono font-black"
+      style={{ background: `linear-gradient(135deg, ${color}25, ${color}05)`, color }}>
+      [{blogLabel(category, lang).toUpperCase()}]
+    </div>
+  );
+}
+
 const CAT_COLORS: Record<string, string> = {
   Logiciel: "#0099FF", Matériel: "#FF6B00", Service: "#00C48C", Formation: "#9B93FF",
   "Site web": "#0099FF", Application: "#00C48C", ERP: "#9B93FF", Cybersécurité: "#FF4757",
@@ -271,14 +284,7 @@ export default function Home() {
                       transition={{ delay: i * 0.08 }} whileHover={{ y: -5 }}
                       className="border rounded-2xl overflow-hidden min-w-[270px] max-w-[270px] cursor-pointer transition-all duration-300"
                       style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-                      {a.image ? (
-                        <img src={resolveMediaUrl(a.image)} alt={a.title} className="w-full h-28 object-cover" />
-                      ) : (
-                        <div className="h-28 flex items-center justify-center text-2xl font-mono font-black"
-                          style={{ background: `linear-gradient(135deg, ${color}25, ${color}05)`, color }}>
-                          [{blogLabel(a.category, lang).toUpperCase()}]
-                        </div>
-                      )}
+                      <ArticleThumb image={a.image} title={a.title} color={color} category={a.category} lang={lang} />
                       <div className="p-5">
                         <div className="text-[10px] tracking-widest font-mono mb-2" style={{ color }}>{blogLabel(a.category, lang).toUpperCase()}</div>
                         <h3 className="text-sm font-bold mb-2 leading-snug" style={{ color: "var(--text)" }}>{a.title}</h3>

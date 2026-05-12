@@ -710,25 +710,35 @@ async function seedCatalog() {
   process.exit(0);
 }
 
-// Auto-seed : appelé au démarrage du serveur si aucun produit en base
+// Auto-seed : appelé au démarrage du serveur
+// Remplace le catalogue si aucun produit n'a d'image (vieux catalog sans photos)
 async function autoSeedIfEmpty() {
   try {
     const count = await Produit.countDocuments();
     if (count > 0) {
-      console.log(`[Seed] ${count} produits déjà en base — seed ignoré.`);
-      return;
+      const withImage = await Produit.countDocuments({ image: { $nin: ['', null] } });
+      if (withImage > 0) {
+        console.log(`[Seed] ${count} produits avec photos — skip produits.`);
+      } else {
+        console.log(`[Seed] Produits sans photos détectés — remplacement du catalogue...`);
+        await Produit.deleteMany({});
+        const produits = await Produit.insertMany(PRODUITS);
+        console.log(`[Seed] ${produits.length} produits remplacés avec photos.`);
+      }
+    } else {
+      console.log('[Seed] Aucun produit — insertion du catalogue initial...');
+      const produits = await Produit.insertMany(PRODUITS);
+      console.log(`[Seed] ${produits.length} produits insérés.`);
     }
-    console.log('[Seed] Aucun produit trouvé — insertion du catalogue initial...');
-    const produits = await Produit.insertMany(PRODUITS);
-    console.log(`[Seed] ${produits.length} produits insérés.`);
 
+    // Toujours insérer les articles manquants (opération idempotente)
     let artCount = 0;
     for (const art of ARTICLES) {
       const existing = await Article.findOne({ title: art.title });
       if (!existing) { const a = new Article(art); await a.save(); artCount++; }
     }
-    console.log(`[Seed] ${artCount} articles insérés.`);
-    console.log('[Seed] Catalogue initial chargé avec succes.');
+    if (artCount > 0) console.log(`[Seed] ${artCount} articles insérés.`);
+    console.log('[Seed] Catalogue OK.');
   } catch (err) {
     console.error('[Seed] Erreur auto-seed :', err.message);
   }

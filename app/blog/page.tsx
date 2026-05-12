@@ -33,11 +33,12 @@ function ScanLine() {
 }
 
 function ArticleCover({ article, className }: { article: BlogArticle; className: string }) {
+  const [imgErr, setImgErr] = useState(false);
   const meta = BLOG_CATEGORY_META[article.category] || BLOG_FALLBACK_META;
   const Icon = meta.icon;
 
-  if (article.image) {
-    return <img src={resolveMediaUrl(article.image)} alt={article.title} className={className} />;
+  if (article.image && !imgErr) {
+    return <img src={resolveMediaUrl(article.image)} alt={article.title} className={className} onError={() => setImgErr(true)} />;
   }
 
   return (

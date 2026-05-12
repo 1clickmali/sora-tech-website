@@ -300,6 +300,16 @@ export default function DevisPage() {
                         {s.name}
                       </div>
                       <div className="text-xs text-[#8899BB]">{isFr ? "Dès" : "From"} {formatPrice(s.basePrice)} F</div>
+                      <div className="text-[11px] mt-1" style={{ color: s.color, opacity: 0.85 }}>
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="w-3 h-3 inline-block" />
+                          {s.baseDays < 14
+                            ? `${s.baseDays} jour${s.baseDays > 1 ? 's' : ''}`
+                            : s.baseDays < 30
+                            ? `${s.baseDays} jours`
+                            : `${Math.round(s.baseDays / 30)} mois`}
+                        </span>
+                      </div>
                     </motion.button>
                   ))}
                 </div>

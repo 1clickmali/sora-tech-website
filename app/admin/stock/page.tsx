@@ -383,7 +383,7 @@ export default function StockPage() {
                   const type = item.type as MovementType;
                   const meta = MOVEMENT_META[type] || MOVEMENT_META.ajustement;
                   const Icon = meta.icon;
-                  const productTitle = typeof item.productId === 'object' ? item.productId.title : 'Produit';
+                  const productTitle = (item.productId != null && typeof item.productId === 'object') ? item.productId.title : 'Produit';
                   return (
                     <div key={item._id} className="p-3 rounded-lg" style={{ background: '#060D1F', border: '1px solid #1E2D4A' }}>
                       <div className="flex items-start gap-3">
