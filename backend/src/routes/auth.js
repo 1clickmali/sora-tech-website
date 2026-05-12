@@ -23,8 +23,15 @@ router.post('/login', (req, res, next) => {
   loginLimiter(req, res, next);
 }, validateLogin, handleValidationErrors, login);
 
+const validateClientRegister = [
+  body('name').trim().isLength({ min: 2, max: 80 }).withMessage('Nom invalide (2–80 caractères)'),
+  body('email').isEmail().normalizeEmail().withMessage('Email invalide'),
+  body('password').isLength({ min: 8 }).withMessage('Mot de passe minimum 8 caractères'),
+  body('phone').optional().trim().isLength({ max: 20 }),
+];
+
 router.post('/register', protect, atLeast('admin'), register);
-router.post('/client-register', clientRegister); // inscription publique client
+router.post('/client-register', validateClientRegister, handleValidationErrors, clientRegister); // inscription publique client
 router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);
 

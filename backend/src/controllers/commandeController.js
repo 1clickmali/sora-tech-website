@@ -559,6 +559,9 @@ const geniusPayWebhook = async (req, res) => {
   }
 };
 
+// Escape user input before using in MongoDB $regex to prevent ReDoS
+const escapeRegex = (str) => String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').slice(0, 100);
+
 // GET /api/commandes
 const getCommandes = async (req, res) => {
   try {
@@ -566,12 +569,13 @@ const getCommandes = async (req, res) => {
     const query = {};
     if (status && status !== 'tous') query.status = status;
     if (search) {
+      const safe = escapeRegex(search);
       query.$or = [
-        { clientName: { $regex: search, $options: 'i' } },
-        { clientPhone: { $regex: search, $options: 'i' } },
-        { clientEmail: { $regex: search, $options: 'i' } },
-        { reference: { $regex: search, $options: 'i' } },
-        { trackingCode: { $regex: search, $options: 'i' } },
+        { clientName: { $regex: safe, $options: 'i' } },
+        { clientPhone: { $regex: safe, $options: 'i' } },
+        { clientEmail: { $regex: safe, $options: 'i' } },
+        { reference: { $regex: safe, $options: 'i' } },
+        { trackingCode: { $regex: safe, $options: 'i' } },
       ];
     }
 
@@ -599,31 +603,94 @@ const getCommande = async (req, res) => {
 };
 
 // GET /api/commandes/tracking/:trackingCode  (public)
+// Returns only the fields needed for the tracking page — no PII (email, phone, address)
 const getCommandeByTracking = async (req, res) => {
   try {
-    const commande = await Commande.findOne({ trackingCode: req.params.trackingCode });
+    const commande = await Commande.findOne({ trackingCode: req.params.trackingCode }).lean();
     if (!commande) return res.status(404).json({ success: false, message: 'Code de suivi introuvable' });
-    res.json({ success: true, data: commande });
+
+    const publicData = {
+      _id: commande._id,
+      reference: commande.reference,
+      trackingCode: commande.trackingCode,
+      status: commande.status,
+      paymentMode: commande.paymentMode,
+      paymentStatus: commande.paymentStatus,
+      createdAt: commande.createdAt,
+      clientName: commande.clientName,
+      clientQuartier: commande.clientQuartier,
+      items: (commande.items || []).map(({ title, quantity, price, digital }) => ({ title, quantity, price, digital })),
+      subtotal: commande.subtotal,
+      deliveryFee: commande.deliveryFee,
+      total: commande.total,
+      timeline: commande.timeline,
+    };
+
+    res.json({ success: true, data: publicData });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
+// FIX: recalculate prices server-side to prevent price manipulation attacks
+const recalculateOrderTotal = async (items = [], deliveryFee = 0) => {
+  let serverSubtotal = 0;
+  for (const item of items) {
+    if (item.productId && mongoose.isValidObjectId(item.productId)) {
+      const product = await Produit.findById(item.productId).select(‘price’);
+      if (product) {
+        item.price = product.price; // Override client-supplied price with DB price
+      }
+    }
+    serverSubtotal += (Number(item.price) || 0) * (Math.max(1, Math.floor(Number(item.quantity) || 1)));
+  }
+  return { subtotal: serverSubtotal, total: serverSubtotal + Math.max(0, Number(deliveryFee) || 0) };
+};
+
 // POST /api/commandes  (publique)
 const createCommande = async (req, res) => {
-  const body = normalizeCommandeBody(req.body);
-  const idempotencyKey = (req.get('Idempotency-Key') || body.clientRequestId || '').trim();
+  // Allowlist fields accepted from the public — never trust client-computed prices
+  const {
+    clientName, clientPhone, clientEmail, clientAddress, clientQuartier,
+    address, quartier, items, deliveryFee, paymentMode, notes,
+    clientRequestId: bodyRequestId,
+  } = req.body;
+
+  const body = normalizeCommandeBody({
+    clientName, clientPhone, clientEmail, clientAddress, clientQuartier,
+    address, quartier, items, deliveryFee, paymentMode, notes,
+    clientRequestId: bodyRequestId,
+  });
+
+  if (!body.clientName || !body.clientPhone) {
+    return res.status(400).json({ success: false, message: ‘Nom et téléphone requis’ });
+  }
+
+  if (![‘online’, ‘cod’].includes(body.paymentMode)) {
+    return res.status(400).json({ success: false, message: ‘Mode de paiement invalide’ });
+  }
+
+  // Server-side price recalculation — client cannot manipulate total
+  try {
+    const { subtotal, total } = await recalculateOrderTotal(body.items || [], body.deliveryFee);
+    body.subtotal = subtotal;
+    body.total = total;
+  } catch (priceErr) {
+    return res.status(400).json({ success: false, message: priceErr.message });
+  }
+
+  const idempotencyKey = (req.get(‘Idempotency-Key’) || body.clientRequestId || ‘’).trim();
   const fingerprint = buildFingerprint({
-    clientName: body.clientName || '',
-    clientPhone: body.clientPhone || '',
-    clientEmail: body.clientEmail || '',
-    clientAddress: body.clientAddress || '',
-    clientQuartier: body.clientQuartier || '',
+    clientName: body.clientName || ‘’,
+    clientPhone: body.clientPhone || ‘’,
+    clientEmail: body.clientEmail || ‘’,
+    clientAddress: body.clientAddress || ‘’,
+    clientQuartier: body.clientQuartier || ‘’,
     items: body.items || [],
     subtotal: body.subtotal || 0,
     deliveryFee: body.deliveryFee || 0,
     total: body.total || 0,
-    paymentMode: body.paymentMode || 'online',
+    paymentMode: body.paymentMode || ‘online’,
   });
 
   try {
@@ -633,7 +700,7 @@ const createCommande = async (req, res) => {
         if (existing.idempotencyFingerprint && existing.idempotencyFingerprint !== fingerprint) {
           return res.status(409).json({
             success: false,
-            message: 'Cette clé d’idempotence a déjà été utilisée pour une autre commande.',
+            message: ‘Cette clé d’idempotence a déjà été utilisée pour une autre commande.’,
           });
         }
 
@@ -648,9 +715,9 @@ const createCommande = async (req, res) => {
     const paymentPrerequisiteError = validateOnlinePaymentPrerequisites(body);
     if (paymentPrerequisiteError) throw paymentPrerequisiteError;
 
-    body.paymentProvider = body.paymentMode === 'online' ? 'geniuspay' : '';
-    body.paymentStatus = body.paymentMode === 'online' ? 'pending' : 'unpaid';
-    if (body.paymentMode === 'online' && !body.paymentReturnToken) {
+    body.paymentProvider = body.paymentMode === ‘online’ ? ‘geniuspay’ : ‘’;
+    body.paymentStatus = body.paymentMode === ‘online’ ? ‘pending’ : ‘unpaid’;
+    if (body.paymentMode === ‘online’ && !body.paymentReturnToken) {
       body.paymentReturnToken = crypto.randomUUID();
     }
 
@@ -707,13 +774,20 @@ const createCommande = async (req, res) => {
 };
 
 // PATCH /api/commandes/:id
+const ADMIN_COMMANDE_FIELDS = new Set(['status', 'notes', 'clientAddress', 'clientQuartier']);
+
 const updateCommande = async (req, res) => {
   try {
-    const { status, ...rest } = req.body;
     const current = await Commande.findById(req.params.id);
     if (!current) return res.status(404).json({ success: false, message: 'Commande introuvable' });
 
-    const update = { ...rest };
+    // Allowlist — never let an admin manually override payment fields or totals
+    const status = req.body.status;
+    const update = {};
+    for (const key of Object.keys(req.body)) {
+      if (ADMIN_COMMANDE_FIELDS.has(key)) update[key] = req.body[key];
+    }
+
     if (status) {
       update.status = status;
       const labels = {

@@ -6,6 +6,9 @@ const Devis = require('../models/Devis');
 const Commande = require('../models/Commande');
 const { notifyAdmin } = require('../utils/email');
 
+// Escape HTML to prevent injection in emails
+const escHtml = (s) => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
 // Toutes les routes client nécessitent d'être authentifié avec le rôle 'client'
 router.use(protect, authorize('client'));
 
@@ -79,11 +82,12 @@ router.post('/commandes/:id/refund', async (req, res) => {
     if (commande.refundRequested) {
       return res.status(400).json({ success: false, message: 'Demande de remboursement déjà envoyée' });
     }
+    const reason = String(req.body.reason || '').slice(0, 500);
     commande.refundRequested = true;
-    commande.refundReason = req.body.reason || '';
+    commande.refundReason = reason;
     commande.refundRequestedAt = new Date();
     commande.timeline = [...(commande.timeline || []), {
-      event: `Remboursement demandé par le client${req.body.reason ? ' : ' + req.body.reason : ''}`,
+      event: `Remboursement demandé par le client${reason ? ' : ' + reason : ''}`,
       by: req.user.name,
     }];
     await commande.save();
@@ -91,11 +95,11 @@ router.post('/commandes/:id/refund', async (req, res) => {
     notifyAdmin(
       `💸 Demande de remboursement — ${commande.reference}`,
       `<div class="info-card">
-        <div class="label">Client</div><div class="value">${commande.clientName} — ${commande.clientPhone}</div>
-        <div style="margin-top:6px" class="label">Commande</div><div class="value">${commande.reference}</div>
+        <div class="label">Client</div><div class="value">${escHtml(commande.clientName)} — ${escHtml(commande.clientPhone)}</div>
+        <div style="margin-top:6px" class="label">Commande</div><div class="value">${escHtml(commande.reference)}</div>
         <div style="margin-top:6px" class="label">Total</div><div class="value" style="color:#0099FF">${(commande.total || 0).toLocaleString('fr-FR')} FCFA</div>
-        <div style="margin-top:6px" class="label">Statut actuel</div><div class="value">${commande.status}</div>
-        ${req.body.reason ? `<div style="margin-top:6px" class="label">Raison</div><div class="value">${req.body.reason}</div>` : ''}
+        <div style="margin-top:6px" class="label">Statut actuel</div><div class="value">${escHtml(commande.status)}</div>
+        ${reason ? `<div style="margin-top:6px" class="label">Raison</div><div class="value">${escHtml(reason)}</div>` : ''}
       </div>`
     ).catch(() => {});
 

@@ -85,6 +85,16 @@ const loginLimiter = rateLimit({
   validate: { xForwardedForHeader: false },
 });
 
+// Stricter limiter for public write endpoints (forms, checkout) — prevents spam/abuse
+const publicWriteLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10,
+  message: 'Trop de soumissions depuis cette adresse. Réessayez dans une heure.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+});
+
 app.use('/api/', generalLimiter);
 app.use(express.json({
   limit: '5mb',
@@ -120,6 +130,11 @@ app.use('/uploads', express.static(uploadsDir));
 // Routes
 app.use('/api/auth',      require('./routes/auth'));
 app.use('/api/client',    require('./routes/client'));
+// Public write endpoints get a stricter limiter (10/hour) to prevent spam and abuse
+app.post('/api/commandes', publicWriteLimiter);
+app.post('/api/devis', publicWriteLimiter);
+app.post('/api/contacts', publicWriteLimiter);
+app.post('/api/auth/client-register', publicWriteLimiter);
 app.use('/api/commandes', require('./routes/commandes'));
 app.use('/api/devis',     require('./routes/devis'));
 app.use('/api/contacts',  require('./routes/contacts'));
@@ -132,8 +147,9 @@ app.use('/api/stats',     require('./routes/stats'));
 app.use('/api/users',     require('./routes/users'));
 app.use('/api/upload',    require('./routes/upload'));
 
-// Export loginLimiter for routes to use
+// Export limiters for routes to use
 app.loginLimiter = loginLimiter;
+app.publicWriteLimiter = publicWriteLimiter;
 
 // Health check (ne pas exposer l'environnement)
 app.get('/api/health', (req, res) => {

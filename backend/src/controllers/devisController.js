@@ -3,16 +3,20 @@ const { sendDevisConfirmation, sendRdvAccepteEmail, notifyAdminNewDevis } = requ
 const { sendDevisWhatsApp } = require('../utils/whatsapp');
 const upsertContact = require('../utils/upsertContact');
 
+// Escape user input before using in MongoDB $regex to prevent ReDoS
+const escapeRegex = (str) => String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').slice(0, 100);
+
 const getDevis = async (req, res) => {
   try {
     const { status, search, page = 1, limit = 20 } = req.query;
     const query = {};
     if (status && status !== 'tous') query.status = status;
     if (search) {
+      const safe = escapeRegex(search);
       query.$or = [
-        { clientName: { $regex: search, $options: 'i' } },
-        { clientPhone: { $regex: search, $options: 'i' } },
-        { clientEmail: { $regex: search, $options: 'i' } },
+        { clientName: { $regex: safe, $options: 'i' } },
+        { clientPhone: { $regex: safe, $options: 'i' } },
+        { clientEmail: { $regex: safe, $options: 'i' } },
       ];
     }
 
@@ -39,9 +43,26 @@ const getOneDevis = async (req, res) => {
   }
 };
 
+// Public fields accepted from the devis form — prevents mass assignment
+const DEVIS_PUBLIC_FIELDS = [
+  'clientName', 'clientEmail', 'clientPhone', 'clientCompany',
+  'serviceType', 'complexity', 'modules', 'options',
+  'estimatedPrice', 'estimatedDays',
+  'rdvDate', 'rdvSlot', 'rdvType', 'message',
+];
+
 const createDevis = async (req, res) => {
   try {
-    const devis = await Devis.create(req.body);
+    const payload = {};
+    for (const key of DEVIS_PUBLIC_FIELDS) {
+      if (req.body[key] !== undefined) payload[key] = req.body[key];
+    }
+
+    if (!payload.clientName || !payload.clientEmail || !payload.clientPhone || !payload.serviceType) {
+      return res.status(400).json({ success: false, message: 'Nom, email, téléphone et type de service requis' });
+    }
+
+    const devis = await Devis.create(payload);
 
     sendDevisConfirmation(devis).catch(e => console.error('[Email client]', e.message));
     notifyAdminNewDevis(devis).catch(e => console.error('[Email admin]', e.message));
@@ -59,12 +80,21 @@ const createDevis = async (req, res) => {
   }
 };
 
+// Admin-editable fields for PATCH — prevents mass assignment of internal fields
+const DEVIS_ADMIN_FIELDS = new Set(['status', 'notes', 'rdvDate', 'rdvSlot', 'rdvType', 'assignedTo', 'budget', 'message']);
+
 const updateDevis = async (req, res) => {
   try {
     const old = await Devis.findById(req.params.id);
     if (!old) return res.status(404).json({ success: false, message: 'Devis introuvable' });
-    const devis = await Devis.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (req.body.status === 'accepte' && old.status !== 'accepte') {
+
+    const update = {};
+    for (const key of Object.keys(req.body)) {
+      if (DEVIS_ADMIN_FIELDS.has(key)) update[key] = req.body[key];
+    }
+
+    const devis = await Devis.findByIdAndUpdate(req.params.id, update, { new: true, runValidators: true });
+    if (update.status === 'accepte' && old.status !== 'accepte') {
       sendRdvAccepteEmail(devis).catch(e => console.error('[Email RDV accepte]', e.message));
     }
     res.json({ success: true, data: devis });
