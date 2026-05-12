@@ -812,24 +812,20 @@ async function seedCatalog() {
 }
 
 // Auto-seed : appelé au démarrage du serveur
-// Remplace le catalogue si aucun produit n'a d'image (vieux catalog sans photos)
+// Remplace le catalogue si les produits n'ont pas nos photos Unsplash
 async function autoSeedIfEmpty() {
   try {
-    const count = await Produit.countDocuments();
-    if (count > 0) {
-      const withImage = await Produit.countDocuments({ image: { $nin: ['', null] } });
-      if (withImage > 0) {
-        console.log(`[Seed] ${count} produits avec photos — skip produits.`);
-      } else {
-        console.log(`[Seed] Produits sans photos détectés — remplacement du catalogue...`);
-        await Produit.deleteMany({});
-        const produits = await Produit.insertMany(PRODUITS);
-        console.log(`[Seed] ${produits.length} produits remplacés avec photos.`);
-      }
+    const CATALOG_SIZE = PRODUITS.length; // 25 produits attendus
+    const withUnsplash = await Produit.countDocuments({ image: /images\.unsplash\.com/ });
+
+    if (withUnsplash >= CATALOG_SIZE) {
+      console.log(`[Seed] ${withUnsplash} produits avec photos Unsplash — skip produits.`);
     } else {
-      console.log('[Seed] Aucun produit — insertion du catalogue initial...');
+      const count = await Produit.countDocuments();
+      console.log(`[Seed] Catalogue incomplet (${withUnsplash}/${CATALOG_SIZE} avec Unsplash) — remplacement...`);
+      if (count > 0) await Produit.deleteMany({});
       const produits = await Produit.insertMany(PRODUITS);
-      console.log(`[Seed] ${produits.length} produits insérés.`);
+      console.log(`[Seed] ${produits.length} produits insérés avec photos Unsplash.`);
     }
 
     // Toujours insérer les articles manquants (opération idempotente)
