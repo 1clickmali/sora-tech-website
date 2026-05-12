@@ -60,7 +60,8 @@ if (seedEnabled) {
     try {
       const Produit = require('../models/Produit');
       const Article = require('../models/Article');
-      const { PRODUITS, ARTICLES } = require('../scripts/seedCatalog');
+      const Projet = require('../models/Projet');
+      const { PRODUITS, ARTICLES, PROJETS } = require('../scripts/seedCatalog');
 
       await Produit.deleteMany({});
       const produits = await Produit.insertMany(PRODUITS);
@@ -68,16 +69,18 @@ if (seedEnabled) {
       let artInserted = 0;
       for (const art of ARTICLES) {
         const existing = await Article.findOne({ title: art.title });
-        if (!existing) {
-          const a = new Article(art);
-          await a.save();
-          artInserted++;
-        }
+        if (!existing) { const a = new Article(art); await a.save(); artInserted++; }
+      }
+
+      let projInserted = 0;
+      for (const proj of PROJETS) {
+        const existing = await Projet.findOne({ title: proj.title });
+        if (!existing) { await Projet.create(proj); projInserted++; }
       }
 
       res.json({
         success: true,
-        message: `${produits.length} produits et ${artInserted} articles insérés.`,
+        message: `${produits.length} produits, ${artInserted} articles et ${projInserted} projets insérés.`,
       });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });

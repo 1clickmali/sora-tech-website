@@ -1,5 +1,5 @@
 /**
- * Seed script — 25 produits + 6 articles de blog
+ * Seed script — 25 produits + 6 articles + 8 projets
  * Usage local : node src/scripts/seedCatalog.js
  * Usage Railway : appelé automatiquement au démarrage si catalog vide
  */
@@ -8,6 +8,7 @@ require('dotenv').config();
 const connectDB = require('../config/database');
 const Produit = require('../models/Produit');
 const Article = require('../models/Article');
+const Projet = require('../models/Projet');
 
 // ─── Images Unsplash stables ───────────────────────────────────────────────
 const IMG = {
@@ -680,6 +681,106 @@ Un bon site web est votre meilleur commercial, disponible 24h/24 sans salaire à
   },
 ];
 
+// ─── 8 Projets de référence ────────────────────────────────────────────────
+const PROJETS = [
+  {
+    title: 'Site web e-commerce — Boutique Adjamé Mode',
+    client: 'Adjamé Mode SARL',
+    description: 'Création d\'un site e-commerce complet pour une boutique de prêt-à-porter à Adjamé. Catalogue de 300 produits, paiement Mobile Money (Orange, MTN, Wave), gestion des commandes et livraison Abidjan.',
+    category: 'web',
+    results: ['300% d\'augmentation du chiffre d\'affaires en ligne', '1 200 commandes traitées le premier trimestre', 'Livraison en J+1 sur Abidjan', 'Zéro incident de paiement'],
+    tech: ['Next.js', 'Node.js', 'MongoDB', 'Orange Money API', 'Cloudinary'],
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80&fit=crop',
+    year: '2025',
+    featured: true,
+    order: 1,
+  },
+  {
+    title: 'ERP Odoo — Société DIALLO Distribution',
+    client: 'DIALLO Distribution',
+    description: 'Implémentation complète d\'Odoo ERP pour un distributeur alimentaire de 35 employés à Yopougon. Modules : ventes, achats, stocks, comptabilité SYSCOHADA, RH et CRM. Formation de l\'équipe sur 5 jours.',
+    category: 'erp',
+    results: ['Inventaire mensuel réduit de 2 jours à 2 heures', 'Erreurs de facturation : -95%', 'Visibilité stocks en temps réel sur 3 entrepôts', 'ROI atteint en 8 mois'],
+    tech: ['Odoo 17', 'PostgreSQL', 'Python', 'SYSCOHADA', 'Ubuntu Server'],
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&fit=crop',
+    year: '2024',
+    featured: true,
+    order: 2,
+  },
+  {
+    title: 'Application mobile — Livraison FAST YOPOUGON',
+    client: 'Fast Yopougon Express',
+    description: 'Application mobile de livraison à la demande pour Yopougon et ses communes. Géolocalisation en temps réel, suivi de colis, paiement intégré Mobile Money, interface livreur et interface client.',
+    category: 'mobile',
+    results: ['500 téléchargements la première semaine', '4.7/5 sur Google Play', 'Délai moyen de livraison : 45 minutes', 'Couverture : 5 communes d\'Abidjan'],
+    tech: ['React Native', 'Node.js', 'Socket.io', 'Google Maps API', 'MTN MoMo'],
+    image: 'https://images.unsplash.com/photo-1512941937938-a272ac759999?w=800&q=80&fit=crop',
+    year: '2025',
+    featured: true,
+    order: 3,
+  },
+  {
+    title: 'Audit cybersécurité — Banque Atlantique CI',
+    client: 'Banque Atlantique (confidentiel)',
+    description: 'Audit complet de sécurité informatique : tests d\'intrusion réseau et web, évaluation des vulnérabilités, formation du personnel DSI, mise en conformité RGPD et recommandations correctives.',
+    category: 'cybersecurite',
+    results: ['47 vulnérabilités identifiées et corrigées', 'Score de sécurité passé de 32% à 89%', 'Formation de 12 techniciens DSI', 'Zéro incident de sécurité depuis le déploiement'],
+    tech: ['Kali Linux', 'Nmap', 'Metasploit', 'Wireshark', 'Burp Suite', 'OWASP'],
+    image: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80&fit=crop',
+    year: '2024',
+    featured: false,
+    order: 4,
+  },
+  {
+    title: 'Infrastructure réseau — Groupe Scolaire Les Étoiles',
+    client: 'Groupe Scolaire Les Étoiles',
+    description: 'Installation d\'une infrastructure réseau complète pour un groupe scolaire de 800 élèves à Cocody. Fibre optique inter-bâtiments, WiFi 6 dans toutes les salles, serveur NAS pour les cours en ligne, pare-feu et filtrage de contenus.',
+    category: 'reseau',
+    results: ['Couverture WiFi 100% des salles', 'Débit garanti de 100 Mbps par classe', 'Filtrage parental automatique', '99.9% de disponibilité réseau'],
+    tech: ['Cisco', 'UniFi WiFi 6', 'pfSense', 'Synology NAS', 'Fibre Optique'],
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80&fit=crop',
+    year: '2025',
+    featured: false,
+    order: 5,
+  },
+  {
+    title: 'Logiciel de gestion — Pharmacie Santé Plus',
+    client: 'Pharmacie Santé Plus',
+    description: 'Logiciel de gestion pharmacie sur mesure : suivi des stocks de médicaments, alertes de péremption, ordonnances numériques, caisse enregistreuse conforme DGI, fidélisation clients et bilan mensuel automatique.',
+    category: 'erp',
+    results: ['Ruptures de stock : -80%', 'Temps de service client : -40%', 'Conformité DGI : 100%', 'Pertes liées aux périmés : -95%'],
+    tech: ['React', 'Node.js', 'MongoDB', 'Electron', 'DGI API CI'],
+    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80&fit=crop',
+    year: '2024',
+    featured: false,
+    order: 6,
+  },
+  {
+    title: 'Site web institutionnel — Mairie de Bingerville',
+    client: 'Mairie de Bingerville',
+    description: 'Conception et développement du site web officiel de la mairie de Bingerville. Actualités, agenda, formulaires de demandes administratives en ligne, galerie photos des réalisations et carte interactive de la commune.',
+    category: 'web',
+    results: ['15 000 visiteurs uniques le premier mois', '80% des demandes administratives traitées en ligne', 'Temps de réponse < 1 seconde', 'Accessibilité WCAG 2.1 AA'],
+    tech: ['Next.js', 'Tailwind CSS', 'Strapi CMS', 'Mapbox', 'Railway'],
+    image: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=800&q=80&fit=crop',
+    year: '2025',
+    featured: false,
+    order: 7,
+  },
+  {
+    title: 'Système de gestion scolaire — SoraSchool',
+    client: 'Clients PME éducation',
+    description: 'Plateforme SaaS de gestion scolaire déployée dans 12 établissements privés en Côte d\'Ivoire. Notes, bulletins, présences, emplois du temps, communication parents-école, paiement des frais de scolarité en ligne.',
+    category: 'web',
+    results: ['12 établissements clients actifs', '8 000 élèves suivis', 'Bulletins générés en 5 minutes vs 3 jours', 'Taux de recouvrement frais : +35%'],
+    tech: ['React', 'Node.js', 'MongoDB', 'Wave CI', 'Vercel', 'Railway'],
+    image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80&fit=crop',
+    year: '2025',
+    featured: true,
+    order: 8,
+  },
+];
+
 // ─── Fonction principale ────────────────────────────────────────────────────
 async function seedCatalog() {
   await connectDB();
@@ -738,6 +839,15 @@ async function autoSeedIfEmpty() {
       if (!existing) { const a = new Article(art); await a.save(); artCount++; }
     }
     if (artCount > 0) console.log(`[Seed] ${artCount} articles insérés.`);
+
+    // Toujours insérer les projets manquants (opération idempotente)
+    let projCount = 0;
+    for (const proj of PROJETS) {
+      const existing = await Projet.findOne({ title: proj.title });
+      if (!existing) { await Projet.create(proj); projCount++; }
+    }
+    if (projCount > 0) console.log(`[Seed] ${projCount} projets insérés.`);
+
     console.log('[Seed] Catalogue OK.');
   } catch (err) {
     console.error('[Seed] Erreur auto-seed :', err.message);
@@ -745,7 +855,7 @@ async function autoSeedIfEmpty() {
 }
 
 // Export pour usage via index.js et API endpoint
-module.exports = { PRODUITS, ARTICLES, autoSeedIfEmpty };
+module.exports = { PRODUITS, ARTICLES, PROJETS, autoSeedIfEmpty };
 
 // Exécution directe uniquement si appelé comme script principal
 if (require.main === module) {
