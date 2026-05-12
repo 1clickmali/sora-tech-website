@@ -90,6 +90,8 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col" style={{ background: "var(--bg)", color: "var(--text)" }}>
         <AppProvider>
+          {/* Fire-and-forget warmup: wakes Railway backend so pages load faster */}
+          <script dangerouslySetInnerHTML={{ __html: `fetch('/api/produits?limit=1',{credentials:'same-origin'}).catch(()=>{})` }} />
           {children}
         </AppProvider>
       </body>

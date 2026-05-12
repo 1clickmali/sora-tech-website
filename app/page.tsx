@@ -88,13 +88,19 @@ export default function Home() {
   const [apiProjects, setApiProjects] = useState<HomeProject[]>([]);
 
   useEffect(() => {
-    fetchPublicApi<{ data: HomeProduct[] }>('/api/produits?limit=8')
+    const fetchWithTimeout = <T,>(path: string, ms: number): Promise<T> => {
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), ms);
+      return fetchPublicApi<T>(path, { signal: ctrl.signal });
+    };
+
+    fetchWithTimeout<{ data: HomeProduct[] }>('/api/produits?limit=8', 10000)
       .then((response) => setApiProducts((response.data || []).filter((product) => product.active !== false)))
       .catch(() => {});
-    fetchPublicApi<{ data: HomeArticle[] }>('/api/articles?limit=6')
+    fetchWithTimeout<{ data: HomeArticle[] }>('/api/articles?limit=6', 10000)
       .then((response) => setApiArticles(response.data || []))
       .catch(() => {});
-    fetchPublicApi<{ data: HomeProject[] }>('/api/projets?limit=6')
+    fetchWithTimeout<{ data: HomeProject[] }>('/api/projets?limit=6', 10000)
       .then((response) => setApiProjects(response.data || []))
       .catch(() => {});
   }, []);

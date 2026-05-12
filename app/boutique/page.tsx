@@ -137,6 +137,8 @@ export default function BoutiquePage() {
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [activeSubcategory, setActiveSubcategory] = useState("Tous");
   const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState(false);
   const [cart, setCart] = useState<Product[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [sortBy, setSortBy] = useState("popular");
@@ -154,9 +156,11 @@ export default function BoutiquePage() {
   const categories = ["Tous", ...PRODUCT_CATEGORIES];
   const subcategories = activeCategory === "Tous" ? [] : getSubcategoriesForCategory(activeCategory);
 
-  useEffect(() => {
+  const loadProducts = () => {
+    setProductsLoading(true);
+    setProductsError(false);
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 5000); // 5s timeout
+    const timer = setTimeout(() => ctrl.abort(), 15000);
     fetchPublicApi<{ data: ApiProduct[] }>('/api/produits?limit=100', { signal: ctrl.signal })
       .then((response) => {
         clearTimeout(timer);
@@ -176,9 +180,11 @@ export default function BoutiquePage() {
           video: p.video || undefined,
         })));
       })
-      .catch(() => clearTimeout(timer));
-    return () => { clearTimeout(timer); ctrl.abort(); };
-  }, []);
+      .catch(() => setProductsError(true))
+      .finally(() => { clearTimeout(timer); setProductsLoading(false); });
+  };
+
+  useEffect(() => { loadProducts(); }, []);
 
   const filteredProducts = (activeCategory === "Tous" ? products : products.filter((p) => p.category === activeCategory))
     .filter((p) => activeSubcategory === "Tous" || p.subcategory === activeSubcategory);
@@ -391,7 +397,38 @@ export default function BoutiquePage() {
       {/* GRILLE PRODUITS */}
       <section className="relative py-8 px-6 z-10">
         <div className="max-w-6xl mx-auto">
-          {sortedProducts.length === 0 && (
+          {productsLoading && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-2xl overflow-hidden animate-pulse border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+                  <div className="h-52" style={{ background: "var(--border)" }} />
+                  <div className="p-5 space-y-3">
+                    <div className="h-4 rounded" style={{ background: "var(--border)", width: "60%" }} />
+                    <div className="h-3 rounded" style={{ background: "var(--border)", width: "90%" }} />
+                    <div className="h-3 rounded" style={{ background: "var(--border)", width: "75%" }} />
+                    <div className="h-8 rounded-xl mt-4" style={{ background: "var(--border)" }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {!productsLoading && productsError && (
+            <div className="text-center py-20">
+              <div className="text-4xl mb-4">⚠️</div>
+              <p className="font-bold mb-2" style={{ color: "var(--text)" }}>
+                {isFr ? "Impossible de charger les produits" : "Could not load products"}
+              </p>
+              <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
+                {isFr ? "Le serveur met quelques secondes à démarrer. Réessayez." : "The server is waking up. Please try again."}
+              </p>
+              <button onClick={loadProducts}
+                className="px-6 py-2.5 rounded-xl font-bold text-sm"
+                style={{ background: "#0099FF", color: "#fff" }}>
+                {isFr ? "Réessayer" : "Retry"}
+              </button>
+            </div>
+          )}
+          {!productsLoading && !productsError && sortedProducts.length === 0 && (
             <div className="text-center py-20">
               <div className="w-16 h-16 mx-auto rounded-2xl border flex items-center justify-center mb-4" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <ShoppingCart className="w-8 h-8 text-[#0099FF]" />
@@ -402,7 +439,7 @@ export default function BoutiquePage() {
               </p>
             </div>
           )}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 ${productsLoading ? 'hidden' : ''}`}>
             {sortedProducts.map((product, i) => (
               <motion.div key={product.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} whileHover={{ y: -8, boxShadow: `0 20px 40px ${product.color}25` }} className="backdrop-blur rounded-2xl overflow-hidden transition-all duration-300 group border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
                 <div className="relative h-52 flex items-center justify-center overflow-hidden" style={{ background: `linear-gradient(135deg, ${product.color}25, ${product.color}05)` }}>

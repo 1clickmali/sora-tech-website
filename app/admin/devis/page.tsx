@@ -53,6 +53,17 @@ export default function DevisPage() {
     setSaving(false);
   };
 
+  const deleteDevis = async (id: string) => {
+    if (!confirm('Supprimer ce devis ? Cette action est irréversible.')) return;
+    try {
+      await api.delete(`/api/devis/${id}`);
+      setDevis(d => d.filter(x => x._id !== id));
+      setSelected(null);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Erreur lors de la suppression');
+    }
+  };
+
   const filtered = devis.filter(d => {
     if (filterStatus !== 'tous' && d.status !== filterStatus) return false;
     if (search) {
@@ -148,11 +159,18 @@ export default function DevisPage() {
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{fmtDate(d.createdAt)}</td>
                   <td className="px-4 py-3">
-                    <button onClick={e => { e.stopPropagation(); setSelected(d); }}
-                      className="px-2 py-1 rounded text-[10px] font-medium"
-                      style={{ background: '#1E2D4A', color: '#94A3B8' }}>
-                      Détails
-                    </button>
+                    <div className="flex gap-1.5 items-center">
+                      <button onClick={e => { e.stopPropagation(); setSelected(d); }}
+                        className="px-2 py-1 rounded text-[10px] font-medium"
+                        style={{ background: '#1E2D4A', color: '#94A3B8' }}>
+                        Détails
+                      </button>
+                      <button onClick={e => { e.stopPropagation(); deleteDevis(d._id); }}
+                        className="px-2 py-1 rounded text-[10px] font-medium"
+                        style={{ background: '#EF444422', color: '#EF4444' }}>
+                        ✕
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -354,6 +372,11 @@ export default function DevisPage() {
                     style={{ background: '#F59E0B20', color: '#F59E0B', border: '1px solid #F59E0B40' }}>
                     ✉️ Email
                   </a>
+                  <button onClick={() => deleteDevis(selected._id)}
+                    className="px-3 py-2 rounded-lg text-xs font-medium transition"
+                    style={{ background: '#EF444420', color: '#EF4444', border: '1px solid #EF444440' }}>
+                    🗑 Supprimer
+                  </button>
                 </div>
               </section>
             </div>

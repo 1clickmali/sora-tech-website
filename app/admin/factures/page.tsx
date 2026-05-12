@@ -84,6 +84,17 @@ export default function FacturesPage() {
     } catch { alert('Erreur réseau'); }
   };
 
+  const deleteFacture = async (id: string) => {
+    if (!confirm('Supprimer cette facture ? Cette action est irréversible.')) return;
+    try {
+      await api.delete(`/api/factures/${id}`);
+      setSelected(null);
+      load();
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Erreur lors de la suppression');
+    }
+  };
+
   const updateItem = (i: number, key: string, val: any) => {
     const items = [...form.items];
     const updated = { ...items[i], [key]: val };
@@ -245,6 +256,11 @@ export default function FacturesPage() {
                           Payée
                         </button>
                       )}
+                      <button onClick={() => deleteFacture(f._id)}
+                        className="px-2 py-1 rounded text-xs font-medium"
+                        style={{ background: '#EF444422', color: '#EF4444' }}>
+                        ✕
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -351,7 +367,7 @@ export default function FacturesPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 <button onClick={() => downloadPDF(selected._id, selected.numero)}
                   className="flex-1 py-2.5 rounded-xl text-sm font-bold cursor-pointer"
                   style={{ background: '#1E2D4A', color: '#94A3B8' }}>
@@ -364,6 +380,11 @@ export default function FacturesPage() {
                     Marquer payée
                   </button>
                 )}
+                <button onClick={() => deleteFacture(selected._id)}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold"
+                  style={{ background: '#EF444420', color: '#EF4444', border: '1px solid #EF444440' }}>
+                  Supprimer
+                </button>
               </div>
 
               {selected.notes && (

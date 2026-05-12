@@ -96,6 +96,17 @@ export default function CommandesPage() {
     setSaving(false);
   };
 
+  const deleteCommande = async (id: string) => {
+    if (!confirm('Supprimer cette commande ? Cette action est irréversible.')) return;
+    try {
+      await api.delete(`/api/commandes/${id}`);
+      setCommandes(c => c.filter(x => x._id !== id));
+      setSelected(null);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Erreur lors de la suppression');
+    }
+  };
+
   const quartier = (c: Commande) => c.clientQuartier || c.quartier || '';
   const address = (c: Commande) => c.clientAddress || c.address || '';
 
@@ -465,10 +476,15 @@ export default function CommandesPage() {
                     <a href={`/api/factures/public/${selected.facturePublicToken}`}
                       target="_blank" rel="noreferrer"
                       className="px-3 py-2 rounded-lg text-xs font-medium transition"
-                      style={{ background: '#EF444420', color: '#EF4444', border: '1px solid #EF444440' }}>
+                      style={{ background: '#A855F720', color: '#A855F7', border: '1px solid #A855F740' }}>
                       📄 Facture PDF
                     </a>
                   )}
+                  <button onClick={() => deleteCommande(selected._id)}
+                    className="px-3 py-2 rounded-lg text-xs font-medium transition"
+                    style={{ background: '#EF444420', color: '#EF4444', border: '1px solid #EF444440' }}>
+                    🗑 Supprimer
+                  </button>
                 </div>
               </section>
             </div>
