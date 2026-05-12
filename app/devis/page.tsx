@@ -76,14 +76,58 @@ export default function DevisPage() {
     { id: "maint", icon: Wrench,     name: isFr ? "Maintenance" : "Maintenance", basePrice: 150000,  baseDays: 7,  color: "#0066FF" },
   ];
 
-  const availableOptions = [
-    { id: "mm",     name: isFr ? "Paiement Mobile Money" : "Mobile Money payment", price: 50000 },
-    { id: "multi",  name: isFr ? "Multilingue (FR/EN)" : "Multilingual (FR/EN)",  price: 50000 },
-    { id: "client", name: isFr ? "Espace client sécurisé" : "Secure client area",  price: 50000 },
-    { id: "seo",    name: isFr ? "Optimisation SEO avancée" : "Advanced SEO optimization", price: 50000 },
-    { id: "wa",     name: isFr ? "Chat WhatsApp intégré" : "Integrated WhatsApp chat", price: 50000 },
-    { id: "form",   name: isFr ? "Formation équipe (4h)" : "Team training (4h)",   price: 50000 },
-  ];
+  const SERVICE_OPTIONS: Record<string, { id: string; name: string; price: number }[]> = {
+    web: [
+      { id: "seo",    name: isFr ? "Optimisation SEO avancée" : "Advanced SEO optimization",         price: 50000 },
+      { id: "mm",     name: isFr ? "Paiement Mobile Money (Orange, MTN, Wave)" : "Mobile Money payment", price: 75000 },
+      { id: "multi",  name: isFr ? "Multilingue (FR/EN)" : "Multilingual (FR/EN)",                  price: 50000 },
+      { id: "client", name: isFr ? "Espace client sécurisé" : "Secure client portal",               price: 75000 },
+      { id: "wa",     name: isFr ? "Chat WhatsApp & réseaux sociaux intégrés" : "WhatsApp & social media chat", price: 30000 },
+      { id: "form",   name: isFr ? "Formation gestion du site (3h)" : "Website management training (3h)", price: 50000 },
+    ],
+    soft: [
+      { id: "mm",      name: isFr ? "Paiement Mobile Money intégré" : "Integrated Mobile Money payment",  price: 75000 },
+      { id: "multi_u", name: isFr ? "Multi-utilisateurs (jusqu'à 10 postes)" : "Multi-user (up to 10)",   price: 100000 },
+      { id: "report",  name: isFr ? "Module reporting & tableau de bord" : "Reporting & dashboard module", price: 75000 },
+      { id: "backup",  name: isFr ? "Sauvegarde automatique cloud" : "Automatic cloud backup",             price: 50000 },
+      { id: "mobile",  name: isFr ? "Application mobile companion" : "Companion mobile app",              price: 150000 },
+      { id: "form",    name: isFr ? "Formation équipe (3 jours)" : "Team training (3 days)",              price: 75000 },
+    ],
+    app: [
+      { id: "ios",      name: isFr ? "Version iOS (App Store)" : "iOS version (App Store)",              price: 200000 },
+      { id: "mm",       name: isFr ? "Paiement Mobile Money (Orange, MTN, Wave)" : "Mobile Money payment", price: 75000 },
+      { id: "push",     name: isFr ? "Notifications push avancées" : "Advanced push notifications",      price: 50000 },
+      { id: "offline",  name: isFr ? "Mode hors-ligne (sync automatique)" : "Offline mode (auto-sync)",  price: 75000 },
+      { id: "analytics",name: isFr ? "Tableau de bord analytics" : "Analytics dashboard",               price: 75000 },
+      { id: "maint",    name: isFr ? "Maintenance & support 6 mois" : "Maintenance & support 6 months", price: 150000 },
+    ],
+    erp: [
+      { id: "ecom",      name: isFr ? "Module e-commerce intégré" : "Integrated e-commerce module",     price: 300000 },
+      { id: "mobile",    name: isFr ? "Application mobile companion" : "Companion mobile app",          price: 200000 },
+      { id: "form",      name: isFr ? "Formation avancée (5 jours)" : "Advanced training (5 days)",     price: 150000 },
+      { id: "hosting",   name: isFr ? "Hébergement cloud dédié 1 an" : "Dedicated cloud hosting 1 year", price: 200000 },
+      { id: "support",   name: isFr ? "Support prioritaire 1 an" : "Priority support 1 year",           price: 300000 },
+      { id: "migration", name: isFr ? "Migration des données existantes" : "Existing data migration",   price: 200000 },
+    ],
+    cyber: [
+      { id: "form",       name: isFr ? "Formation personnel (journée)" : "Staff training (full day)",     price: 75000 },
+      { id: "rapport",    name: isFr ? "Rapport détaillé des vulnérabilités" : "Detailed vulnerability report", price: 50000 },
+      { id: "rgpd",       name: isFr ? "Mise en conformité RGPD & données" : "GDPR/data compliance",    price: 100000 },
+      { id: "monitoring", name: isFr ? "Surveillance continue 3 mois" : "Continuous monitoring 3 months", price: 150000 },
+      { id: "fw",         name: isFr ? "Déploiement pare-feu + antivirus" : "Firewall + antivirus deployment", price: 100000 },
+      { id: "pentest",    name: isFr ? "Tests de pénétration mensuels (3 mois)" : "Monthly pen tests (3 months)", price: 200000 },
+    ],
+    maint: [
+      { id: "24_7",       name: isFr ? "Support 24h/7j" : "24/7 support",                              price: 100000 },
+      { id: "backup",     name: isFr ? "Sauvegardes quotidiennes" : "Daily backups",                   price: 50000 },
+      { id: "monitoring", name: isFr ? "Monitoring uptime & alertes" : "Uptime monitoring & alerts",   price: 75000 },
+      { id: "updates",    name: isFr ? "Mises à jour de sécurité" : "Security updates",                price: 50000 },
+      { id: "rapport",    name: isFr ? "Rapport mensuel d'activité" : "Monthly activity report",       price: 30000 },
+      { id: "priority",   name: isFr ? "Intervention prioritaire (< 2h)" : "Priority response (< 2h)", price: 150000 },
+    ],
+  };
+
+  const currentOptions = SERVICE_OPTIONS[selectedService?.id || 'web'] || [];
 
   // Generate calendar days dynamically
   const generateCalendarDays = () => {
@@ -162,7 +206,7 @@ export default function DevisPage() {
   ];
 
   const formatPrice = (n: number) => n.toLocaleString(lang === "fr" ? "fr-FR" : "en-US").replace(/,/g, " ");
-  const optsTotal = availableOptions.reduce((sum, o) => sum + (options[o.id] ? o.price : 0), 0);
+  const optsTotal = currentOptions.reduce((sum, o) => sum + (options[o.id] ? o.price : 0), 0);
   const totalPrice = selectedService
     ? Math.round((selectedService.basePrice * (1 + (complexity - 1) * 0.4) * (1 + (modules - 1) * 0.08) + optsTotal) / 1000) * 1000
     : 0;
@@ -285,7 +329,7 @@ export default function DevisPage() {
                       key={s.id}
                       whileHover={{ y: -4 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setSelectedService(s)}
+                      onClick={() => { setSelectedService(s); setOptions({}); }}
                       className="p-6 rounded-2xl text-center transition border-2 group"
                       style={selectedService?.id === s.id ? {
                         borderColor: s.color,
@@ -360,7 +404,7 @@ export default function DevisPage() {
                     <div>
                       <div className="text-xs text-[#8899BB] uppercase tracking-wide font-bold mb-3">{isFr ? "Options supplémentaires" : "Additional options"}</div>
                       <div className="space-y-2">
-                        {availableOptions.map((o) => (
+                        {currentOptions.map((o) => (
                           <label key={o.id} className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition ${
                             options[o.id] ? "bg-[#00C48C]/10 border border-[#00C48C]" : "border hover:border-[#0066FF]"
                           }`} style={!options[o.id] ? { background: "var(--input-bg)", borderColor: "var(--border)" } : undefined}>
