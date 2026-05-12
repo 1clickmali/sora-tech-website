@@ -63,7 +63,7 @@ function IconBox({ icon: Icon, color }: { icon: LucideIcon; color: string }) {
 }
 
 type HomeProduct = { _id: string; category: string; title: string; description: string; price: number; image?: string; active?: boolean };
-type HomeArticle = { _id: string; slug?: string; category: string; title: string; excerpt: string };
+type HomeArticle = { _id: string; slug?: string; category: string; title: string; excerpt: string; image?: string };
 type HomeProject = { _id: string; category: string; title: string; client?: string; results?: string[]; tech?: string[]; image?: string; createdAt?: string };
 
 const CAT_COLORS: Record<string, string> = {
@@ -271,10 +271,14 @@ export default function Home() {
                       transition={{ delay: i * 0.08 }} whileHover={{ y: -5 }}
                       className="border rounded-2xl overflow-hidden min-w-[270px] max-w-[270px] cursor-pointer transition-all duration-300"
                       style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-                      <div className="h-28 flex items-center justify-center text-2xl font-mono font-black"
-                        style={{ background: `linear-gradient(135deg, ${color}25, ${color}05)`, color }}>
-                        [{blogLabel(a.category, lang).toUpperCase()}]
-                      </div>
+                      {a.image ? (
+                        <img src={resolveMediaUrl(a.image)} alt={a.title} className="w-full h-28 object-cover" />
+                      ) : (
+                        <div className="h-28 flex items-center justify-center text-2xl font-mono font-black"
+                          style={{ background: `linear-gradient(135deg, ${color}25, ${color}05)`, color }}>
+                          [{blogLabel(a.category, lang).toUpperCase()}]
+                        </div>
+                      )}
                       <div className="p-5">
                         <div className="text-[10px] tracking-widest font-mono mb-2" style={{ color }}>{blogLabel(a.category, lang).toUpperCase()}</div>
                         <h3 className="text-sm font-bold mb-2 leading-snug" style={{ color: "var(--text)" }}>{a.title}</h3>

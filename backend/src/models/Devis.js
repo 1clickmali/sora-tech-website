@@ -18,7 +18,9 @@ const devisSchema = new mongoose.Schema({
   estimatedDays: { type: Number },
   rdvDate: { type: String },
   rdvSlot: { type: String },
+  rdvType: { type: String, enum: ['presentiel', 'visio'], default: 'visio' },
   message: { type: String },
+  clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   status: {
     type: String,
     enum: ['nouveau', 'contacte', 'accepte', 'refuse', 'complete'],

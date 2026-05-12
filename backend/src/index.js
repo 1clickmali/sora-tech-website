@@ -119,6 +119,7 @@ app.use('/uploads', express.static(uploadsDir));
 
 // Routes
 app.use('/api/auth',      require('./routes/auth'));
+app.use('/api/client',    require('./routes/client'));
 app.use('/api/commandes', require('./routes/commandes'));
 app.use('/api/devis',     require('./routes/devis'));
 app.use('/api/contacts',  require('./routes/contacts'));

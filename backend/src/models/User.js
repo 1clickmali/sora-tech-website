@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true, minlength: 6 },
   role: {
     type: String,
-    enum: ['super_admin', 'admin', 'commercial', 'comptable'],
+    enum: ['super_admin', 'admin', 'commercial', 'comptable', 'client'],
     default: 'commercial',
   },
   avatar: { type: String, default: '' },

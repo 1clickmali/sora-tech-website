@@ -169,4 +169,24 @@ const emergencyAccess = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getMe, logout, seedAdmin, emergencyAccess };
+// POST /api/auth/client-register — inscription publique côté client
+const clientRegister = async (req, res) => {
+  const { name, email, phone, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ success: false, message: 'Nom, email et mot de passe requis' });
+  }
+  try {
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Un compte existe déjà avec cet email' });
+    }
+    const user = await User.create({ name, email, phone, password, role: 'client' });
+    const token = signToken(user._id);
+    res.cookie('token', token, cookieOptions());
+    res.status(201).json({ success: true, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { login, register, clientRegister, getMe, logout, seedAdmin, emergencyAccess };

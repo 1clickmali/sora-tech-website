@@ -66,7 +66,11 @@ const commandeSchema = new mongoose.Schema({
   },
 
   notes: { type: String },
-  facturePublicToken: { type: String }, // token public du document Facture lié
+  facturePublicToken: { type: String },
+  clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  refundRequested: { type: Boolean, default: false },
+  refundReason: { type: String },
+  refundRequestedAt: { type: Date },
 
   timeline: [timelineSchema],
 }, { timestamps: true });

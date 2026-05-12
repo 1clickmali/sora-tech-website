@@ -63,11 +63,12 @@ export default function DevisPage() {
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [rdvType, setRdvType] = useState<'presentiel' | 'visio'>('visio');
   const [calendarMonth, setCalendarMonth] = useState(() => new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(() => new Date().getFullYear());
 
   const services: Service[] = [
-    { id: "web",   icon: Globe,      name: isFr ? "Site web" : "Website", basePrice: 400000,  baseDays: 21, color: "#0099FF" },
+    { id: "web",   icon: Globe,      name: isFr ? "Site web" : "Website", basePrice: 200000,  baseDays: 3, color: "#0099FF" },
     { id: "soft",  icon: Monitor,    name: isFr ? "Logiciel gestion" : "Management software", basePrice: 700000,  baseDays: 45, color: "#FF6B00" },
     { id: "app",   icon: Smartphone, name: isFr ? "App mobile" : "Mobile app", basePrice: 1000000, baseDays: 60, color: "#00C48C" },
     { id: "erp",   icon: Settings,   name: isFr ? "ERP complet" : "Full ERP", basePrice: 2000000, baseDays: 90, color: "#9B93FF" },
@@ -76,12 +77,12 @@ export default function DevisPage() {
   ];
 
   const availableOptions = [
-    { id: "mm",     name: isFr ? "Paiement Mobile Money" : "Mobile Money payment", price: 100000 },
-    { id: "multi",  name: isFr ? "Multilingue (FR/EN)" : "Multilingual (FR/EN)", price: 80000  },
-    { id: "client", name: isFr ? "Espace client sécurisé" : "Secure client area", price: 150000 },
-    { id: "seo",    name: isFr ? "Optimisation SEO avancée" : "Advanced SEO optimization", price: 60000  },
-    { id: "wa",     name: isFr ? "Chat WhatsApp intégré" : "Integrated WhatsApp chat", price: 50000  },
-    { id: "form",   name: isFr ? "Formation équipe (4h)" : "Team training (4h)", price: 120000 },
+    { id: "mm",     name: isFr ? "Paiement Mobile Money" : "Mobile Money payment", price: 50000 },
+    { id: "multi",  name: isFr ? "Multilingue (FR/EN)" : "Multilingual (FR/EN)",  price: 50000 },
+    { id: "client", name: isFr ? "Espace client sécurisé" : "Secure client area",  price: 50000 },
+    { id: "seo",    name: isFr ? "Optimisation SEO avancée" : "Advanced SEO optimization", price: 50000 },
+    { id: "wa",     name: isFr ? "Chat WhatsApp intégré" : "Integrated WhatsApp chat", price: 50000 },
+    { id: "form",   name: isFr ? "Formation équipe (4h)" : "Team training (4h)",   price: 50000 },
   ];
 
   // Generate calendar days dynamically
@@ -158,7 +159,6 @@ export default function DevisPage() {
     { time: "15:00" },
     { time: "16:00" },
     { time: "17:00", booked: true },
-    { time: "Visio" },
   ];
 
   const formatPrice = (n: number) => n.toLocaleString(lang === "fr" ? "fr-FR" : "en-US").replace(/,/g, " ");
@@ -188,6 +188,7 @@ export default function DevisPage() {
           estimatedDays: totalDays,
           rdvDate: selectedDate,
           rdvSlot: selectedSlot,
+          rdvType,
       });
       setSubmitted(true);
       return true;
@@ -298,7 +299,7 @@ export default function DevisPage() {
                       <div className="text-base font-bold mb-1" style={{ color: selectedService?.id === s.id ? s.color : "#fff" }}>
                         {s.name}
                       </div>
-                      <div className="text-xs text-[#8899BB]">{isFr ? "Dès" : "From"} {formatPrice(s.basePrice / 2)} F</div>
+                      <div className="text-xs text-[#8899BB]">{isFr ? "Dès" : "From"} {formatPrice(s.basePrice)} F</div>
                     </motion.button>
                   ))}
                 </div>
@@ -461,6 +462,26 @@ export default function DevisPage() {
                           </button>
                         ))}
                       </div>
+                      <div className="mt-4 pt-4 border-t border-[#1a2540]">
+                        <div className="text-xs font-bold text-[#0099FF] mb-3">{isFr ? "Type de rendez-vous" : "Meeting type"}</div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => setRdvType('visio')}
+                            className={`py-2.5 rounded-lg text-xs font-bold transition border ${rdvType === 'visio' ? 'bg-[#0066FF] text-white border-transparent' : 'border-[#1a2540] text-[#8899BB] hover:border-[#0066FF]'}`}
+                          >
+                            📹 {isFr ? "Vidéo conférence" : "Video call"}
+                          </button>
+                          <button
+                            onClick={() => setRdvType('presentiel')}
+                            className={`py-2.5 rounded-lg text-xs font-bold transition border ${rdvType === 'presentiel' ? 'bg-[#0066FF] text-white border-transparent' : 'border-[#1a2540] text-[#8899BB] hover:border-[#0066FF]'}`}
+                          >
+                            🏢 Présentiel
+                          </button>
+                        </div>
+                        {rdvType === 'presentiel' && (
+                          <p className="text-[10px] text-[#8899BB] mt-2">📍 Cocody, Angré 8ème, Abidjan</p>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -488,6 +509,7 @@ export default function DevisPage() {
                         <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Service" : "Service"}</span><span className="font-bold">{selectedService.name}</span></div>
                         <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Date" : "Date"}</span><span className="font-bold">{selectedDate}</span></div>
                         <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Heure" : "Time"}</span><span className="font-bold font-mono">{selectedSlot}</span></div>
+                        <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Format" : "Format"}</span><span className="font-bold">{rdvType === 'visio' ? '📹 Vidéo conférence' : '🏢 Présentiel'}</span></div>
                         <div className="flex justify-between"><span className="text-[#8899BB]">{isFr ? "Durée" : "Duration"}</span><span className="font-bold">45 min</span></div>
                         <div className="flex justify-between pt-2 border-t border-[#1a2540]">
                           <span className="text-[#8899BB] text-xs uppercase tracking-wide">{isFr ? "Devis estimé" : "Estimated quote"}</span>
@@ -558,7 +580,7 @@ export default function DevisPage() {
                       <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Détails du RDV" : "Meeting details"} : {selectedDate} {isFr ? "à" : "at"} {selectedSlot}</li>
                       <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Devis préliminaire" : "Preliminary quote"} : {formatPrice(totalPrice)} FCFA</li>
                       <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Fiche de configuration" : "Configuration sheet"}</li>
-                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{isFr ? "Adresse + lien visio" : "Address + video link"}</li>
+                      <li className="flex items-center gap-2 text-xs text-[#8899BB]"><CheckCircle className="w-3 h-3 text-[#00C48C] shrink-0" />{rdvType === 'visio' ? (isFr ? "Lien de vidéo conférence" : "Video conference link") : (isFr ? "Adresse : Cocody, Angré 8ème" : "Address: Cocody, Angré 8ème")}</li>
                     </ul>
                   </div>
                   <div className="rounded-2xl p-5 text-left border border-[#25D366]" style={{ background: "var(--card)" }}>

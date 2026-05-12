@@ -7,7 +7,7 @@ interface Devis {
   clientPhone: string; clientCompany?: string; serviceType: string;
   message?: string; complexity?: number; modules?: number;
   options?: Record<string, boolean>; estimatedPrice?: number;
-  estimatedDays?: number; rdvDate?: string; rdvSlot?: string;
+  estimatedDays?: number; rdvDate?: string; rdvSlot?: string; rdvType?: string;
   status: string; createdAt: string;
 }
 
@@ -264,7 +264,7 @@ export default function DevisPage() {
               {(selected.rdvDate || selected.rdvSlot) && (
                 <section>
                   <h3 className="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3">📅 Rendez-vous</h3>
-                  <div className="rounded-xl p-4 flex items-center gap-6" style={{ background: '#060D1F', border: '1px solid #1E2D4A' }}>
+                  <div className="rounded-xl p-4 flex items-center gap-6 flex-wrap" style={{ background: '#060D1F', border: '1px solid #1E2D4A' }}>
                     <div>
                       <div className="text-[10px] text-gray-500 uppercase mb-0.5">Date</div>
                       <div className="text-sm text-white font-semibold">{selected.rdvDate || '—'}</div>
@@ -272,6 +272,12 @@ export default function DevisPage() {
                     <div>
                       <div className="text-[10px] text-gray-500 uppercase mb-0.5">Heure</div>
                       <div className="text-sm text-cyan-400 font-mono font-bold">{selected.rdvSlot || '—'}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-gray-500 uppercase mb-0.5">Format</div>
+                      <div className="text-sm text-white font-semibold">
+                        {selected.rdvType === 'presentiel' ? '🏢 Présentiel' : '📹 Vidéo conférence'}
+                      </div>
                     </div>
                   </div>
                 </section>

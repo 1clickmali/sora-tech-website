@@ -162,30 +162,107 @@ const sendDevisConfirmation = async (devis) => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
   const transporter = createTransporter();
   const serviceNames = { web: 'Site web', soft: 'Logiciel de gestion', app: 'Application mobile', erp: 'ERP complet', cyber: 'Cybersécurité', maint: 'Maintenance' };
+  const optionNames = { mm: 'Paiement Mobile Money', multi: 'Multilingue (FR/EN)', client: 'Espace client sécurisé', seo: 'Optimisation SEO avancée', wa: 'Chat WhatsApp intégré', form: 'Formation équipe (4h)' };
+  const rdvTypeLabel = devis.rdvType === 'presentiel' ? '🏢 Présentiel — Cocody, Angré 8ème, Abidjan' : '📹 Vidéo conférence';
+  const complexityLabel = ['Simple', 'Moyen', 'Complexe'][(devis.complexity || 1) - 1] || 'Simple';
+  const selectedOptions = devis.options ? Object.entries(devis.options).filter(([, v]) => v) : [];
+  const optionsHtml = selectedOptions.length > 0
+    ? selectedOptions.map(([k]) => `<div class="info-row"><span class="name">+ ${optionNames[k] || k}</span><span class="price">+ 50 000 F</span></div>`).join('')
+    : `<div style="color:#8899BB;font-size:12px;padding:6px 0">Aucune option supplémentaire</div>`;
 
   const html = baseTemplate(`
-    <h2 style="color:#fff;font-size:20px;margin-bottom:8px">📋 Devis reçu !</h2>
+    <h2 style="color:#fff;font-size:20px;margin-bottom:8px">📋 Demande de devis reçue !</h2>
     <p class="greeting">Bonjour <strong>${devis.clientName}</strong>,</p>
     <p style="font-size:13px;color:#8899BB;margin-bottom:20px">
-      Nous avons bien reçu votre demande. Un expert vous contactera dans les <strong style="color:#0099FF">24 heures</strong>.
+      Nous avons bien reçu votre demande. Un expert vous contactera dans les <strong style="color:#0099FF">24 heures</strong>. Voici votre récapitulatif complet :
     </p>
+
     <div class="info-card">
-      <div class="label">Référence</div><div class="value">${devis.reference}</div>
-      <div style="margin-top:10px" class="label">Service demandé</div>
-      <div class="value">${serviceNames[devis.serviceType] || devis.serviceType}</div>
-      <div style="margin-top:10px" class="label">RDV prévu</div>
-      <div class="value">📅 ${devis.rdvDate} à ${devis.rdvSlot}</div>
-      <div style="margin-top:10px" class="label">Estimation préliminaire</div>
-      <div class="value" style="color:#0099FF">${devis.estimatedPrice?.toLocaleString('fr-FR')} FCFA — ${devis.estimatedDays} jours</div>
+      <div class="label">Référence devis</div><div class="value">${devis.reference}</div>
     </div>
+
+    <div style="margin:20px 0">
+      <div style="font-size:11px;color:#8899BB;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Détail du projet</div>
+      <div class="info-row">
+        <span class="name">Service : ${serviceNames[devis.serviceType] || devis.serviceType}</span>
+        <span class="price" style="color:#8899BB">—</span>
+      </div>
+      <div class="info-row">
+        <span class="name">Complexité : ${complexityLabel}</span>
+        <span class="price" style="color:#8899BB">—</span>
+      </div>
+      <div class="info-row">
+        <span class="name">Modules : ${devis.modules || 1}</span>
+        <span class="price" style="color:#8899BB">—</span>
+      </div>
+      ${optionsHtml}
+      <div class="divider"></div>
+      <div class="total-row">
+        <span class="name">ESTIMATION TOTALE</span>
+        <span class="price">${devis.estimatedPrice?.toLocaleString('fr-FR')} FCFA</span>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="label">📅 Rendez-vous prévu</div>
+      <div class="value" style="color:#0099FF;font-size:16px">${devis.rdvDate} à ${devis.rdvSlot}</div>
+      <div style="margin-top:8px" class="label">Format</div>
+      <div class="value">${rdvTypeLabel}</div>
+      <div style="margin-top:8px" class="label">Délai de réalisation estimé</div>
+      <div class="value">${devis.estimatedDays} jours ouvrés</div>
+    </div>
+
+    <p style="font-size:11px;color:#8899BB;margin-top:12px">
+      * Cette estimation est automatique. Le devis définitif sera établi lors de votre rendez-vous.
+    </p>
   `, { ctaUrl: 'https://wa.me/2250704928068', ctaLabel: '💬 Nous contacter sur WhatsApp' });
 
   await transporter.sendMail({
     from: `"SORA TECH" <${process.env.EMAIL_USER}>`,
     to: devis.clientEmail,
-    subject: `📋 Devis ${devis.reference} — SORA TECH`,
+    subject: `📋 Devis ${devis.reference} — ${serviceNames[devis.serviceType] || devis.serviceType} | SORA TECH`,
     html,
   });
+  console.log(`[Email] Confirmation devis envoyée à ${devis.clientEmail}`);
+};
+
+const sendRdvAccepteEmail = async (devis) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
+  const transporter = createTransporter();
+  const serviceNames = { web: 'Site web', soft: 'Logiciel de gestion', app: 'Application mobile', erp: 'ERP complet', cyber: 'Cybersécurité', maint: 'Maintenance' };
+  const rdvTypeLabel = devis.rdvType === 'presentiel' ? '🏢 Présentiel — Cocody, Angré 8ème, Abidjan' : '📹 Vidéo conférence (lien envoyé par WhatsApp)';
+
+  const html = baseTemplate(`
+    <h2 style="color:#00C48C;font-size:20px;margin-bottom:8px">✅ RDV confirmé par SORA TECH !</h2>
+    <p class="greeting">Bonjour <strong>${devis.clientName}</strong>,</p>
+    <p style="font-size:13px;color:#8899BB;margin-bottom:20px">
+      Votre rendez-vous avec notre équipe a été <strong style="color:#00C48C">confirmé</strong>. Notez bien les informations ci-dessous :
+    </p>
+    <div class="info-card">
+      <div class="label">Référence devis</div><div class="value">${devis.reference}</div>
+      <div style="margin-top:10px" class="label">Service</div>
+      <div class="value">${serviceNames[devis.serviceType] || devis.serviceType}</div>
+      <div style="margin-top:10px" class="label">📅 Date du RDV</div>
+      <div class="value" style="color:#0099FF;font-size:18px;font-weight:900">${devis.rdvDate}</div>
+      <div style="margin-top:10px" class="label">🕐 Heure</div>
+      <div class="value" style="font-family:monospace;font-size:18px;color:#0099FF;font-weight:900">${devis.rdvSlot}</div>
+      <div style="margin-top:10px" class="label">📍 Format</div>
+      <div class="value">${rdvTypeLabel}</div>
+      <div style="margin-top:10px" class="label">💰 Estimation validée</div>
+      <div class="value" style="color:#0099FF">${devis.estimatedPrice?.toLocaleString('fr-FR')} FCFA</div>
+    </div>
+    <p style="font-size:12px;color:#8899BB;margin-top:16px">
+      En cas d'empêchement, contactez-nous au plus tôt pour reporter votre RDV.
+    </p>
+  `, { ctaUrl: 'https://wa.me/2250704928068', ctaLabel: '💬 Contacter sur WhatsApp' });
+
+  await transporter.sendMail({
+    from: `"SORA TECH" <${process.env.EMAIL_USER}>`,
+    to: devis.clientEmail,
+    subject: `✅ RDV confirmé — ${devis.rdvDate} à ${devis.rdvSlot} | SORA TECH`,
+    html,
+  });
+  console.log(`[Email] Confirmation RDV envoyée à ${devis.clientEmail}`);
 };
 
 const sendContactConfirmation = async (contact) => {
@@ -290,9 +367,11 @@ const verifyEmailConfig = () => {
 module.exports = {
   sendCommandeConfirmation,
   sendDevisConfirmation,
+  sendRdvAccepteEmail,
   sendContactConfirmation,
   notifyAdminNewCommande,
   notifyAdminNewDevis,
   notifyAdminNewContact,
+  notifyAdmin,
   verifyEmailConfig,
 };

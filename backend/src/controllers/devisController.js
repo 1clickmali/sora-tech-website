@@ -1,5 +1,5 @@
 const Devis = require('../models/Devis');
-const { sendDevisConfirmation, notifyAdminNewDevis } = require('../utils/email');
+const { sendDevisConfirmation, sendRdvAccepteEmail, notifyAdminNewDevis } = require('../utils/email');
 const { sendDevisWhatsApp } = require('../utils/whatsapp');
 const upsertContact = require('../utils/upsertContact');
 
@@ -61,8 +61,12 @@ const createDevis = async (req, res) => {
 
 const updateDevis = async (req, res) => {
   try {
+    const old = await Devis.findById(req.params.id);
+    if (!old) return res.status(404).json({ success: false, message: 'Devis introuvable' });
     const devis = await Devis.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!devis) return res.status(404).json({ success: false, message: 'Devis introuvable' });
+    if (req.body.status === 'accepte' && old.status !== 'accepte') {
+      sendRdvAccepteEmail(devis).catch(e => console.error('[Email RDV accepte]', e.message));
+    }
     res.json({ success: true, data: devis });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });

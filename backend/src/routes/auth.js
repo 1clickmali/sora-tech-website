@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-const { login, register, getMe, logout, seedAdmin, emergencyAccess } = require('../controllers/authController');
+const { login, register, clientRegister, getMe, logout, seedAdmin, emergencyAccess } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { atLeast } = require('../middleware/role');
 
@@ -24,6 +24,7 @@ router.post('/login', (req, res, next) => {
 }, validateLogin, handleValidationErrors, login);
 
 router.post('/register', protect, atLeast('admin'), register);
+router.post('/client-register', clientRegister); // inscription publique client
 router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);
 
